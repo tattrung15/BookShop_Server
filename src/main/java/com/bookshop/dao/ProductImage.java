@@ -26,8 +26,11 @@ public class ProductImage implements Serializable {
 	@Column(name = "productImage_id")
 	private Long id;
 
-	@Column(name = "path", nullable = false)
-	private String path;
+	@Column(name = "link", nullable = false)
+	private String link;
+
+	@Column(name = "public_id", nullable = false)
+	private String publicId;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id")
@@ -42,9 +45,10 @@ public class ProductImage implements Serializable {
 	public ProductImage() {
 	}
 
-	public ProductImage(Long id, String path, Product product, Timestamp createAt, Timestamp updateAt) {
+	public ProductImage(Long id, String link, String publicId, Product product, Timestamp createAt, Timestamp updateAt) {
 		this.id = id;
-		this.path = path;
+		this.link = link;
+		this.publicId = publicId;
 		this.product = product;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
@@ -58,12 +62,20 @@ public class ProductImage implements Serializable {
 		this.id = id;
 	}
 
-	public String getPath() {
-		return this.path;
+	public String getLink() {
+		return this.link;
 	}
 
-	public void setPath(String path) {
-		this.path = path;
+	public void setLink(String link) {
+		this.link = link;
+	}
+
+	public String getPublicId() {
+		return this.publicId;
+	}
+
+	public void setPublicId(String publicId) {
+		this.publicId = publicId;
 	}
 
 	public Product getProduct() {
