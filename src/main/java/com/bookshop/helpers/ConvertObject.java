@@ -63,11 +63,14 @@ public class ConvertObject {
     public static Product fromProductDTOToProductDAO(ProductDTO productDTO) {
         Product product = new Product();
         product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
-        product.setShortDescription(productDTO.getShortDescription().trim().replaceAll("\\s+", " "));
-        product.setLongDescription(productDTO.getLongDescription().trim().replaceAll("\\s+", " "));
+        if (productDTO.getShortDescription() != null) {
+            product.setShortDescription(productDTO.getShortDescription().trim().replaceAll("\\s+", " "));
+        }
+        product.setLongDescription(productDTO.getLongDescription().trim());
         product.setPrice(productDTO.getPrice());
         product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
         product.setCurrentNumber(productDTO.getCurrentNumber());
+        product.setNumberOfPage(productDTO.getNumberOfPage());
         product.setSlug(toSlug(productDTO.getTitle()));
         return product;
     }

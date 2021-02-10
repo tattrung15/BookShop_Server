@@ -15,11 +15,13 @@ public class ProductDTO {
 
     private Integer currentNumber;
 
+    private Integer numberOfPage;
+
     public ProductDTO() {
     }
 
     public ProductDTO(String title, String shortDescription, String longDescription, Long categoryId, Long price,
-            String author, Integer currentNumber) {
+            String author, Integer currentNumber, Integer numberOfPage) {
         this.title = title;
         this.shortDescription = shortDescription;
         this.longDescription = longDescription;
@@ -27,6 +29,7 @@ public class ProductDTO {
         this.price = price;
         this.author = author;
         this.currentNumber = currentNumber;
+        this.numberOfPage = numberOfPage;
     }
 
     public String getTitle() {
@@ -83,5 +86,13 @@ public class ProductDTO {
 
     public void setCurrentNumber(Integer currentNumber) {
         this.currentNumber = currentNumber;
+    }
+
+    public Integer getNumberOfPage() {
+        return this.numberOfPage;
+    }
+
+    public void setNumberOfPage(Integer numberOfPage) {
+        this.numberOfPage = numberOfPage;
     }
 }
