@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Product")
@@ -43,6 +44,7 @@ public class Product implements Serializable {
 
 	@Nationalized
 	@Column(name = "long_description", nullable = false)
+	@Length(max = 1000)
 	private String longDescription;
 
 	@ManyToOne
@@ -71,6 +73,9 @@ public class Product implements Serializable {
 	@Column(name = "current_number", nullable = false)
 	private Integer currentNumber;
 
+	@Column(name = "number_of_page", nullable = false)
+	private Integer numberOfPage;
+
 	@Column(name = "slug", nullable = false)
 	private String slug;
 
@@ -83,7 +88,10 @@ public class Product implements Serializable {
 	public Product() {
 	}
 
-	public Product(Long id, String title, String shortDescription, String longDescription, Category category, List<ProductImage> productImages, List<OrderItem> orderItems, Long price, String author, Integer currentNumber, String slug, Timestamp createAt, Timestamp updateAt) {
+	public Product(Long id, String title, String shortDescription, String longDescription, Category category,
+			List<ProductImage> productImages, List<OrderItem> orderItems, List<ProductRating> productRatings,
+			Long price, String author, Integer currentNumber, Integer numberOfPage, String slug, Timestamp createAt,
+			Timestamp updateAt) {
 		this.id = id;
 		this.title = title;
 		this.shortDescription = shortDescription;
@@ -91,9 +99,11 @@ public class Product implements Serializable {
 		this.category = category;
 		this.productImages = productImages;
 		this.orderItems = orderItems;
+		this.productRatings = productRatings;
 		this.price = price;
 		this.author = author;
 		this.currentNumber = currentNumber;
+		this.numberOfPage = numberOfPage;
 		this.slug = slug;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
@@ -185,6 +195,14 @@ public class Product implements Serializable {
 
 	public void setCurrentNumber(Integer currentNumber) {
 		this.currentNumber = currentNumber;
+	}
+
+	public Integer getNumberOfPage() {
+		return this.numberOfPage;
+	}
+
+	public void setNumberOfPage(Integer numberOfPage) {
+		this.numberOfPage = numberOfPage;
 	}
 
 	public String getSlug() {
