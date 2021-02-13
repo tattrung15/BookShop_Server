@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,6 +84,7 @@ public class ProductImageController {
     }
 
     @PostMapping
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
     public ResponseEntity<?> createNewImages(@RequestParam("productId") Long productId,
             @RequestParam("files") MultipartFile[] files) throws IOException {
         List<ProductImage> productImages = new ArrayList<>();
@@ -104,6 +106,7 @@ public class ProductImageController {
     }
 
     @PatchMapping
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
     public ResponseEntity<?> editProductImageByProductId(@RequestParam("productId") Long productId,
             @RequestParam(name = "files") MultipartFile[] files) throws IOException {
 
@@ -164,6 +167,7 @@ public class ProductImageController {
     }
 
     @DeleteMapping("/{imageId}")
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable("imageId") Long imageId) throws IOException {
         Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
         if (!optionalProductImage.isPresent()) {
