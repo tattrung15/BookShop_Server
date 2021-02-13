@@ -38,4 +38,10 @@ public class CustomExceptionHandler {
     public ErrorResponse handleForbiddenException(ForbiddenException ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
+
+    @ExceptionHandler(LoginException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleLoginException(LoginException ex, WebRequest req) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+    }
 }
