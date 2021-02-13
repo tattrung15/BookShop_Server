@@ -1,7 +1,9 @@
 package com.bookshop.controllers;
 
+import com.bookshop.dao.User;
 import com.bookshop.models.AuthenticationRequest;
 import com.bookshop.models.AuthenticationResponse;
+import com.bookshop.repositories.UserRepository;
 import com.bookshop.services.MyUserDetailsService;
 import com.bookshop.utils.JwtUtil;
 
@@ -29,6 +31,9 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         try {
@@ -39,6 +44,7 @@ public class AuthController {
         }
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        User user = userRepository.findByUsername(authenticationRequest.getUsername());
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getId(), user.getUsername()));
     }
 }
