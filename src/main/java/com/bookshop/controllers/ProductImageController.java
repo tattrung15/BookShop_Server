@@ -12,7 +12,6 @@ import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.repositories.ProductImageRepository;
 import com.bookshop.repositories.ProductRepository;
 import com.cloudinary.Cloudinary;
-import com.cloudinary.Uploader;
 import com.cloudinary.utils.ObjectUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
