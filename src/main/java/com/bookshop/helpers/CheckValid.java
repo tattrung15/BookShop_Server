@@ -8,7 +8,7 @@ import com.bookshop.exceptions.InvalidException;
 
 public class CheckValid {
     private static final String regexUsername = "^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$";
-    private static final String regexPassword = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+    private static final String regexPassword = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,}$";
     private static final String regexEmail = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
     private static final String regexPhone = "^[0-9\\-\\+]{9,15}$";
 
