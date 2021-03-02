@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/categories")
+@Transactional(rollbackFor = Exception.class)
 public class CategoryController {
 
     @Autowired
@@ -105,7 +107,7 @@ public class CategoryController {
 
     @DeleteMapping("/{categoryId}")
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable("categoryId") Long categoryId) {
+    public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
         if (!optionalCategory.isPresent()) {
             throw new NotFoundException("Category not found");
