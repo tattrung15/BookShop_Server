@@ -168,7 +168,7 @@ public class ProductImageController {
 
     @DeleteMapping("/{imageId}")
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable("imageId") Long imageId) throws IOException {
+    public ResponseEntity<?> deleteProductImage(@PathVariable("imageId") Long imageId) throws IOException {
         Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
         if (!optionalProductImage.isPresent()) {
             throw new NotFoundException("Product Image not found");
