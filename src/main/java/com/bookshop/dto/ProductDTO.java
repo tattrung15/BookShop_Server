@@ -2,9 +2,7 @@ package com.bookshop.dto;
 
 public class ProductDTO {
     private String title;
-
-    private String shortDescription;
-
+    
     private String longDescription;
 
     private Long categoryId;
@@ -20,10 +18,9 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(String title, String shortDescription, String longDescription, Long categoryId, Long price,
+    public ProductDTO(String title, String longDescription, Long categoryId, Long price,
             String author, Integer currentNumber, Integer numberOfPage) {
         this.title = title;
-        this.shortDescription = shortDescription;
         this.longDescription = longDescription;
         this.categoryId = categoryId;
         this.price = price;
@@ -38,14 +35,6 @@ public class ProductDTO {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getShortDescription() {
-        return this.shortDescription;
-    }
-
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
     }
 
     public String getLongDescription() {
