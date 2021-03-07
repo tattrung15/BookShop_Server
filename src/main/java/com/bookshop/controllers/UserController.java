@@ -33,104 +33,104 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/users")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    @GetMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> getAllUsers(@RequestParam(name = "page", required = false) Integer pageNum) {
-        if (pageNum != null) {
-            Page<User> page = userRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
-            if (page.getNumberOfElements() == 0) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-            }
-            return ResponseEntity.ok().body(page.getContent());
-        }
-        List<User> users = userRepository.findAll();
-        if (users.size() == 0) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok().body(users);
-    }
+	@GetMapping
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> getAllUsers(@RequestParam(name = "page", required = false) Integer pageNum) {
+		if (pageNum != null) {
+			Page<User> page = userRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			if (page.getNumberOfElements() == 0) {
+				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			}
+			return ResponseEntity.ok().body(page.getContent());
+		}
+		List<User> users = userRepository.findAll();
+		if (users.size() == 0) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok().body(users);
+	}
 
-    @GetMapping("/{userId}")
-    @PreAuthorize("@userAuthorizer.authorizeGetUserById(authentication, 'ADMIN', #userId)")
-    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new NotFoundException("User not found");
-        }
-        return ResponseEntity.ok().body(user);
-    }
+	@GetMapping("/{userId}")
+	@PreAuthorize("@userAuthorizer.authorizeGetUserById(authentication, 'ADMIN', #userId)")
+	public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
+		Optional<User> user = userRepository.findById(userId);
+		if (!user.isPresent()) {
+			throw new NotFoundException("User not found");
+		}
+		return ResponseEntity.ok().body(user);
+	}
 
-    @PostMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> createNewUser(@RequestBody UserDTO userDTO) {
-        User oldUser = userRepository.findByUsername(userDTO.getUsername());
-        if (oldUser != null) {
-            throw new DuplicateRecordException("Username has already exists");
-        }
-        if (CheckValid.isUser(userDTO)) {
-            User user = ConvertObject.fromUserDTOToUserDAO(userDTO);
+	@PostMapping
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> createNewUser(@RequestBody UserDTO userDTO) {
+		User oldUser = userRepository.findByUsername(userDTO.getUsername());
+		if (oldUser != null) {
+			throw new DuplicateRecordException("Username has already exists");
+		}
+		if (CheckValid.isUser(userDTO)) {
+			User user = ConvertObject.fromUserDTOToUserDAO(userDTO);
 
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            User newUser = userRepository.save(user);
+			user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+			User newUser = userRepository.save(user);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
-        }
-        throw new InvalidException("Invalid user");
-    }
+			return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+		}
+		throw new InvalidException("Invalid user");
+	}
 
-    @PatchMapping("/{userId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> editUser(@RequestBody UserDTO userDTO, @PathVariable("userId") Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (!optionalUser.isPresent()) {
-            throw new NotFoundException("User not found");
-        }
-        User user = optionalUser.get();
+	@PatchMapping("/{userId}")
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> editUser(@RequestBody UserDTO userDTO, @PathVariable("userId") Long userId) {
+		Optional<User> optionalUser = userRepository.findById(userId);
+		if (!optionalUser.isPresent()) {
+			throw new NotFoundException("User not found");
+		}
+		User user = optionalUser.get();
 
-        if (userDTO.getFirstName() != null) {
-            user.setFirstName(userDTO.getFirstName());
-        }
-        if (userDTO.getLastName() != null) {
-            user.setLastName(userDTO.getLastName());
-        }
-        if (userDTO.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        }
-        if (userDTO.getAddress() != null) {
-            user.setAddress(userDTO.getAddress());
-        }
-        if (userDTO.getAmount() != null) {
-            user.setAmount(userDTO.getAmount());
-        }
-        if (userDTO.getRole() != null) {
-            user.setRole(userDTO.getRole());
-        }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
-        }
-        if (userDTO.getPhone() != null) {
-            user.setPhone(userDTO.getPhone());
-        }
-        userRepository.save(user);
+		if (userDTO.getFirstName() != null) {
+			user.setFirstName(userDTO.getFirstName());
+		}
+		if (userDTO.getLastName() != null) {
+			user.setLastName(userDTO.getLastName());
+		}
+		if (userDTO.getPassword() != null) {
+			user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+		}
+		if (userDTO.getAddress() != null) {
+			user.setAddress(userDTO.getAddress());
+		}
+		if (userDTO.getAmount() != null) {
+			user.setAmount(userDTO.getAmount());
+		}
+		if (userDTO.getRole() != null) {
+			user.setRole(userDTO.getRole());
+		}
+		if (userDTO.getEmail() != null) {
+			user.setEmail(userDTO.getEmail());
+		}
+		if (userDTO.getPhone() != null) {
+			user.setPhone(userDTO.getPhone());
+		}
+		userRepository.save(user);
 
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
+		return ResponseEntity.status(HttpStatus.OK).body(user);
+	}
 
-    @DeleteMapping("/{userId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (!optionalUser.isPresent()) {
-            throw new NotFoundException("User not found");
-        }
-        userRepository.deleteById(userId);
+	@DeleteMapping("/{userId}")
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
+		Optional<User> optionalUser = userRepository.findById(userId);
+		if (!optionalUser.isPresent()) {
+			throw new NotFoundException("User not found");
+		}
+		userRepository.deleteById(userId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(optionalUser.get());
-    }
+		return ResponseEntity.status(HttpStatus.OK).body(optionalUser.get());
+	}
 }

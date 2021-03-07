@@ -32,88 +32,88 @@ import org.springframework.web.bind.annotation.RestController;
 @Transactional(rollbackFor = Exception.class)
 public class CategoryController {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
 
-    @GetMapping
-    public ResponseEntity<?> getAllCategories(@RequestParam(name = "page", required = false) Integer pageNum) {
-        if (pageNum != null) {
-            Page<Category> page = categoryRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
-            if (page.getNumberOfElements() == 0) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok().body(page.getContent());
-        }
-        List<Category> categories = categoryRepository.findAll();
-        if (categories.size() == 0) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok().body(categories);
-    }
+	@GetMapping
+	public ResponseEntity<?> getAllCategories(@RequestParam(name = "page", required = false) Integer pageNum) {
+		if (pageNum != null) {
+			Page<Category> page = categoryRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			if (page.getNumberOfElements() == 0) {
+				return ResponseEntity.noContent().build();
+			}
+			return ResponseEntity.ok().body(page.getContent());
+		}
+		List<Category> categories = categoryRepository.findAll();
+		if (categories.size() == 0) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok().body(categories);
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryBySlug(@PathVariable("id") Object id) {
-        Category category;
-        try {
-            Long categoryId = Long.parseLong((String) id);
-            category = categoryRepository.findById(categoryId).get();
-        } catch (Exception e) {
-            category = categoryRepository.findBySlug(id.toString());
-        }
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getCategoryBySlug(@PathVariable("id") Object id) {
+		Category category;
+		try {
+			Long categoryId = Long.parseLong((String) id);
+			category = categoryRepository.findById(categoryId).get();
+		} catch (Exception e) {
+			category = categoryRepository.findBySlug(id.toString());
+		}
 
-        if (category == null) {
-            throw new NotFoundException("Category not found");
-        }
-        return ResponseEntity.ok().body(category);
-    }
+		if (category == null) {
+			throw new NotFoundException("Category not found");
+		}
+		return ResponseEntity.ok().body(category);
+	}
 
-    @PostMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> createNewCategory(@RequestBody CategoryDTO categoryDTO) {
-        Category oldCategory = categoryRepository.findBySlug(ConvertObject.toSlug(categoryDTO.getName()));
-        if (oldCategory != null) {
-            throw new DuplicateRecordException("Category has already exists");
-        }
-        Category category = ConvertObject.fromCategoryDTOToCategoryDAO(categoryDTO);
+	@PostMapping
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> createNewCategory(@RequestBody CategoryDTO categoryDTO) {
+		Category oldCategory = categoryRepository.findBySlug(ConvertObject.toSlug(categoryDTO.getName()));
+		if (oldCategory != null) {
+			throw new DuplicateRecordException("Category has already exists");
+		}
+		Category category = ConvertObject.fromCategoryDTOToCategoryDAO(categoryDTO);
 
-        Category newCategory = categoryRepository.save(category);
+		Category newCategory = categoryRepository.save(category);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
-    }
+		return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
+	}
 
-    @PatchMapping("/{categoryId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> editUser(@RequestBody CategoryDTO categoryDTO,
-            @PathVariable("categoryId") Long categoryId) {
-        Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+	@PatchMapping("/{categoryId}")
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> editUser(@RequestBody CategoryDTO categoryDTO,
+			@PathVariable("categoryId") Long categoryId) {
+		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
 
-        if (!optionalCategory.isPresent()) {
-            throw new NotFoundException("Category not found");
-        }
-        Category category = optionalCategory.get();
+		if (!optionalCategory.isPresent()) {
+			throw new NotFoundException("Category not found");
+		}
+		Category category = optionalCategory.get();
 
-        if (categoryDTO.getName() != null) {
-            category.setName(categoryDTO.getName());
-            category.setSlug(ConvertObject.toSlug(categoryDTO.getName()));
-        }
-        if (categoryDTO.getDescription() != null) {
-            category.setDescription(categoryDTO.getDescription());
-        }
+		if (categoryDTO.getName() != null) {
+			category.setName(categoryDTO.getName());
+			category.setSlug(ConvertObject.toSlug(categoryDTO.getName()));
+		}
+		if (categoryDTO.getDescription() != null) {
+			category.setDescription(categoryDTO.getDescription());
+		}
 
-        categoryRepository.save(category);
+		categoryRepository.save(category);
 
-        return ResponseEntity.status(HttpStatus.OK).body(category);
-    }
+		return ResponseEntity.status(HttpStatus.OK).body(category);
+	}
 
-    @DeleteMapping("/{categoryId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
-        Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-        if (!optionalCategory.isPresent()) {
-            throw new NotFoundException("Category not found");
-        }
-        categoryRepository.deleteById(categoryId);
+	@DeleteMapping("/{categoryId}")
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
+		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+		if (!optionalCategory.isPresent()) {
+			throw new NotFoundException("Category not found");
+		}
+		categoryRepository.deleteById(categoryId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(optionalCategory.get());
-    }
+		return ResponseEntity.status(HttpStatus.OK).body(optionalCategory.get());
+	}
 }

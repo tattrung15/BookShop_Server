@@ -26,112 +26,112 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "SaleOrder")
 public class SaleOrder implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "saleOrder_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "saleOrder_id")
+	private Long id;
 
-    @Nationalized
-    @Column(name = "customerAddress", nullable = false)
-    private String customerAddress;
+	@Nationalized
+	@Column(name = "customerAddress", nullable = false)
+	private String customerAddress;
 
-    @Column(name = "phone", nullable = false)
-    private String phone;
+	@Column(name = "phone", nullable = false)
+	private String phone;
 
-    @Column(name = "total_amount", nullable = false)
-    private Long totalAmount;
+	@Column(name = "total_amount", nullable = false)
+	private Long totalAmount;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
-    @OneToMany(mappedBy = "saleOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<OrderItem> orderItems;
+	@OneToMany(mappedBy = "saleOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<OrderItem> orderItems;
 
-    @CreationTimestamp
-    private Timestamp createAt;
+	@CreationTimestamp
+	private Timestamp createAt;
 
-    @UpdateTimestamp
-    private Timestamp updateAt;
+	@UpdateTimestamp
+	private Timestamp updateAt;
 
-    public SaleOrder() {
-    }
+	public SaleOrder() {
+	}
 
-    public SaleOrder(Long id, String customerAddress, String phone, Long totalAmount, User user, Timestamp createAt,
-            Timestamp updateAt) {
-        this.id = id;
-        this.customerAddress = customerAddress;
-        this.phone = phone;
-        this.totalAmount = totalAmount;
-        this.user = user;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-    }
+	public SaleOrder(Long id, String customerAddress, String phone, Long totalAmount, User user, Timestamp createAt,
+			Timestamp updateAt) {
+		this.id = id;
+		this.customerAddress = customerAddress;
+		this.phone = phone;
+		this.totalAmount = totalAmount;
+		this.user = user;
+		this.createAt = createAt;
+		this.updateAt = updateAt;
+	}
 
-    public Long getId() {
-        return this.id;
-    }
+	public Long getId() {
+		return this.id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getCustomerAddress() {
-        return this.customerAddress;
-    }
+	public String getCustomerAddress() {
+		return this.customerAddress;
+	}
 
-    public void setCustomerAddress(String customerAddress) {
-        this.customerAddress = customerAddress;
-    }
+	public void setCustomerAddress(String customerAddress) {
+		this.customerAddress = customerAddress;
+	}
 
-    public String getPhone() {
-        return this.phone;
-    }
+	public String getPhone() {
+		return this.phone;
+	}
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
-    public Long getTotalAmount() {
-        return this.totalAmount;
-    }
+	public Long getTotalAmount() {
+		return this.totalAmount;
+	}
 
-    public void setTotalAmount(Long totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+	public void setTotalAmount(Long totalAmount) {
+		this.totalAmount = totalAmount;
+	}
 
-    public User getUser() {
-        return this.user;
-    }
+	public User getUser() {
+		return this.user;
+	}
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+	public void setUser(User user) {
+		this.user = user;
+	}
 
-    public List<OrderItem> getOrderItems() {
-        return this.orderItems;
-    }
+	public List<OrderItem> getOrderItems() {
+		return this.orderItems;
+	}
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
-    }
+	public void setOrderItems(List<OrderItem> orderItems) {
+		this.orderItems = orderItems;
+	}
 
-    public Timestamp getCreateAt() {
-        return this.createAt;
-    }
+	public Timestamp getCreateAt() {
+		return this.createAt;
+	}
 
-    public void setCreateAt(Timestamp createAt) {
-        this.createAt = createAt;
-    }
+	public void setCreateAt(Timestamp createAt) {
+		this.createAt = createAt;
+	}
 
-    public Timestamp getUpdateAt() {
-        return this.updateAt;
-    }
+	public Timestamp getUpdateAt() {
+		return this.updateAt;
+	}
 
-    public void setUpdateAt(Timestamp updateAt) {
-        this.updateAt = updateAt;
-    }
+	public void setUpdateAt(Timestamp updateAt) {
+		this.updateAt = updateAt;
+	}
 }

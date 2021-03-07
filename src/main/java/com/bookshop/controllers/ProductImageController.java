@@ -35,149 +35,149 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(rollbackFor = Exception.class)
 public class ProductImageController {
 
-    @Autowired
-    private Cloudinary cloudinary;
+	@Autowired
+	private Cloudinary cloudinary;
 
-    @Autowired
-    private ProductImageRepository productImageRepository;
+	@Autowired
+	private ProductImageRepository productImageRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
+	@Autowired
+	private ProductRepository productRepository;
 
-    @GetMapping
-    public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
-            @RequestParam(name = "pid", required = false) Long productId) {
-        if (pageNum != null && productId == null) {
-            Page<ProductImage> page = productImageRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
-            if (page.getNumberOfElements() == 0) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok().body(page.getContent());
-        }
+	@GetMapping
+	public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
+			@RequestParam(name = "pid", required = false) Long productId) {
+		if (pageNum != null && productId == null) {
+			Page<ProductImage> page = productImageRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			if (page.getNumberOfElements() == 0) {
+				return ResponseEntity.noContent().build();
+			}
+			return ResponseEntity.ok().body(page.getContent());
+		}
 
-        if (productId != null) {
-            Optional<Product> optionalProduct = productRepository.findById(productId);
-            if (!optionalProduct.isPresent()) {
-                throw new NotFoundException("Product Image with productId not found");
-            }
-            List<ProductImage> list = productImageRepository.findByProduct(optionalProduct.get());
-            if (list.size() == 0) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok().body(list);
-        }
+		if (productId != null) {
+			Optional<Product> optionalProduct = productRepository.findById(productId);
+			if (!optionalProduct.isPresent()) {
+				throw new NotFoundException("Product Image with productId not found");
+			}
+			List<ProductImage> list = productImageRepository.findByProduct(optionalProduct.get());
+			if (list.size() == 0) {
+				return ResponseEntity.noContent().build();
+			}
+			return ResponseEntity.ok().body(list);
+		}
 
-        List<ProductImage> productImages = productImageRepository.findAll();
-        if (productImages.size() == 0) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok().body(productImages);
-    }
+		List<ProductImage> productImages = productImageRepository.findAll();
+		if (productImages.size() == 0) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok().body(productImages);
+	}
 
-    @GetMapping("/{imageId}")
-    public ResponseEntity<?> getProductImageById(@PathVariable("imageId") Long imageId) {
-        Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
-        if (!optionalProductImage.isPresent()) {
-            throw new NotFoundException("Product Image not found");
-        }
-        return ResponseEntity.ok().body(optionalProductImage.get());
-    }
+	@GetMapping("/{imageId}")
+	public ResponseEntity<?> getProductImageById(@PathVariable("imageId") Long imageId) {
+		Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
+		if (!optionalProductImage.isPresent()) {
+			throw new NotFoundException("Product Image not found");
+		}
+		return ResponseEntity.ok().body(optionalProductImage.get());
+	}
 
-    @PostMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> createNewImages(@RequestParam("productId") Long productId,
-            @RequestParam("files") MultipartFile[] files) throws IOException {
-        List<ProductImage> productImages = new ArrayList<>();
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (!optionalProduct.isPresent()) {
-            throw new NotFoundException("Product not found with productId");
-        }
-        Product product = optionalProduct.get();
-        for (int i = 0; i < files.length; i++) {
-            Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
-            ProductImage productImage = new ProductImage();
-            productImage.setProduct(product);
-            productImage.setLink(cloudinaryMap.get("secure_url").toString());
-            productImage.setPublicId(cloudinaryMap.get("public_id").toString());
-            ProductImage newProductImage = productImageRepository.save(productImage);
-            productImages.add(newProductImage);
-        }
-        return ResponseEntity.status(201).body(productImages);
-    }
+	@PostMapping
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> createNewImages(@RequestParam("productId") Long productId,
+			@RequestParam("files") MultipartFile[] files) throws IOException {
+		List<ProductImage> productImages = new ArrayList<>();
+		Optional<Product> optionalProduct = productRepository.findById(productId);
+		if (!optionalProduct.isPresent()) {
+			throw new NotFoundException("Product not found with productId");
+		}
+		Product product = optionalProduct.get();
+		for (int i = 0; i < files.length; i++) {
+			Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
+			ProductImage productImage = new ProductImage();
+			productImage.setProduct(product);
+			productImage.setLink(cloudinaryMap.get("secure_url").toString());
+			productImage.setPublicId(cloudinaryMap.get("public_id").toString());
+			ProductImage newProductImage = productImageRepository.save(productImage);
+			productImages.add(newProductImage);
+		}
+		return ResponseEntity.status(201).body(productImages);
+	}
 
-    @PatchMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> editProductImageByProductId(@RequestParam("productId") Long productId,
-            @RequestParam(name = "files") MultipartFile[] files) throws IOException {
+	@PatchMapping
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> editProductImageByProductId(@RequestParam("productId") Long productId,
+			@RequestParam(name = "files") MultipartFile[] files) throws IOException {
 
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (!optionalProduct.isPresent()) {
-            throw new NotFoundException("Product not found with productId");
-        }
-        Product product = optionalProduct.get();
-        List<ProductImage> list = product.getProductImages();
+		Optional<Product> optionalProduct = productRepository.findById(productId);
+		if (!optionalProduct.isPresent()) {
+			throw new NotFoundException("Product not found with productId");
+		}
+		Product product = optionalProduct.get();
+		List<ProductImage> list = product.getProductImages();
 
-        List<ProductImage> newProductImages;
+		List<ProductImage> newProductImages;
 
-        if (files.length == list.size()) {
-            for (int i = 0; i < files.length; i++) {
-                cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
-                Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
-                list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
-                list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
-            }
-        } else if (files.length < list.size()) {
-            int i;
-            for (i = 0; i < files.length; i++) {
-                cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
-                Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
-                list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
-                list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
-            }
+		if (files.length == list.size()) {
+			for (int i = 0; i < files.length; i++) {
+				cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
+				Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
+				list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
+				list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
+			}
+		} else if (files.length < list.size()) {
+			int i;
+			for (i = 0; i < files.length; i++) {
+				cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
+				Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
+				list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
+				list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
+			}
 
-            for (int j = i; j < list.size(); j++) {
-                cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
+			for (int j = i; j < list.size(); j++) {
+				cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
 
-                productImageRepository.deleteById(list.get(i).getId());
+				productImageRepository.deleteById(list.get(i).getId());
 
-                list.remove(i);
-            }
-        } else {
-            int i;
-            for (i = 0; i < list.size(); i++) {
-                cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
-                Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
-                list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
-                list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
-            }
+				list.remove(i);
+			}
+		} else {
+			int i;
+			for (i = 0; i < list.size(); i++) {
+				cloudinary.uploader().destroy(list.get(i).getPublicId(), ObjectUtils.emptyMap());
+				Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
+				list.get(i).setLink(cloudinaryMap.get("secure_url").toString());
+				list.get(i).setPublicId(cloudinaryMap.get("public_id").toString());
+			}
 
-            for (int j = i; j < files.length; j++) {
-                Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
-                ProductImage productImage = new ProductImage();
-                productImage.setProduct(product);
-                productImage.setLink(cloudinaryMap.get("secure_url").toString());
-                productImage.setPublicId(cloudinaryMap.get("public_id").toString());
-                ProductImage newProductImage = productImageRepository.save(productImage);
-                list.add(newProductImage);
-            }
-        }
-        
-        newProductImages = productImageRepository.saveAll(list);
-        return ResponseEntity.status(200).body(newProductImages);
-    }
+			for (int j = i; j < files.length; j++) {
+				Map<?, ?> cloudinaryMap = cloudinary.uploader().upload(files[i].getBytes(), ObjectUtils.emptyMap());
+				ProductImage productImage = new ProductImage();
+				productImage.setProduct(product);
+				productImage.setLink(cloudinaryMap.get("secure_url").toString());
+				productImage.setPublicId(cloudinaryMap.get("public_id").toString());
+				ProductImage newProductImage = productImageRepository.save(productImage);
+				list.add(newProductImage);
+			}
+		}
 
-    @DeleteMapping("/{imageId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteProductImage(@PathVariable("imageId") Long imageId) throws IOException {
-        Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
-        if (!optionalProductImage.isPresent()) {
-            throw new NotFoundException("Product Image not found");
-        }
-        ProductImage productImage = optionalProductImage.get();
+		newProductImages = productImageRepository.saveAll(list);
+		return ResponseEntity.status(200).body(newProductImages);
+	}
 
-        cloudinary.uploader().destroy(productImage.getPublicId(), ObjectUtils.emptyMap());
-        productImageRepository.deleteById(imageId);
+	@DeleteMapping("/{imageId}")
+	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+	public ResponseEntity<?> deleteProductImage(@PathVariable("imageId") Long imageId) throws IOException {
+		Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
+		if (!optionalProductImage.isPresent()) {
+			throw new NotFoundException("Product Image not found");
+		}
+		ProductImage productImage = optionalProductImage.get();
 
-        return ResponseEntity.status(200).body(optionalProductImage.get());
-    }
+		cloudinary.uploader().destroy(productImage.getPublicId(), ObjectUtils.emptyMap());
+		productImageRepository.deleteById(imageId);
+
+		return ResponseEntity.status(200).body(optionalProductImage.get());
+	}
 }

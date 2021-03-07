@@ -12,31 +12,31 @@ import org.springframework.stereotype.Service;
 @Service("userAuthorizer")
 public class UserAuthorizerImpl implements UserAuthorizer {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public boolean authorizeAdmin(Authentication authentication, String role) {
-        Object[] objectAuthentication = authentication.getAuthorities().toArray();
-        if (objectAuthentication[0].toString().compareTo(role) != 0) {
-            throw new ForbiddenException("Access is denied");
-        }
-        return true;
-    }
+	@Override
+	public boolean authorizeAdmin(Authentication authentication, String role) {
+		Object[] objectAuthentication = authentication.getAuthorities().toArray();
+		if (objectAuthentication[0].toString().compareTo(role) != 0) {
+			throw new ForbiddenException("Access is denied");
+		}
+		return true;
+	}
 
-    @Override
-    public boolean authorizeGetUserById(Authentication authentication, String role, Long userId) {
-        Object[] objectAuthentication = authentication.getAuthorities().toArray();
-        if (objectAuthentication[0].toString().compareTo(role) == 0) {
-            return true;
-        }
+	@Override
+	public boolean authorizeGetUserById(Authentication authentication, String role, Long userId) {
+		Object[] objectAuthentication = authentication.getAuthorities().toArray();
+		if (objectAuthentication[0].toString().compareTo(role) == 0) {
+			return true;
+		}
 
-        User userAuth = (User) authentication.getPrincipal();
-        com.bookshop.dao.User user = userRepository.findByUsername(userAuth.getUsername());
+		User userAuth = (User) authentication.getPrincipal();
+		com.bookshop.dao.User user = userRepository.findByUsername(userAuth.getUsername());
 
-        if (user.getId() != userId) {
-            throw new ForbiddenException("Access is denied");
-        }
-        return true;
-    }
+		if (user.getId() != userId) {
+			throw new ForbiddenException("Access is denied");
+		}
+		return true;
+	}
 }

@@ -1,87 +1,87 @@
 package com.bookshop.dto;
 
 public class ProductDTO {
-    private String title;
-    
-    private String longDescription;
+	private String title;
 
-    private Long categoryId;
+	private String longDescription;
 
-    private Long price;
+	private Long categoryId;
 
-    private String author;
+	private Long price;
 
-    private Integer currentNumber;
+	private String author;
 
-    private Integer numberOfPage;
+	private Integer currentNumber;
 
-    public ProductDTO() {
-    }
+	private Integer numberOfPage;
 
-    public ProductDTO(String title, String longDescription, Long categoryId, Long price,
-            String author, Integer currentNumber, Integer numberOfPage) {
-        this.title = title;
-        this.longDescription = longDescription;
-        this.categoryId = categoryId;
-        this.price = price;
-        this.author = author;
-        this.currentNumber = currentNumber;
-        this.numberOfPage = numberOfPage;
-    }
+	public ProductDTO() {
+	}
 
-    public String getTitle() {
-        return this.title;
-    }
+	public ProductDTO(String title, String longDescription, Long categoryId, Long price, String author,
+			Integer currentNumber, Integer numberOfPage) {
+		this.title = title;
+		this.longDescription = longDescription;
+		this.categoryId = categoryId;
+		this.price = price;
+		this.author = author;
+		this.currentNumber = currentNumber;
+		this.numberOfPage = numberOfPage;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public String getTitle() {
+		return this.title;
+	}
 
-    public String getLongDescription() {
-        return this.longDescription;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public void setLongDescription(String longDescription) {
-        this.longDescription = longDescription;
-    }
+	public String getLongDescription() {
+		return this.longDescription;
+	}
 
-    public Long getCategoryId() {
-        return this.categoryId;
-    }
+	public void setLongDescription(String longDescription) {
+		this.longDescription = longDescription;
+	}
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
+	public Long getCategoryId() {
+		return this.categoryId;
+	}
 
-    public Long getPrice() {
-        return this.price;
-    }
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
 
-    public void setPrice(Long price) {
-        this.price = price;
-    }
+	public Long getPrice() {
+		return this.price;
+	}
 
-    public String getAuthor() {
-        return this.author;
-    }
+	public void setPrice(Long price) {
+		this.price = price;
+	}
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+	public String getAuthor() {
+		return this.author;
+	}
 
-    public Integer getCurrentNumber() {
-        return this.currentNumber;
-    }
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
-    public void setCurrentNumber(Integer currentNumber) {
-        this.currentNumber = currentNumber;
-    }
+	public Integer getCurrentNumber() {
+		return this.currentNumber;
+	}
 
-    public Integer getNumberOfPage() {
-        return this.numberOfPage;
-    }
+	public void setCurrentNumber(Integer currentNumber) {
+		this.currentNumber = currentNumber;
+	}
 
-    public void setNumberOfPage(Integer numberOfPage) {
-        this.numberOfPage = numberOfPage;
-    }
+	public Integer getNumberOfPage() {
+		return this.numberOfPage;
+	}
+
+	public void setNumberOfPage(Integer numberOfPage) {
+		this.numberOfPage = numberOfPage;
+	}
 }
