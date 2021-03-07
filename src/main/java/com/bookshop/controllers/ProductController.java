@@ -122,14 +122,12 @@ public class ProductController {
 		Product product = optionalProduct.get();
 
 		if (productDTO.getTitle() != null) {
-			product.setTitle(productDTO.getTitle());
-			product.setSlug(ConvertObject.toSlug(productDTO.getTitle()));
-		}
-		if (productDTO.getShortDescription() != null) {
-			product.setShortDescription(productDTO.getShortDescription());
+			product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
+			product.setSlug(ConvertObject.toSlug(productDTO.getTitle().trim().replaceAll("\\s+", " ")));
 		}
 		if (productDTO.getLongDescription() != null) {
-			product.setLongDescription(productDTO.getLongDescription());
+			product.setLongDescription(productDTO.getLongDescription().trim().replaceAll("\\s+", " "));
+			product.setShortDescription(product.getLongDescription().substring(0, 60));
 		}
 		if (productDTO.getCategoryId() != null) {
 			Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
@@ -139,7 +137,7 @@ public class ProductController {
 			product.setPrice(productDTO.getPrice());
 		}
 		if (productDTO.getAuthor() != null) {
-			product.setAuthor(productDTO.getAuthor());
+			product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
 		}
 		if (productDTO.getCurrentNumber() != null) {
 			product.setCurrentNumber(productDTO.getCurrentNumber());
