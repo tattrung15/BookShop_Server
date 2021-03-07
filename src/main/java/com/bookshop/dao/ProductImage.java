@@ -45,7 +45,8 @@ public class ProductImage implements Serializable {
 	public ProductImage() {
 	}
 
-	public ProductImage(Long id, String link, String publicId, Product product, Timestamp createAt, Timestamp updateAt) {
+	public ProductImage(Long id, String link, String publicId, Product product, Timestamp createAt,
+			Timestamp updateAt) {
 		this.id = id;
 		this.link = link;
 		this.publicId = publicId;

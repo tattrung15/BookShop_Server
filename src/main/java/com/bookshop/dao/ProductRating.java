@@ -19,101 +19,101 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Table(name = "ProductRating")
 public class ProductRating implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "productRating_id")
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "productRating_id")
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
 
-    @Column(name = "rate", nullable = false)
-    private Integer rate;
+	@ManyToOne
+	@JoinColumn(name = "product_id")
+	private Product product;
 
-    @Nationalized
-    @Column(name = "comment")
-    private String comment;
+	@Column(name = "rate", nullable = false)
+	private Integer rate;
 
-    @CreationTimestamp
+	@Nationalized
+	@Column(name = "comment")
+	private String comment;
+
+	@CreationTimestamp
 	private Timestamp createAt;
 
 	@UpdateTimestamp
 	private Timestamp updateAt;
 
+	public ProductRating() {
+	}
 
-    public ProductRating() {
-    }
+	public ProductRating(Long id, Long userId, Product product, Integer rate, String comment, Timestamp createAt,
+			Timestamp updateAt) {
+		this.id = id;
+		this.userId = userId;
+		this.product = product;
+		this.rate = rate;
+		this.comment = comment;
+		this.createAt = createAt;
+		this.updateAt = updateAt;
+	}
 
-    public ProductRating(Long id, Long userId, Product product, Integer rate, String comment, Timestamp createAt, Timestamp updateAt) {
-        this.id = id;
-        this.userId = userId;
-        this.product = product;
-        this.rate = rate;
-        this.comment = comment;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-    }
+	public Long getId() {
+		return this.id;
+	}
 
-    public Long getId() {
-        return this.id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Long getUserId() {
+		return this.userId;
+	}
 
-    public Long getUserId() {
-        return this.userId;
-    }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public Product getProduct() {
+		return this.product;
+	}
 
-    public Product getProduct() {
-        return this.product;
-    }
+	public void setProduct(Product product) {
+		this.product = product;
+	}
 
-    public void setProduct(Product product) {
-        this.product = product;
-    }
+	public Integer getRate() {
+		return this.rate;
+	}
 
-    public Integer getRate() {
-        return this.rate;
-    }
+	public void setRate(Integer rate) {
+		this.rate = rate;
+	}
 
-    public void setRate(Integer rate) {
-        this.rate = rate;
-    }
+	public String getComment() {
+		return this.comment;
+	}
 
-    public String getComment() {
-        return this.comment;
-    }
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+	public Timestamp getCreateAt() {
+		return this.createAt;
+	}
 
-    public Timestamp getCreateAt() {
-        return this.createAt;
-    }
+	public void setCreateAt(Timestamp createAt) {
+		this.createAt = createAt;
+	}
 
-    public void setCreateAt(Timestamp createAt) {
-        this.createAt = createAt;
-    }
+	public Timestamp getUpdateAt() {
+		return this.updateAt;
+	}
 
-    public Timestamp getUpdateAt() {
-        return this.updateAt;
-    }
-
-    public void setUpdateAt(Timestamp updateAt) {
-        this.updateAt = updateAt;
-    }
+	public void setUpdateAt(Timestamp updateAt) {
+		this.updateAt = updateAt;
+	}
 }

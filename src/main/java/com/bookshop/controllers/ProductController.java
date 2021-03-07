@@ -59,7 +59,7 @@ public class ProductController {
 			}
 			return ResponseEntity.ok().body(listProdcutImages);
 		}
-		
+
 		List<Product> products = productRepository.findAll();
 		//
 		List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
@@ -88,9 +88,9 @@ public class ProductController {
 		if (product == null) {
 			throw new NotFoundException("Product not found");
 		}
-		
+
 		ProductImage productImage = product.getProductImages().get(0);
-		
+
 		return ResponseEntity.ok().body(productImage);
 	}
 
