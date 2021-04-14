@@ -3,6 +3,7 @@ package com.bookshop.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.bookshop.dto.SignUpDTO;
 import com.bookshop.dto.UserDTO;
 import com.bookshop.exceptions.InvalidException;
 
@@ -59,5 +60,41 @@ public class CheckValid {
 			return true;
 		}
 		return false;
+	}
+
+	public static Boolean checkSignUp(SignUpDTO signUpDTO) {
+		if (signUpDTO.getFirstName() == null || signUpDTO.getFirstName().trim() == "") {
+			throw new InvalidException("Invalid firstname");
+		}
+		if (signUpDTO.getLastName() == null || signUpDTO.getLastName().trim() == "") {
+			throw new InvalidException("Invalid lastname");
+		}
+		if (signUpDTO.getAddress() == null || signUpDTO.getAddress().trim() == "") {
+			throw new InvalidException("Invalid address");
+		}
+		pattern = Pattern.compile(regexUsername);
+		matcher = pattern.matcher(signUpDTO.getUsername());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid username");
+		}
+
+		pattern = Pattern.compile(regexPassword);
+		matcher = pattern.matcher(signUpDTO.getPassword());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid password");
+		}
+
+		pattern = Pattern.compile(regexEmail);
+		matcher = pattern.matcher(signUpDTO.getEmail());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid email");
+		}
+
+		pattern = Pattern.compile(regexPhone);
+		matcher = pattern.matcher(signUpDTO.getPhone());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid phone");
+		}
+		return true;
 	}
 }
