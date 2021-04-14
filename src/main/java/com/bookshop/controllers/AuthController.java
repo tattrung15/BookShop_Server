@@ -3,8 +3,11 @@ package com.bookshop.controllers;
 import javax.servlet.http.HttpServletRequest;
 
 import com.bookshop.dao.User;
+import com.bookshop.dto.SignUpDTO;
+import com.bookshop.exceptions.DuplicateRecordException;
 import com.bookshop.exceptions.InvalidException;
 import com.bookshop.exceptions.LoginException;
+import com.bookshop.helpers.ConvertObject;
 import com.bookshop.models.AuthenticationRequest;
 import com.bookshop.models.AuthenticationResponse;
 import com.bookshop.repositories.UserRepository;
@@ -18,6 +21,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +40,9 @@ public class AuthController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	public PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -52,6 +59,24 @@ public class AuthController {
 		final String jwt = jwtUtil.generateToken(userDetails);
 		User user = userRepository.findByUsername(authenticationRequest.getUsername());
 		return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getId(), user.getUsername(), user.getRole()));
+	}
+	
+	@PostMapping("/signup")
+	public ResponseEntity<?> signUp(@RequestBody SignUpDTO signUpDTO){
+		User oldUser = userRepository.findByUsername(signUpDTO.getUsername());
+		if(oldUser != null) {
+			throw new DuplicateRecordException("Username has already exists");
+		}
+		User user = ConvertObject.fromSignUpDTOToUserDAO(signUpDTO);
+		if(user == null) {
+			throw new InvalidException("Invalid user");
+		}
+		user.setPassword(passwordEncoder.encode(signUpDTO.getPassword()));
+		User newUser = userRepository.save(user);
+
+		final UserDetails userDetails = myUserDetailsService.loadUserByUsername(newUser.getUsername());
+		final String jwt = jwtUtil.generateToken(userDetails);
+		return ResponseEntity.ok(new AuthenticationResponse(jwt, newUser.getId(), newUser.getUsername(), newUser.getRole()));
 	}
 
 	@PostMapping("/validate")

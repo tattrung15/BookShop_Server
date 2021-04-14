@@ -47,6 +47,10 @@ public class SaleOrder implements Serializable {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@ManyToOne
+	@JoinColumn(name = "delivery_id")
+	private Delivery delivery;
+
 	@OneToMany(mappedBy = "saleOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<OrderItem> orderItems;
@@ -60,19 +64,22 @@ public class SaleOrder implements Serializable {
 	public SaleOrder() {
 	}
 
-	public SaleOrder(Long id, String customerAddress, String phone, Long totalAmount, User user, Timestamp createAt,
-			Timestamp updateAt) {
+	public SaleOrder(Long id, String customerAddress, String phone, Long totalAmount, User user, Delivery delivery,
+			List<OrderItem> orderItems, Timestamp createAt, Timestamp updateAt) {
+		super();
 		this.id = id;
 		this.customerAddress = customerAddress;
 		this.phone = phone;
 		this.totalAmount = totalAmount;
 		this.user = user;
+		this.delivery = delivery;
+		this.orderItems = orderItems;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
 	}
 
 	public Long getId() {
-		return this.id;
+		return id;
 	}
 
 	public void setId(Long id) {
@@ -80,7 +87,7 @@ public class SaleOrder implements Serializable {
 	}
 
 	public String getCustomerAddress() {
-		return this.customerAddress;
+		return customerAddress;
 	}
 
 	public void setCustomerAddress(String customerAddress) {
@@ -88,7 +95,7 @@ public class SaleOrder implements Serializable {
 	}
 
 	public String getPhone() {
-		return this.phone;
+		return phone;
 	}
 
 	public void setPhone(String phone) {
@@ -96,7 +103,7 @@ public class SaleOrder implements Serializable {
 	}
 
 	public Long getTotalAmount() {
-		return this.totalAmount;
+		return totalAmount;
 	}
 
 	public void setTotalAmount(Long totalAmount) {
@@ -104,15 +111,23 @@ public class SaleOrder implements Serializable {
 	}
 
 	public User getUser() {
-		return this.user;
+		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
 	}
 
+	public Delivery getDelivery() {
+		return delivery;
+	}
+
+	public void setDelivery(Delivery delivery) {
+		this.delivery = delivery;
+	}
+
 	public List<OrderItem> getOrderItems() {
-		return this.orderItems;
+		return orderItems;
 	}
 
 	public void setOrderItems(List<OrderItem> orderItems) {
@@ -120,7 +135,7 @@ public class SaleOrder implements Serializable {
 	}
 
 	public Timestamp getCreateAt() {
-		return this.createAt;
+		return createAt;
 	}
 
 	public void setCreateAt(Timestamp createAt) {
@@ -128,10 +143,15 @@ public class SaleOrder implements Serializable {
 	}
 
 	public Timestamp getUpdateAt() {
-		return this.updateAt;
+		return updateAt;
 	}
 
 	public void setUpdateAt(Timestamp updateAt) {
 		this.updateAt = updateAt;
 	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 }
