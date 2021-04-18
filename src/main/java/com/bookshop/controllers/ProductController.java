@@ -45,7 +45,7 @@ public class ProductController {
 	@GetMapping
 	public ResponseEntity<?> getAllProducts(@RequestParam(name = "page", required = false) Integer pageNum) {
 		if (pageNum != null) {
-			Page<Product> page = productRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			Page<Product> page = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
 			//
 			List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
 

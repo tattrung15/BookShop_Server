@@ -83,11 +83,12 @@ public class BookshopApplication implements CommandLineRunner {
 			System.out.println("Created account admin with username: " + user.getUsername());
 		}
 		if (deliveryRepository.count() == 0) {
-			Delivery delivery1 = new Delivery(null, "ChoXacNhan", "Chờ xác nhận", null, null, null);
-			Delivery delivery2 = new Delivery(null, "DangGiaoHang", "Đang giao hàng", null, null, null);
-			Delivery delivery3 = new Delivery(null, "DaGiao", "Đã giao", null, null, null);
-			Delivery delivery4 = new Delivery(null, "DaHuy", "Đã hủy", null, null, null);
-			deliveryRepository.saveAll(Arrays.asList(delivery1, delivery2, delivery3, delivery4));
+			Delivery delivery1 = new Delivery(null, "DaThemVaoGio", "Đã thêm vào giỏ", null, null, null);
+			Delivery delivery2 = new Delivery(null, "ChoXacNhan", "Chờ xác nhận", null, null, null);
+			Delivery delivery3 = new Delivery(null, "DangGiaoHang", "Đang giao hàng", null, null, null);
+			Delivery delivery4 = new Delivery(null, "DaGiao", "Đã giao", null, null, null);
+			Delivery delivery5 = new Delivery(null, "DaHuy", "Đã hủy", null, null, null);
+			deliveryRepository.saveAll(Arrays.asList(delivery1, delivery2, delivery3, delivery4, delivery5));
 		}
 	}
 }
