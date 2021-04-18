@@ -1,18 +1,24 @@
 package com.bookshop.controllers;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import com.bookshop.dao.Category;
+import com.bookshop.dao.Product;
+import com.bookshop.dao.ProductImage;
 import com.bookshop.dto.CategoryDTO;
+import com.bookshop.dto.PaginationDTO;
 import com.bookshop.exceptions.DuplicateRecordException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.ConvertObject;
 import com.bookshop.repositories.CategoryRepository;
+import com.bookshop.repositories.ProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +40,9 @@ public class CategoryController {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
 
 	@GetMapping
 	public ResponseEntity<?> getAllCategories(@RequestParam(name = "page", required = false) Integer pageNum) {
@@ -65,6 +74,50 @@ public class CategoryController {
 			throw new NotFoundException("Category not found");
 		}
 		return ResponseEntity.ok().body(category);
+	}
+
+	@GetMapping("/{slug}/products")
+	public ResponseEntity<?> getProductsBySlugOfCategory(@PathVariable("slug") String slug,
+			@RequestParam(name = "page", required = false, defaultValue = "0") Integer pageNum) {
+		if (slug.compareTo("sach-moi") == 0) {
+			Page<Product> pageProducts = productRepository
+					.findAll(PageRequest.of(pageNum, 20, Sort.by("id").descending()));
+			List<Product> products = pageProducts.getContent();
+			List<ProductImage> productImages = new LinkedList<>();
+			for (int i = 0; i < products.size(); i++) {
+				ProductImage productImage = new ProductImage();
+				productImage.setId(products.get(i).getProductImages().get(0).getId());
+				productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+				productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+				productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+				productImage.setProduct(products.get(i));
+				productImages.add(productImage);
+			}
+			PaginationDTO paginationDTO = new PaginationDTO();
+			paginationDTO.setData(productImages);
+			paginationDTO.setTotalOfPage(pageProducts.getTotalPages());
+			return ResponseEntity.ok().body(paginationDTO);
+		}
+		Category category = categoryRepository.findBySlug(slug);
+		if (category == null) {
+			throw new NotFoundException("Not found category by slug: " + slug);
+		}
+		Page<Product> pageProducts = productRepository.findByCategoryId(category.getId(), PageRequest.of(pageNum, 20));
+		List<Product> products = pageProducts.getContent();
+		List<ProductImage> productImages = new LinkedList<>();
+		for (int i = 0; i < products.size(); i++) {
+			ProductImage productImage = new ProductImage();
+			productImage.setId(products.get(i).getProductImages().get(0).getId());
+			productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+			productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+			productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+			productImage.setProduct(products.get(i));
+			productImages.add(productImage);
+		}
+		PaginationDTO paginationDTO = new PaginationDTO();
+		paginationDTO.setData(productImages);
+		paginationDTO.setTotalOfPage(pageProducts.getTotalPages());
+		return ResponseEntity.ok().body(paginationDTO);
 	}
 
 	@PostMapping
