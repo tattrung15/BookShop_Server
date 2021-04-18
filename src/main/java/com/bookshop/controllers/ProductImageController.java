@@ -2,6 +2,7 @@ package com.bookshop.controllers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,11 +49,22 @@ public class ProductImageController {
 	public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
 			@RequestParam(name = "pid", required = false) Long productId) {
 		if (pageNum != null && productId == null) {
-			Page<ProductImage> page = productImageRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
-			if (page.getNumberOfElements() == 0) {
+			Page<Product> pageProducts = productRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			if (pageProducts.getNumberOfElements() == 0) {
 				return ResponseEntity.noContent().build();
 			}
-			return ResponseEntity.ok().body(page.getContent());
+			List<Product> products = pageProducts.getContent();
+			List<ProductImage> productImages = new LinkedList<>();
+			for (int i = 0; i < products.size(); i++) {
+				ProductImage productImage = new ProductImage();
+				productImage.setId(products.get(i).getProductImages().get(0).getId());
+				productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+				productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+				productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+				productImage.setProduct(products.get(i));
+				productImages.add(productImage);
+			}
+			return ResponseEntity.ok().body(productImages);
 		}
 
 		if (productId != null) {
@@ -67,9 +79,35 @@ public class ProductImageController {
 			return ResponseEntity.ok().body(list);
 		}
 
-		List<ProductImage> productImages = productImageRepository.findAll();
-		if (productImages.size() == 0) {
+		List<Product> products = productRepository.findAll();
+		List<ProductImage> productImages = new LinkedList<>();
+		for (int i = 0; i < products.size(); i++) {
+			ProductImage productImage = new ProductImage();
+			productImage.setId(products.get(i).getProductImages().get(0).getId());
+			productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+			productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+			productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+			productImage.setProduct(products.get(i));
+			productImages.add(productImage);
+		}
+		return ResponseEntity.ok().body(productImages);
+	}
+
+	@GetMapping("/best-selling")
+	public ResponseEntity<?> getProductBestSelling() {
+		List<Product> products = productRepository.findAllByOrderByQuantityPurchasedDesc(PageRequest.of(0, 4));
+		if (products.size() == 0) {
 			return ResponseEntity.noContent().build();
+		}
+		List<ProductImage> productImages = new LinkedList<>();
+		for (int i = 0; i < products.size(); i++) {
+			ProductImage productImage = new ProductImage();
+			productImage.setId(products.get(i).getProductImages().get(0).getId());
+			productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+			productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+			productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+			productImage.setProduct(products.get(i));
+			productImages.add(productImage);
 		}
 		return ResponseEntity.ok().body(productImages);
 	}
