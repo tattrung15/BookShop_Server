@@ -67,6 +67,7 @@ public class ConvertObject {
 		product.setCurrentNumber(productDTO.getCurrentNumber());
 		product.setNumberOfPage(productDTO.getNumberOfPage());
 		product.setSlug(toSlug(productDTO.getTitle()));
+		product.setQuantityPurchased(0);
 		return product;
 	}
 
