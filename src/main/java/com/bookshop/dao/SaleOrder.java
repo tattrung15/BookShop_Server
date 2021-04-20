@@ -40,9 +40,6 @@ public class SaleOrder implements Serializable {
 	@Column(name = "phone", nullable = false)
 	private String phone;
 
-	@Column(name = "total_amount", nullable = false)
-	private Long totalAmount;
-
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
@@ -64,13 +61,12 @@ public class SaleOrder implements Serializable {
 	public SaleOrder() {
 	}
 
-	public SaleOrder(Long id, String customerAddress, String phone, Long totalAmount, User user, Delivery delivery,
+	public SaleOrder(Long id, String customerAddress, String phone, User user, Delivery delivery,
 			List<OrderItem> orderItems, Timestamp createAt, Timestamp updateAt) {
 		super();
 		this.id = id;
 		this.customerAddress = customerAddress;
 		this.phone = phone;
-		this.totalAmount = totalAmount;
 		this.user = user;
 		this.delivery = delivery;
 		this.orderItems = orderItems;
@@ -100,14 +96,6 @@ public class SaleOrder implements Serializable {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	public Long getTotalAmount() {
-		return totalAmount;
-	}
-
-	public void setTotalAmount(Long totalAmount) {
-		this.totalAmount = totalAmount;
 	}
 
 	public User getUser() {
