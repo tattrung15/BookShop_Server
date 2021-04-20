@@ -25,6 +25,7 @@ import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
 import com.bookshop.dto.ProductDTO;
+import com.bookshop.dto.ProductDetail;
 import com.bookshop.exceptions.DuplicateRecordException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.ConvertObject;
@@ -89,9 +90,9 @@ public class ProductController {
 			throw new NotFoundException("Product not found");
 		}
 
-		ProductImage productImage = product.getProductImages().get(0);
+		ProductDetail productDetail = new ProductDetail(product, product.getProductImages());
 
-		return ResponseEntity.ok().body(productImage);
+		return ResponseEntity.ok().body(productDetail);
 	}
 
 	@PostMapping
