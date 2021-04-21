@@ -1,6 +1,8 @@
 package com.bookshop.controllers;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.SaleOrder;
 import com.bookshop.dao.User;
+import com.bookshop.dto.CartItemDTO;
 import com.bookshop.dto.OrderItemDTO;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.repositories.DeliveryRepository;
@@ -62,7 +65,19 @@ public class CartController {
 			throw new NotFoundException("Not found cart with userId " + userId);
 		}
 
-		return ResponseEntity.status(200).body(saleOrder.getOrderItems());
+		List<CartItemDTO> cartItemDTOs = new LinkedList<>();
+		for (int i = 0; i < saleOrder.getOrderItems().size(); i++) {
+			OrderItem orderItem = saleOrder.getOrderItems().get(i);
+			CartItemDTO cartItemDTO = new CartItemDTO();
+			cartItemDTO.setOrderItemId(orderItem.getId());
+			cartItemDTO.setProduct(orderItem.getProduct());
+			cartItemDTO.setSaleOrder(orderItem.getSaleOrder());
+			cartItemDTO.setQuantity(orderItem.getQuantity());
+			cartItemDTO.setProductImage(orderItem.getProduct().getProductImages().get(0));
+			cartItemDTOs.add(cartItemDTO);
+		}
+
+		return ResponseEntity.status(200).body(cartItemDTOs);
 	}
 
 	@PostMapping
