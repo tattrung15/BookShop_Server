@@ -19,7 +19,7 @@ public class UserAuthorizerImpl implements UserAuthorizer {
 	public boolean authorizeAdmin(Authentication authentication, String role) {
 		Object[] objectAuthentication = authentication.getAuthorities().toArray();
 		if (objectAuthentication[0].toString().compareTo(role) != 0) {
-			throw new ForbiddenException("Access is denied");
+			throw new ForbiddenException("Access denied");
 		}
 		return true;
 	}
@@ -35,7 +35,19 @@ public class UserAuthorizerImpl implements UserAuthorizer {
 		com.bookshop.dao.User user = userRepository.findByUsername(userAuth.getUsername());
 
 		if (user.getId() != userId) {
-			throw new ForbiddenException("Access is denied");
+			throw new ForbiddenException("Access denied");
+		}
+		return true;
+	}
+
+	@Override
+	public boolean authorizeUser(Authentication authentication, Long userId) {
+		User userAuthentication = (User) authentication.getPrincipal();
+
+		com.bookshop.dao.User user = userRepository.findByUsername(userAuthentication.getUsername());
+
+		if (user.getId() != userId) {
+			throw new ForbiddenException("Access denied");
 		}
 		return true;
 	}

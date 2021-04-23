@@ -129,9 +129,10 @@ public class CartController {
 		orderItem.setSaleOrder(newSaleOrder);
 		orderItem.setProduct(product);
 		orderItem.setQuantity(orderItemDTO.getQuantity());
-		OrderItem newOrderItem = orderItemRepository.save(orderItem);
+		orderItemRepository.save(orderItem);
 
 		newSaleOrder.setOrderItems(Arrays.asList(orderItem));
+
 		return ResponseEntity.status(201).body(newSaleOrder.getOrderItems());
 	}
 }

@@ -97,4 +97,29 @@ public class CheckValid {
 		}
 		return true;
 	}
+
+	public static Boolean checkUpdateProfile(UserDTO userDTO) {
+		if (userDTO.getFirstName() == null || userDTO.getFirstName().trim() == "") {
+			throw new InvalidException("Invalid firstname");
+		}
+		if (userDTO.getLastName() == null || userDTO.getLastName().trim() == "") {
+			throw new InvalidException("Invalid lastname");
+		}
+		if (userDTO.getAddress() == null || userDTO.getAddress().trim() == "") {
+			throw new InvalidException("Invalid address");
+		}
+
+		pattern = Pattern.compile(regexEmail);
+		matcher = pattern.matcher(userDTO.getEmail());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid email");
+		}
+
+		pattern = Pattern.compile(regexPhone);
+		matcher = pattern.matcher(userDTO.getPhone());
+		if (!matcher.find()) {
+			throw new InvalidException("Invalid phone");
+		}
+		return true;
+	}
 }
