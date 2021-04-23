@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bookshop.dao.Delivery;
 import com.bookshop.dao.OrderItem;
+import com.bookshop.dao.Product;
 import com.bookshop.dao.SaleOrder;
 import com.bookshop.dao.User;
 import com.bookshop.dto.CartItemDTO;
@@ -128,14 +129,27 @@ public class OrderController {
 			throw new NotFoundException("Not found sale order by saleOrderId " + saleOrderDTO.getSaleOrderId());
 		}
 
+		List<OrderItem> orderItems = saleOrder.getOrderItems();
+
+		for (int i = 0; i < orderItems.size(); i++) {
+			OrderItem orderItem = orderItems.get(i);
+			Integer currentQuantity = orderItem.getQuantity();
+			Product currentProduct = orderItem.getProduct();
+			if (currentProduct.getCurrentNumber() < currentQuantity) {
+				throw new InvalidException("Not enough quantity");
+			}
+			currentProduct.setQuantityPurchased(currentProduct.getQuantityPurchased() + currentQuantity);
+			currentProduct.setCurrentNumber(currentProduct.getCurrentNumber() - currentQuantity);
+		}
+
 		user.setAmount(user.getAmount() - saleOrderDTO.getTotalAmount());
 
 		Delivery deliveryWaitConfirm = deliveryRepository.findByIndex("ChoXacNhan");
 
 		saleOrder.setDelivery(deliveryWaitConfirm);
-		SaleOrder newSaleOrder = saleOrderRepository.save(saleOrder);
+		saleOrderRepository.save(saleOrder);
 
-		return ResponseEntity.status(200).body(newSaleOrder);
+		return ResponseEntity.status(200).body(saleOrder.getOrderItems());
 	}
 
 	@DeleteMapping("/{orderItemId}")
