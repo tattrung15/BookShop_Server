@@ -28,7 +28,7 @@ public class CustomExceptionHandler {
 	}
 
 	@ExceptionHandler(InvalidException.class)
-	@ResponseStatus(HttpStatus.BAD_GATEWAY)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ErrorResponse handleInvalidException(InvalidException ex, WebRequest req) {
 		return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
 	}

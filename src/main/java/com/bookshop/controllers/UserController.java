@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -80,6 +81,30 @@ public class UserController {
 			User newUser = userRepository.save(user);
 
 			return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+		}
+		throw new InvalidException("Invalid user");
+	}
+
+	@PutMapping("/{userId}")
+	@PreAuthorize("@userAuthorizer.authorizeUser(authentication, #userId)")
+	public ResponseEntity<?> editUserClient(@RequestBody UserDTO userDTO, @PathVariable("userId") Long userId) {
+		Optional<User> optionalUser = userRepository.findById(userId);
+		if (!optionalUser.isPresent()) {
+			throw new NotFoundException("User not found");
+		}
+		User user = optionalUser.get();
+
+		if (CheckValid.checkUpdateProfile(userDTO)) {
+
+			user.setFirstName(userDTO.getFirstName().trim().replaceAll("\\s+", " "));
+			user.setLastName(userDTO.getLastName().trim().replaceAll("\\s+", " "));
+			user.setEmail(userDTO.getEmail());
+			user.setPhone(userDTO.getPhone());
+			user.setAddress(userDTO.getAddress().trim().replaceAll("\\s+", " "));
+
+			User updatedUser = userRepository.save(user);
+
+			return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
 		}
 		throw new InvalidException("Invalid user");
 	}
