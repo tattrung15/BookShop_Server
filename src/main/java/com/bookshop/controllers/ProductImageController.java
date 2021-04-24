@@ -47,9 +47,25 @@ public class ProductImageController {
 
 	@GetMapping
 	public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
-			@RequestParam(name = "pid", required = false) Long productId) {
+			@RequestParam(name = "pid", required = false) Long productId,
+			@RequestParam(name = "search", required = false) String search) {
+		if (search != null) {
+			List<Product> products = productRepository.findByTitleContaining(search);
+
+			List<ProductImage> productImages = new LinkedList<>();
+			for (int i = 0; i < products.size(); i++) {
+				ProductImage productImage = new ProductImage();
+				productImage.setId(products.get(i).getProductImages().get(0).getId());
+				productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+				productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+				productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+				productImage.setProduct(products.get(i));
+				productImages.add(productImage);
+			}
+			return ResponseEntity.ok().body(productImages);
+		}
 		if (pageNum != null && productId == null) {
-			Page<Product> pageProducts = productRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
+			Page<Product> pageProducts = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
 			if (pageProducts.getNumberOfElements() == 0) {
 				return ResponseEntity.noContent().build();
 			}
