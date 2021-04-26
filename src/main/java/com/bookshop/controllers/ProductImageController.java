@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
 import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductImageRepository;
 import com.bookshop.repositories.ProductRepository;
 import com.cloudinary.Cloudinary;
@@ -45,10 +47,36 @@ public class ProductImageController {
 	@Autowired
 	private ProductRepository productRepository;
 
+	@Autowired
+	private CategoryRepository categoryRepository;
+
 	@GetMapping
 	public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
 			@RequestParam(name = "pid", required = false) Long productId,
-			@RequestParam(name = "search", required = false) String search) {
+			@RequestParam(name = "search", required = false) String search,
+			@RequestParam(name = "category", required = false) String slugCategory) {
+		if (slugCategory != null) {
+			Category category = categoryRepository.findBySlug(slugCategory);
+
+			if (category == null) {
+				throw new NotFoundException("Not found category by slug " + slugCategory);
+			}
+			Page<Product> pageProducts = productRepository.findByCategoryId(category.getId(), PageRequest.of(0, 4));
+
+			List<Product> products = pageProducts.getContent();
+
+			List<ProductImage> productImages = new LinkedList<>();
+			for (int i = 0; i < products.size(); i++) {
+				ProductImage productImage = new ProductImage();
+				productImage.setId(products.get(i).getProductImages().get(0).getId());
+				productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+				productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+				productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+				productImage.setProduct(products.get(i));
+				productImages.add(productImage);
+			}
+			return ResponseEntity.ok().body(productImages);
+		}
 		if (search != null) {
 			List<Product> products = productRepository.findByTitleContaining(search);
 
@@ -110,7 +138,7 @@ public class ProductImageController {
 	}
 
 	@GetMapping("/best-selling")
-	public ResponseEntity<?> getProductBestSelling() {
+	public ResponseEntity<?> getProductsBestSelling() {
 		List<Product> products = productRepository.findAllByOrderByQuantityPurchasedDesc(PageRequest.of(0, 4));
 		if (products.size() == 0) {
 			return ResponseEntity.noContent().build();
