@@ -37,127 +37,137 @@ import com.bookshop.repositories.ProductRepository;
 @Transactional(rollbackFor = Exception.class)
 public class ProductController {
 
-	@Autowired
-	private ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-	@Autowired
-	private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-	@GetMapping
-	public ResponseEntity<?> getAllProducts(@RequestParam(name = "page", required = false) Integer pageNum) {
-		if (pageNum != null) {
-			Page<Product> page = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
-			//
-			List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
+    @GetMapping
+    public ResponseEntity<?> getAllProducts(@RequestParam(name = "page", required = false) Integer pageNum) {
+        if (pageNum != null) {
+            Page<Product> page = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
+            //
+            List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
 
-			List<Product> listProducts = page.getContent();
-			for (int i = 0; i < listProducts.size(); i++) {
-				listProdcutImages.add(listProducts.get(i).getProductImages().get(0));
-			}
-			//
-			if (page.getNumberOfElements() == 0) {
-				return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-			}
-			return ResponseEntity.ok().body(listProdcutImages);
-		}
+            List<Product> listProducts = page.getContent();
+            for (int i = 0; i < listProducts.size(); i++) {
+                if (listProducts.get(i).getProductImages().isEmpty()) {
+                    continue;
+                }
+                listProdcutImages.add(listProducts.get(i).getProductImages().get(0));
+            }
+            //
+            if (page.getNumberOfElements() == 0) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            return ResponseEntity.ok().body(listProdcutImages);
+        }
 
-		List<Product> products = productRepository.findAll();
-		//
-		List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
+        List<Product> products = productRepository.findAll();
+        //
+        List<ProductImage> listProductImages = new LinkedList<ProductImage>();
 
-		for (int i = 0; i < products.size(); i++) {
-			listProdcutImages.add(products.get(i).getProductImages().get(0));
-		}
-		//
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getProductImages().isEmpty()) {
+                continue;
+            }
+            listProductImages.add(products.get(i).getProductImages().get(0));
+        }
+        //
 
-		if (products.size() == 0) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok().body(listProdcutImages);
-	}
+        if (products.size() == 0) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok().body(listProductImages);
+    }
 
-	@GetMapping("/{id}")
-	public ResponseEntity<?> getProductBySlug(@PathVariable("id") Object id) {
-		Product product;
-		try {
-			Long productId = Long.parseLong((String) id);
-			product = productRepository.findById(productId).get();
-		} catch (Exception e) {
-			product = productRepository.findBySlug(id.toString());
-		}
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductBySlug(@PathVariable("id") Object id) {
+        Product product;
+        try {
+            Long productId = Long.parseLong((String) id);
+            Optional<Product> optionalProduct = productRepository.findById(productId);
+            if (!optionalProduct.isPresent()) {
+                throw new NotFoundException("Not found product with product id " + productId);
+            }
+            product = optionalProduct.get();
+        } catch (Exception e) {
+            product = productRepository.findBySlug(id.toString());
+        }
 
-		if (product == null) {
-			throw new NotFoundException("Product not found");
-		}
+        if (product == null) {
+            throw new NotFoundException("Product not found");
+        }
 
-		ProductDetail productDetail = new ProductDetail(product, product.getProductImages());
+        ProductDetail productDetail = new ProductDetail(product, product.getProductImages());
 
-		return ResponseEntity.ok().body(productDetail);
-	}
+        return ResponseEntity.ok().body(productDetail);
+    }
 
-	@PostMapping
-	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-	public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO productDTO) {
-		Product oldProduct = productRepository.findBySlug(ConvertObject.toSlug(productDTO.getTitle()));
-		if (oldProduct != null) {
-			throw new DuplicateRecordException("Product has already exists");
-		}
-		Product product = ConvertObject.fromProductDTOToProductDAO(productDTO);
-		Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
-		product.setCategory(category);
+    @PostMapping
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+    public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO productDTO) {
+        Product oldProduct = productRepository.findBySlug(ConvertObject.toSlug(productDTO.getTitle()));
+        if (oldProduct != null) {
+            throw new DuplicateRecordException("Product has already exists");
+        }
+        Product product = ConvertObject.fromProductDTOToProductDAO(productDTO);
+        Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
+        product.setCategory(category);
 
-		Product newProduct = productRepository.save(product);
+        Product newProduct = productRepository.save(product);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
-	}
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+    }
 
-	@PatchMapping("/{productId}")
-	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-	public ResponseEntity<?> editProduct(@RequestBody ProductDTO productDTO,
-			@PathVariable("productId") Long productId) {
-		Optional<Product> optionalProduct = productRepository.findById(productId);
+    @PatchMapping("/{productId}")
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+    public ResponseEntity<?> editProduct(@RequestBody ProductDTO productDTO,
+                                         @PathVariable("productId") Long productId) {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
 
-		if (!optionalProduct.isPresent()) {
-			throw new NotFoundException("Product not found");
-		}
-		Product product = optionalProduct.get();
+        if (!optionalProduct.isPresent()) {
+            throw new NotFoundException("Product not found");
+        }
+        Product product = optionalProduct.get();
 
-		if (productDTO.getTitle() != null) {
-			product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
-			product.setSlug(ConvertObject.toSlug(productDTO.getTitle().trim().replaceAll("\\s+", " ")));
-		}
-		if (productDTO.getLongDescription() != null) {
-			product.setLongDescription(productDTO.getLongDescription().trim().replaceAll("\\s+", " "));
-			product.setShortDescription(product.getLongDescription().substring(0, 60));
-		}
-		if (productDTO.getCategoryId() != null) {
-			Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
-			product.setCategory(category);
-		}
-		if (productDTO.getPrice() != null) {
-			product.setPrice(productDTO.getPrice());
-		}
-		if (productDTO.getAuthor() != null) {
-			product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
-		}
-		if (productDTO.getCurrentNumber() != null) {
-			product.setCurrentNumber(productDTO.getCurrentNumber());
-		}
+        if (productDTO.getTitle() != null) {
+            product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
+            product.setSlug(ConvertObject.toSlug(productDTO.getTitle().trim().replaceAll("\\s+", " ")));
+        }
+        if (productDTO.getLongDescription() != null) {
+            product.setLongDescription(productDTO.getLongDescription().trim().replaceAll("\\s+", " "));
+            product.setShortDescription(product.getLongDescription().substring(0, 60));
+        }
+        if (productDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
+            product.setCategory(category);
+        }
+        if (productDTO.getPrice() != null) {
+            product.setPrice(productDTO.getPrice());
+        }
+        if (productDTO.getAuthor() != null) {
+            product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
+        }
+        if (productDTO.getCurrentNumber() != null) {
+            product.setCurrentNumber(productDTO.getCurrentNumber());
+        }
 
-		productRepository.save(product);
+        productRepository.save(product);
 
-		return ResponseEntity.status(HttpStatus.OK).body(product);
-	}
+        return ResponseEntity.status(HttpStatus.OK).body(product);
+    }
 
-	@DeleteMapping("/{productId}")
-	@PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-	public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId) {
-		Optional<Product> optionalProduct = productRepository.findById(productId);
-		if (!optionalProduct.isPresent()) {
-			throw new NotFoundException("Product not found");
-		}
-		productRepository.deleteById(productId);
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+    public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId) {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (!optionalProduct.isPresent()) {
+            throw new NotFoundException("Product not found");
+        }
+        productRepository.deleteById(productId);
 
-		return ResponseEntity.status(HttpStatus.OK).body(optionalProduct.get());
-	}
+        return ResponseEntity.status(HttpStatus.OK).body(optionalProduct.get());
+    }
 }
