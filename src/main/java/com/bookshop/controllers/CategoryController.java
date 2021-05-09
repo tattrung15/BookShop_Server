@@ -1,20 +1,16 @@
 package com.bookshop.controllers;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
 import com.bookshop.dto.CategoryDTO;
 import com.bookshop.dto.PaginationDTO;
 import com.bookshop.exceptions.DuplicateRecordException;
+import com.bookshop.exceptions.InvalidException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.ConvertObject;
 import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,15 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/categories")
@@ -45,7 +37,15 @@ public class CategoryController {
     private ProductRepository productRepository;
 
     @GetMapping
-    public ResponseEntity<?> getAllCategories(@RequestParam(name = "page", required = false) Integer pageNum) {
+    public ResponseEntity<?> getAllCategories(@RequestParam(name = "page", required = false) Integer pageNum,
+                                              @RequestParam(name = "search", required = false) String search) {
+        if (search != null) {
+            List<Category> categories = categoryRepository.findByNameContaining(search);
+            if (categories.size() == 0) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok().body(categories);
+        }
         if (pageNum != null) {
             Page<Category> page = categoryRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
             if (page.getNumberOfElements() == 0) {
@@ -171,6 +171,11 @@ public class CategoryController {
         if (!optionalCategory.isPresent()) {
             throw new NotFoundException("Category not found");
         }
+
+        if (!optionalCategory.get().getProducts().isEmpty()) {
+            throw new InvalidException("Delete failed");
+        }
+
         categoryRepository.deleteById(categoryId);
 
         return ResponseEntity.status(HttpStatus.OK).body(optionalCategory.get());
