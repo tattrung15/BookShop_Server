@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Category")
@@ -37,6 +38,7 @@ public class Category implements Serializable {
 
 	@Nationalized
 	@Column(name = "description")
+	@Length(max = 100000)
 	private String description;
 
 	@Column(name = "slug", nullable = false)
