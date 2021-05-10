@@ -44,7 +44,7 @@ public class Product implements Serializable {
 
 	@Nationalized
 	@Column(name = "long_description", nullable = false)
-	@Length(max = 1000)
+	@Length(max = 100000)
 	private String longDescription;
 
 	@ManyToOne
