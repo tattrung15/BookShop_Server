@@ -29,7 +29,6 @@ import com.bookshop.exceptions.InvalidException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.repositories.DeliveryRepository;
 import com.bookshop.repositories.OrderItemRepository;
-import com.bookshop.repositories.ProductRepository;
 import com.bookshop.repositories.SaleOrderRepository;
 import com.bookshop.repositories.UserRepository;
 
