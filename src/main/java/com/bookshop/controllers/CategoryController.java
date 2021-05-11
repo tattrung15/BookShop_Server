@@ -8,6 +8,7 @@ import com.bookshop.dto.PaginationDTO;
 import com.bookshop.exceptions.DuplicateRecordException;
 import com.bookshop.exceptions.InvalidException;
 import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.helpers.CheckValid;
 import com.bookshop.helpers.ConvertObject;
 import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductRepository;
@@ -135,6 +136,8 @@ public class CategoryController {
         }
         Category category = ConvertObject.fromCategoryDTOToCategoryDAO(categoryDTO);
 
+        CheckValid.checkCategory(category);
+
         Category newCategory = categoryRepository.save(category);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
@@ -142,7 +145,7 @@ public class CategoryController {
 
     @PatchMapping("/{categoryId}")
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> editUser(@RequestBody CategoryDTO categoryDTO,
+    public ResponseEntity<?> editCategory(@RequestBody CategoryDTO categoryDTO,
                                       @PathVariable("categoryId") Long categoryId) {
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
 
@@ -158,6 +161,8 @@ public class CategoryController {
         if (categoryDTO.getDescription() != null) {
             category.setDescription(categoryDTO.getDescription());
         }
+
+        CheckValid.checkCategory(category);
 
         categoryRepository.save(category);
 

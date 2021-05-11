@@ -70,8 +70,7 @@ public class BookshopApplication implements CommandLineRunner {
 
 	@Bean
 	public CharacterEncodingFilter encodingFilter() {
-		CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter("UTF-8", true);
-		return encodingFilter;
+		return new CharacterEncodingFilter("UTF-8", true);
 	}
 
 	@Override
