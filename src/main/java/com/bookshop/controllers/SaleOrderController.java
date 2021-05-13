@@ -30,7 +30,15 @@ public class SaleOrderController {
     private DeliveryRepository deliveryRepository;
 
     @GetMapping
-    public ResponseEntity<?> getAllSaleOrders(@RequestParam(name = "search", required = false) Long saleOrderId) {
+    public ResponseEntity<?> getAllSaleOrders(@RequestParam(name = "search", required = false) Long saleOrderId,
+                                              @RequestParam(name = "deliveryId", required = false) Long deliveryId) {
+        if (deliveryId != null) {
+            List<SaleOrder> saleOrders = saleOrderRepository.findByDeliveryId(deliveryId);
+            if (saleOrders.isEmpty()) {
+                return ResponseEntity.status(204).build();
+            }
+            return ResponseEntity.status(200).body(saleOrders);
+        }
         if (saleOrderId != null) {
             Optional<SaleOrder> saleOrders = saleOrderRepository.findById(saleOrderId);
             if (!saleOrders.isPresent()) {
