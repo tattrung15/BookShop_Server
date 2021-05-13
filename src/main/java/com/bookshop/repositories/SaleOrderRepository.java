@@ -14,4 +14,6 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, Long> {
     List<SaleOrder> findByUserIdAndDelivery(Long userId, Delivery delivery);
 
     List<SaleOrder> findByDeliveryId(Long deliveryId);
+
+    List<SaleOrder> findByDeliveryOrderByCreateAtDesc(Delivery delivery);
 }
