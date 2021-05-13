@@ -1,64 +1,105 @@
 package com.bookshop.controllers;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.bookshop.dao.Delivery;
 import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.ProductImage;
 import com.bookshop.dao.SaleOrder;
+import com.bookshop.dto.DeliveryDTO;
 import com.bookshop.dto.OrderDetail;
 import com.bookshop.dto.OrderItemDetailDTO;
 import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.repositories.DeliveryRepository;
 import com.bookshop.repositories.SaleOrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sale-orders")
 public class SaleOrderController {
 
-	@Autowired
-	private SaleOrderRepository saleOrderRepository;
+    @Autowired
+    private SaleOrderRepository saleOrderRepository;
 
-	@GetMapping("/{saleOrderId}")
-	public ResponseEntity<?> getSaleOrderById(@PathVariable("saleOrderId") Long saleOrderId) {
-		Optional<SaleOrder> optionalSaleOrder = saleOrderRepository.findById(saleOrderId);
-		if (!optionalSaleOrder.isPresent()) {
-			throw new NotFoundException("Not found sale order by id " + saleOrderId);
-		}
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
-		SaleOrder saleOrder = optionalSaleOrder.get();
+    @GetMapping
+    public ResponseEntity<?> getAllSaleOrders(@RequestParam(name = "search", required = false) Long saleOrderId) {
+        if (saleOrderId != null) {
+            Optional<SaleOrder> saleOrders = saleOrderRepository.findById(saleOrderId);
+            if (!saleOrders.isPresent()) {
+                return ResponseEntity.status(204).build();
+            }
+            return ResponseEntity.status(200).body(Collections.singletonList(saleOrders.get()));
+        }
+        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
+        if (saleOrders.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
 
-		OrderDetail orderDetail = new OrderDetail();
-		orderDetail.setId(saleOrder.getId());
-		orderDetail.setCreateAt(saleOrder.getCreateAt());
-		orderDetail.setUpdateAt(saleOrder.getUpdateAt());
-		orderDetail.setCustomerAddress(saleOrder.getCustomerAddress());
-		orderDetail.setDelivery(saleOrder.getDelivery());
-		orderDetail.setUser(saleOrder.getUser());
-		orderDetail.setPhone(saleOrder.getPhone());
+        return ResponseEntity.status(200).body(saleOrders);
+    }
 
-		List<OrderItemDetailDTO> orderItemDetailDTOs = new LinkedList<>();
+    @GetMapping("/{saleOrderId}")
+    public ResponseEntity<?> getSaleOrderById(@PathVariable("saleOrderId") Long saleOrderId) {
+        Optional<SaleOrder> optionalSaleOrder = saleOrderRepository.findById(saleOrderId);
+        if (!optionalSaleOrder.isPresent()) {
+            throw new NotFoundException("Not found sale order by id " + saleOrderId);
+        }
 
-		for (int i = 0; i < saleOrder.getOrderItems().size(); i++) {
-			OrderItem orderItem = saleOrder.getOrderItems().get(i);
-			ProductImage productImage = orderItem.getProduct().getProductImages().get(0);
+        SaleOrder saleOrder = optionalSaleOrder.get();
 
-			OrderItemDetailDTO orderItemDetailDTO = new OrderItemDetailDTO();
-			orderItemDetailDTO.setOrderItem(orderItem);
-			orderItemDetailDTO.setProductImage(productImage);
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setId(saleOrder.getId());
+        orderDetail.setCreateAt(saleOrder.getCreateAt());
+        orderDetail.setUpdateAt(saleOrder.getUpdateAt());
+        orderDetail.setCustomerAddress(saleOrder.getCustomerAddress());
+        orderDetail.setDelivery(saleOrder.getDelivery());
+        orderDetail.setUser(saleOrder.getUser());
+        orderDetail.setPhone(saleOrder.getPhone());
 
-			orderItemDetailDTOs.add(orderItemDetailDTO);
-		}
+        List<OrderItemDetailDTO> orderItemDetailDTOs = new LinkedList<>();
 
-		orderDetail.setOrderItems(orderItemDetailDTOs);
+        for (int i = 0; i < saleOrder.getOrderItems().size(); i++) {
+            OrderItem orderItem = saleOrder.getOrderItems().get(i);
+            ProductImage productImage = orderItem.getProduct().getProductImages().get(0);
 
-		return ResponseEntity.status(200).body(orderDetail);
-	}
+            OrderItemDetailDTO orderItemDetailDTO = new OrderItemDetailDTO();
+            orderItemDetailDTO.setOrderItem(orderItem);
+            orderItemDetailDTO.setProductImage(productImage);
+
+            orderItemDetailDTOs.add(orderItemDetailDTO);
+        }
+
+        orderDetail.setOrderItems(orderItemDetailDTOs);
+
+        return ResponseEntity.status(200).body(orderDetail);
+    }
+
+    @PatchMapping("/{saleOrderId}")
+    public ResponseEntity<?> editSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId, @RequestBody DeliveryDTO deliveryDTO) {
+
+        Optional<SaleOrder> optionalSaleOrder = saleOrderRepository.findById(saleOrderId);
+        if (!optionalSaleOrder.isPresent()) {
+            throw new NotFoundException("Not found sale order by saleOrderId " + saleOrderId);
+        }
+
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryDTO.getDeliveryId());
+        if (!optionalDelivery.isPresent()) {
+            throw new NotFoundException("Not found delivery by deliveryId " + deliveryDTO.getDeliveryId());
+        }
+
+        SaleOrder saleOrder = optionalSaleOrder.get();
+        saleOrder.setDelivery(optionalDelivery.get());
+
+        SaleOrder newSaleOrder = saleOrderRepository.save(saleOrder);
+
+        return ResponseEntity.status(200).body(newSaleOrder);
+    }
 }
