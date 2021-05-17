@@ -26,13 +26,13 @@ public class JwtUtil {
 		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getExpiration();
 	}
 
-	public Boolean isTokenExpried(String token) {
+	public Boolean isTokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = extractUsername(token);
-		return (username.equals(userDetails.getUsername()) && !isTokenExpried(token));
+		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
 
 	public String generateToken(UserDetails userDetails) {
