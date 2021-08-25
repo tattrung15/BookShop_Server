@@ -1,42 +1,38 @@
 package com.bookshop.dto;
 
-public class UserDTO {
+public class SignUpDTO {
+
 	private String firstName;
 
 	private String lastName;
 
 	private String username;
 
-	private String password;
-
 	private String address;
 
-	private Long amount;
-
-	private String role;
+	private String password;
 
 	private String email;
 
 	private String phone;
 
-	public UserDTO() {
+	public SignUpDTO() {
 	}
 
-	public UserDTO(String firstName, String lastName, String username, String password, String address, Long amount,
-			String role, String email, String phone) {
+	public SignUpDTO(String firstName, String lastName, String username, String address, String password, String email,
+			String phone) {
+		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
-		this.password = password;
 		this.address = address;
-		this.amount = amount;
-		this.role = role;
+		this.password = password;
 		this.email = email;
 		this.phone = phone;
 	}
 
 	public String getFirstName() {
-		return this.firstName;
+		return firstName;
 	}
 
 	public void setFirstName(String firstName) {
@@ -44,7 +40,7 @@ public class UserDTO {
 	}
 
 	public String getLastName() {
-		return this.lastName;
+		return lastName;
 	}
 
 	public void setLastName(String lastName) {
@@ -52,47 +48,31 @@ public class UserDTO {
 	}
 
 	public String getUsername() {
-		return this.username;
+		return username;
 	}
 
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public String getAddress() {
-		return this.address;
+		return address;
 	}
 
 	public void setAddress(String address) {
 		this.address = address;
 	}
 
-	public Long getAmount() {
-		return this.amount;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setAmount(Long amount) {
-		this.amount = amount;
-	}
-
-	public String getRole() {
-		return this.role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getEmail() {
-		return this.email;
+		return email;
 	}
 
 	public void setEmail(String email) {
@@ -100,10 +80,11 @@ public class UserDTO {
 	}
 
 	public String getPhone() {
-		return this.phone;
+		return phone;
 	}
 
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
 }

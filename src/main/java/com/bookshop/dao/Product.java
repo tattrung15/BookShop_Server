@@ -44,7 +44,7 @@ public class Product implements Serializable {
 
 	@Nationalized
 	@Column(name = "long_description", nullable = false)
-	@Length(max = 1000)
+	@Length(max = 100000)
 	private String longDescription;
 
 	@ManyToOne
@@ -79,6 +79,9 @@ public class Product implements Serializable {
 	@Column(name = "slug", nullable = false)
 	private String slug;
 
+	@Column(name = "quantity_purchased")
+	private Integer quantityPurchased;
+
 	@CreationTimestamp
 	private Timestamp createAt;
 
@@ -88,10 +91,11 @@ public class Product implements Serializable {
 	public Product() {
 	}
 
-	public Product(Long id, String title, String shortDescription, String longDescription, Category category,
-			List<ProductImage> productImages, List<OrderItem> orderItems, List<ProductRating> productRatings,
-			Long price, String author, Integer currentNumber, Integer numberOfPage, String slug, Timestamp createAt,
-			Timestamp updateAt) {
+	public Product(Long id, String title, String shortDescription, @Length(max = 1000) String longDescription,
+			Category category, List<ProductImage> productImages, List<OrderItem> orderItems,
+			List<ProductRating> productRatings, Long price, String author, Integer currentNumber, Integer numberOfPage,
+			String slug, Integer quantityPurchased, Timestamp createAt, Timestamp updateAt) {
+		super();
 		this.id = id;
 		this.title = title;
 		this.shortDescription = shortDescription;
@@ -105,12 +109,13 @@ public class Product implements Serializable {
 		this.currentNumber = currentNumber;
 		this.numberOfPage = numberOfPage;
 		this.slug = slug;
+		this.quantityPurchased = quantityPurchased;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
 	}
 
 	public Long getId() {
-		return this.id;
+		return id;
 	}
 
 	public void setId(Long id) {
@@ -118,7 +123,7 @@ public class Product implements Serializable {
 	}
 
 	public String getTitle() {
-		return this.title;
+		return title;
 	}
 
 	public void setTitle(String title) {
@@ -126,7 +131,7 @@ public class Product implements Serializable {
 	}
 
 	public String getShortDescription() {
-		return this.shortDescription;
+		return shortDescription;
 	}
 
 	public void setShortDescription(String shortDescription) {
@@ -134,7 +139,7 @@ public class Product implements Serializable {
 	}
 
 	public String getLongDescription() {
-		return this.longDescription;
+		return longDescription;
 	}
 
 	public void setLongDescription(String longDescription) {
@@ -142,7 +147,7 @@ public class Product implements Serializable {
 	}
 
 	public Category getCategory() {
-		return this.category;
+		return category;
 	}
 
 	public void setCategory(Category category) {
@@ -150,7 +155,7 @@ public class Product implements Serializable {
 	}
 
 	public List<ProductImage> getProductImages() {
-		return this.productImages;
+		return productImages;
 	}
 
 	public void setProductImages(List<ProductImage> productImages) {
@@ -158,7 +163,7 @@ public class Product implements Serializable {
 	}
 
 	public List<OrderItem> getOrderItems() {
-		return this.orderItems;
+		return orderItems;
 	}
 
 	public void setOrderItems(List<OrderItem> orderItems) {
@@ -166,7 +171,7 @@ public class Product implements Serializable {
 	}
 
 	public List<ProductRating> getProductRatings() {
-		return this.productRatings;
+		return productRatings;
 	}
 
 	public void setProductRatings(List<ProductRating> productRatings) {
@@ -174,7 +179,7 @@ public class Product implements Serializable {
 	}
 
 	public Long getPrice() {
-		return this.price;
+		return price;
 	}
 
 	public void setPrice(Long price) {
@@ -182,7 +187,7 @@ public class Product implements Serializable {
 	}
 
 	public String getAuthor() {
-		return this.author;
+		return author;
 	}
 
 	public void setAuthor(String author) {
@@ -190,7 +195,7 @@ public class Product implements Serializable {
 	}
 
 	public Integer getCurrentNumber() {
-		return this.currentNumber;
+		return currentNumber;
 	}
 
 	public void setCurrentNumber(Integer currentNumber) {
@@ -198,7 +203,7 @@ public class Product implements Serializable {
 	}
 
 	public Integer getNumberOfPage() {
-		return this.numberOfPage;
+		return numberOfPage;
 	}
 
 	public void setNumberOfPage(Integer numberOfPage) {
@@ -206,15 +211,23 @@ public class Product implements Serializable {
 	}
 
 	public String getSlug() {
-		return this.slug;
+		return slug;
 	}
 
 	public void setSlug(String slug) {
 		this.slug = slug;
 	}
 
+	public Integer getQuantityPurchased() {
+		return quantityPurchased;
+	}
+
+	public void setQuantityPurchased(Integer quantityPurchased) {
+		this.quantityPurchased = quantityPurchased;
+	}
+
 	public Timestamp getCreateAt() {
-		return this.createAt;
+		return createAt;
 	}
 
 	public void setCreateAt(Timestamp createAt) {
@@ -222,10 +235,15 @@ public class Product implements Serializable {
 	}
 
 	public Timestamp getUpdateAt() {
-		return this.updateAt;
+		return updateAt;
 	}
 
 	public void setUpdateAt(Timestamp updateAt) {
 		this.updateAt = updateAt;
 	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 }

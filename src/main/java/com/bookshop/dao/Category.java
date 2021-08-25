@@ -19,105 +19,108 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Category")
 public class Category implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "category_id")
+	private Long id;
 
-    @Nationalized
-    @Column(name = "name", nullable = false)
-    private String name;
+	@Nationalized
+	@Column(name = "name", nullable = false)
+	private String name;
 
-    @Nationalized
-    @Column(name = "description")
-    private String description;
+	@Nationalized
+	@Column(name = "description")
+	@Length(max = 100000)
+	private String description;
 
-    @Column(name = "slug", nullable = false)
-    private String slug;
+	@Column(name = "slug", nullable = false)
+	private String slug;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Product> products;
+	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<Product> products;
 
-    @CreationTimestamp
-    private Timestamp createAt;
+	@CreationTimestamp
+	private Timestamp createAt;
 
-    @UpdateTimestamp
-    private Timestamp updateAt;
+	@UpdateTimestamp
+	private Timestamp updateAt;
 
-    public Category() {
-    }
+	public Category() {
+	}
 
-    public Category(Long id, String name, String description, String slug, List<Product> products, Timestamp createAt, Timestamp updateAt) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.slug = slug;
-        this.products = products;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-    }
+	public Category(Long id, String name, String description, String slug, List<Product> products, Timestamp createAt,
+			Timestamp updateAt) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.slug = slug;
+		this.products = products;
+		this.createAt = createAt;
+		this.updateAt = updateAt;
+	}
 
-    public Long getId() {
-        return this.id;
-    }
+	public Long getId() {
+		return this.id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return this.name;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getDescription() {
-        return this.description;
-    }
+	public String getDescription() {
+		return this.description;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public String getSlug() {
-        return this.slug;
-    }
+	public String getSlug() {
+		return this.slug;
+	}
 
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
 
-    public List<Product> getProducts() {
-        return this.products;
-    }
+	public List<Product> getProducts() {
+		return this.products;
+	}
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
 
-    public Timestamp getCreateAt() {
-        return this.createAt;
-    }
+	public Timestamp getCreateAt() {
+		return this.createAt;
+	}
 
-    public void setCreateAt(Timestamp createAt) {
-        this.createAt = createAt;
-    }
+	public void setCreateAt(Timestamp createAt) {
+		this.createAt = createAt;
+	}
 
-    public Timestamp getUpdateAt() {
-        return this.updateAt;
-    }
+	public Timestamp getUpdateAt() {
+		return this.updateAt;
+	}
 
-    public void setUpdateAt(Timestamp updateAt) {
-        this.updateAt = updateAt;
-    }
+	public void setUpdateAt(Timestamp updateAt) {
+		this.updateAt = updateAt;
+	}
 }

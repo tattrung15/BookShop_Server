@@ -1,10 +1,13 @@
 package com.bookshop.helpers;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.bookshop.dao.Category;
+import com.bookshop.dao.Product;
+import com.bookshop.dto.SignUpDTO;
 import com.bookshop.dto.UserDTO;
 import com.bookshop.exceptions.InvalidException;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CheckValid {
     private static final String regexUsername = "^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$";
@@ -59,5 +62,96 @@ public class CheckValid {
             return true;
         }
         return false;
+    }
+
+    public static Boolean checkSignUp(SignUpDTO signUpDTO) {
+        if (signUpDTO.getFirstName() == null || signUpDTO.getFirstName().trim() == "") {
+            throw new InvalidException("Invalid firstname");
+        }
+        if (signUpDTO.getLastName() == null || signUpDTO.getLastName().trim() == "") {
+            throw new InvalidException("Invalid lastname");
+        }
+        if (signUpDTO.getAddress() == null || signUpDTO.getAddress().trim() == "") {
+            throw new InvalidException("Invalid address");
+        }
+        pattern = Pattern.compile(regexUsername);
+        matcher = pattern.matcher(signUpDTO.getUsername());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid username");
+        }
+
+        pattern = Pattern.compile(regexPassword);
+        matcher = pattern.matcher(signUpDTO.getPassword());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid password");
+        }
+
+        pattern = Pattern.compile(regexEmail);
+        matcher = pattern.matcher(signUpDTO.getEmail());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid email");
+        }
+
+        pattern = Pattern.compile(regexPhone);
+        matcher = pattern.matcher(signUpDTO.getPhone());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid phone");
+        }
+        return true;
+    }
+
+    public static Boolean checkUpdateProfile(UserDTO userDTO) {
+        if (userDTO.getFirstName() == null || userDTO.getFirstName().trim() == "") {
+            throw new InvalidException("Invalid firstname");
+        }
+        if (userDTO.getLastName() == null || userDTO.getLastName().trim() == "") {
+            throw new InvalidException("Invalid lastname");
+        }
+        if (userDTO.getAddress() == null || userDTO.getAddress().trim() == "") {
+            throw new InvalidException("Invalid address");
+        }
+
+        pattern = Pattern.compile(regexEmail);
+        matcher = pattern.matcher(userDTO.getEmail());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid email");
+        }
+
+        pattern = Pattern.compile(regexPhone);
+        matcher = pattern.matcher(userDTO.getPhone());
+        if (!matcher.find()) {
+            throw new InvalidException("Invalid phone");
+        }
+        return true;
+    }
+
+    public static void checkCategory(Category category) {
+        if (category.getName().trim().compareTo("") == 0) {
+            throw new InvalidException("Invalid category name");
+        }
+        if (category.getDescription().trim().compareTo("") == 0) {
+            throw new InvalidException("Invalid description");
+        }
+    }
+
+    public static void checkProduct(Product product) {
+        if (product.getTitle().trim().compareTo("") == 0) {
+            throw new InvalidException("Invalid title");
+        }
+        if (product.getLongDescription().trim().compareTo("") == 0) {
+            throw new InvalidException("Invalid long description");
+        }
+        if (product.getAuthor().trim().compareTo("") == 0) {
+            throw new InvalidException("Invalid author");
+        }
+        if (product.getPrice() < 0) {
+            throw new InvalidException("Invalid price");
+        }
+        if (product.getCurrentNumber() < 0) {
+            throw new InvalidException("Invalid current number");
+        }
+        if (product.getNumberOfPage() <= 0) {
+            throw new InvalidException("Invalid number of page");
+        }
     }
 }

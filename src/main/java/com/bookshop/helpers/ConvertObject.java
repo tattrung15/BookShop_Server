@@ -1,28 +1,26 @@
 package com.bookshop.helpers;
 
-import java.text.Normalizer;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.User;
 import com.bookshop.dto.CategoryDTO;
 import com.bookshop.dto.ProductDTO;
+import com.bookshop.dto.SignUpDTO;
 import com.bookshop.dto.UserDTO;
 
 public class ConvertObject {
 
-    private static final Pattern NON_LATIN = Pattern.compile("[^\\w-]");
-
-    private static final Pattern WHITE_SPACE = Pattern.compile("[\\s]");
-
     public static String toSlug(String input) {
-        input = input.trim().replaceAll("\\s+", " ");
-        String noWhiteSpace = WHITE_SPACE.matcher(input).replaceAll("-");
-        String normalized = Normalizer.normalize(noWhiteSpace, Normalizer.Form.NFD);
-        String slug = NON_LATIN.matcher(normalized).replaceAll("");
-        return slug.toLowerCase(Locale.ENGLISH);
+        return input.toLowerCase().replaceAll("[á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ|ä|å|æ|ą]", "a")
+                .replaceAll("[ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ|ö|ô|œ|ø]", "o")
+                .replaceAll("[é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ|ě|ė|ë|ę]", "e").replaceAll("[ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự]", "u")
+                .replaceAll("[i|í|ì|ỉ|ĩ|ị|ï|î|į]", "i").replaceAll("[ù|ú|ü|û|ǘ|ů|ű|ū|ų]", "u")
+                .replaceAll("[ß|ş|ś|š|ș]", "s").replaceAll("[ź|ž|ż]", "z").replaceAll("[ý|ỳ|ỷ|ỹ|ỵ|ÿ|ý]", "y")
+                .replaceAll("[ǹ|ń|ň|ñ]", "n").replaceAll("[ç|ć|č]", "c").replaceAll("[ğ|ǵ]", "g")
+                .replaceAll("[ŕ|ř]", "r").replaceAll("[·|/|_|,|:|;]", "-").replaceAll("[ť|ț]", "t").replaceAll("ḧ", "h")
+                .replaceAll("ẍ", "x").replaceAll("ẃ", "w").replaceAll("ḿ", "m").replaceAll("ṕ", "p")
+                .replaceAll("ł", "l").replaceAll("đ", "d").replaceAll("\\s+", "-").replaceAll("&", "-and-")
+                .replaceAll("[^\\w\\-]+", "").replaceAll("\\-\\-+", "-").replaceAll("^-+", "").replaceAll("-+$", "");
     }
 
     public static User fromUserDTOToUserDAO(UserDTO userDTO) {
@@ -30,7 +28,6 @@ public class ConvertObject {
         user.setFirstName(userDTO.getFirstName().trim().replaceAll("\\s+", " "));
         user.setLastName(userDTO.getLastName().trim().replaceAll("\\s+", " "));
         user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
         user.setAddress(userDTO.getAddress().trim().replaceAll("\\s+", " "));
         user.setAmount(userDTO.getAmount());
         user.setEmail(userDTO.getEmail());
@@ -63,15 +60,34 @@ public class ConvertObject {
     public static Product fromProductDTOToProductDAO(ProductDTO productDTO) {
         Product product = new Product();
         product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
-        if (productDTO.getShortDescription() != null) {
-            product.setShortDescription(productDTO.getShortDescription().trim().replaceAll("\\s+", " "));
-        }
         product.setLongDescription(productDTO.getLongDescription().trim());
+        if (product.getLongDescription().length() > 60) {
+            product.setShortDescription(product.getLongDescription().substring(0, 60));
+        } else {
+            product.setShortDescription(product.getLongDescription());
+        }
         product.setPrice(productDTO.getPrice());
         product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
         product.setCurrentNumber(productDTO.getCurrentNumber());
         product.setNumberOfPage(productDTO.getNumberOfPage());
         product.setSlug(toSlug(productDTO.getTitle()));
+        product.setQuantityPurchased(0);
         return product;
+    }
+
+    public static User fromSignUpDTOToUserDAO(SignUpDTO signUpDTO) {
+        if (!CheckValid.checkSignUp(signUpDTO)) {
+            return null;
+        }
+        User user = new User();
+        user.setFirstName(signUpDTO.getFirstName().trim().replaceAll("\\s+", " "));
+        user.setLastName(signUpDTO.getLastName().trim().replaceAll("\\s+", " "));
+        user.setAddress(signUpDTO.getAddress().trim().replaceAll("\\s+", " "));
+        user.setUsername(signUpDTO.getUsername());
+        user.setAmount(0L);
+        user.setRole("MEMBER");
+        user.setEmail(signUpDTO.getEmail());
+        user.setPhone(signUpDTO.getPhone());
+        return user;
     }
 }

@@ -1,68 +1,37 @@
-package com.bookshop.dao;
+package com.bookshop.dto;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import com.bookshop.dao.Delivery;
+import com.bookshop.dao.OrderItem;
+import com.bookshop.dao.ProductImage;
+import com.bookshop.dao.User;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Nationalized;
-import org.hibernate.annotations.UpdateTimestamp;
-
-@Entity
-@Table(name = "SaleOrder")
-public class SaleOrder implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "saleOrder_id")
+public class SaleOrderResponseDTO {
 	private Long id;
 
-	@Nationalized
-	@Column(name = "customerAddress", nullable = false)
 	private String customerAddress;
 
-	@Column(name = "phone", nullable = false)
 	private String phone;
 
-	@ManyToOne
-	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne
-	@JoinColumn(name = "delivery_id")
 	private Delivery delivery;
 
-	@OneToMany(mappedBy = "saleOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JsonIgnore
 	private List<OrderItem> orderItems;
 
-	@CreationTimestamp
+	private ProductImage productImage;
+
 	private Timestamp createAt;
 
-	@UpdateTimestamp
 	private Timestamp updateAt;
 
-	public SaleOrder() {
+	public SaleOrderResponseDTO() {
 	}
 
-	public SaleOrder(Long id, String customerAddress, String phone, User user, Delivery delivery,
-			List<OrderItem> orderItems, Timestamp createAt, Timestamp updateAt) {
+	public SaleOrderResponseDTO(Long id, String customerAddress, String phone, User user, Delivery delivery,
+			List<OrderItem> orderItems, ProductImage productImage, Timestamp createAt, Timestamp updateAt) {
 		super();
 		this.id = id;
 		this.customerAddress = customerAddress;
@@ -70,6 +39,7 @@ public class SaleOrder implements Serializable {
 		this.user = user;
 		this.delivery = delivery;
 		this.orderItems = orderItems;
+		this.productImage = productImage;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
 	}
@@ -122,6 +92,14 @@ public class SaleOrder implements Serializable {
 		this.orderItems = orderItems;
 	}
 
+	public ProductImage getProductImage() {
+		return productImage;
+	}
+
+	public void setProductImage(ProductImage productImage) {
+		this.productImage = productImage;
+	}
+
 	public Timestamp getCreateAt() {
 		return createAt;
 	}
@@ -136,10 +114,6 @@ public class SaleOrder implements Serializable {
 
 	public void setUpdateAt(Timestamp updateAt) {
 		this.updateAt = updateAt;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 }

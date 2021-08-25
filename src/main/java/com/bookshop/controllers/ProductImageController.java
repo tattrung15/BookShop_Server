@@ -1,38 +1,29 @@
 package com.bookshop.controllers;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
+import com.bookshop.dto.ProductDetail;
 import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductImageRepository;
 import com.bookshop.repositories.ProductRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/product-images")
-@Transactional(rollbackFor = Exception.class)
 public class ProductImageController {
 
     @Autowired
@@ -44,15 +35,151 @@ public class ProductImageController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @GetMapping
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> getProductImages(@RequestParam(name = "page", required = false) Integer pageNum,
-            @RequestParam(name = "pid", required = false) Long productId) {
+                                              @RequestParam(name = "pid", required = false) Long productId,
+                                              @RequestParam(name = "search", required = false) String search,
+                                              @RequestParam(name = "category", required = false) String slugCategory,
+                                              @RequestParam(name = "type", required = false) String type) {
+        if (type != null) {
+            if (search != null) {
+                if (type.compareTo("have-image") == 0) {
+                    List<Product> products = productRepository.findByTitleContaining(search);
+
+                    List<ProductDetail> productsHaveImages = new LinkedList<>();
+
+                    for (int i = 0; i < products.size(); i++) {
+                        if (!products.get(i).getProductImages().isEmpty()) {
+                            ProductDetail productDetail = new ProductDetail(products.get(i), products.get(i).getProductImages());
+                            productsHaveImages.add(productDetail);
+                        }
+                    }
+
+                    if (productsHaveImages.size() == 0) {
+                        return ResponseEntity.noContent().build();
+                    }
+                    return ResponseEntity.ok().body(productsHaveImages);
+                }
+                if (type.compareTo("no-image") == 0) {
+                    List<Product> products = productRepository.findByTitleContaining(search);
+
+                    List<ProductDetail> productsNoImages = new LinkedList<>();
+
+                    for (int i = 0; i < products.size(); i++) {
+                        if (products.get(i).getProductImages().isEmpty()) {
+                            ProductDetail productDetail = new ProductDetail(products.get(i), products.get(i).getProductImages());
+                            productsNoImages.add(productDetail);
+                        }
+                    }
+
+                    if (productsNoImages.size() == 0) {
+                        return ResponseEntity.noContent().build();
+                    }
+                    return ResponseEntity.ok().body(productsNoImages);
+                }
+            }
+            if (type.compareTo("have-image") == 0) {
+                List<Product> products = productRepository.findAll();
+
+                List<ProductDetail> productsHaveImages = new LinkedList<>();
+
+                for (int i = 0; i < products.size(); i++) {
+                    if (!products.get(i).getProductImages().isEmpty()) {
+                        ProductDetail productDetail = new ProductDetail(products.get(i), products.get(i).getProductImages());
+                        productsHaveImages.add(productDetail);
+                    }
+                }
+
+                if (productsHaveImages.size() == 0) {
+                    return ResponseEntity.noContent().build();
+                }
+                return ResponseEntity.ok().body(productsHaveImages);
+            }
+            if (type.compareTo("no-image") == 0) {
+                List<Product> products = productRepository.findAll();
+
+                List<ProductDetail> productsNoImages = new LinkedList<>();
+
+                for (int i = 0; i < products.size(); i++) {
+                    if (products.get(i).getProductImages().isEmpty()) {
+                        ProductDetail productDetail = new ProductDetail(products.get(i), products.get(i).getProductImages());
+                        productsNoImages.add(productDetail);
+                    }
+                }
+
+                if (productsNoImages.size() == 0) {
+                    return ResponseEntity.noContent().build();
+                }
+                return ResponseEntity.ok().body(productsNoImages);
+            }
+        }
+        if (slugCategory != null) {
+            Category category = categoryRepository.findBySlug(slugCategory);
+
+            if (category == null) {
+                throw new NotFoundException("Not found category by slug " + slugCategory);
+            }
+            Page<Product> pageProducts = productRepository.findByCategoryId(category.getId(), PageRequest.of(0, 4));
+
+            List<Product> products = pageProducts.getContent();
+
+            List<ProductImage> productImages = new LinkedList<>();
+            for (int i = 0; i < products.size(); i++) {
+                if (products.get(i).getProductImages().isEmpty()) {
+                    continue;
+                }
+                ProductImage productImage = new ProductImage();
+                productImage.setId(products.get(i).getProductImages().get(0).getId());
+                productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+                productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+                productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+                productImage.setProduct(products.get(i));
+                productImages.add(productImage);
+            }
+            return ResponseEntity.ok().body(productImages);
+        }
+        if (search != null) {
+            List<Product> products = productRepository.findByTitleContaining(search);
+
+            List<ProductImage> productImages = new LinkedList<>();
+            for (int i = 0; i < products.size(); i++) {
+                if (products.get(i).getProductImages().isEmpty()) {
+                    continue;
+                }
+                ProductImage productImage = new ProductImage();
+                productImage.setId(products.get(i).getProductImages().get(0).getId());
+                productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+                productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+                productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+                productImage.setProduct(products.get(i));
+                productImages.add(productImage);
+            }
+            return ResponseEntity.ok().body(productImages);
+        }
         if (pageNum != null && productId == null) {
-            Page<ProductImage> page = productImageRepository.findAll(PageRequest.of(pageNum.intValue(), 10));
-            if (page.getNumberOfElements() == 0) {
+            Page<Product> pageProducts = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
+            if (pageProducts.getNumberOfElements() == 0) {
                 return ResponseEntity.noContent().build();
             }
-            return ResponseEntity.ok().body(page.getContent());
+            List<Product> products = pageProducts.getContent();
+            List<ProductImage> productImages = new LinkedList<>();
+            for (int i = 0; i < products.size(); i++) {
+                if (products.get(i).getProductImages().isEmpty()) {
+                    continue;
+                }
+                ProductImage productImage = new ProductImage();
+                productImage.setId(products.get(i).getProductImages().get(0).getId());
+                productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+                productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+                productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+                productImage.setProduct(products.get(i));
+                productImages.add(productImage);
+            }
+            return ResponseEntity.ok().body(productImages);
         }
 
         if (productId != null) {
@@ -67,14 +194,45 @@ public class ProductImageController {
             return ResponseEntity.ok().body(list);
         }
 
-        List<ProductImage> productImages = productImageRepository.findAll();
-        if (productImages.size() == 0) {
+        List<Product> products = productRepository.findAll();
+        List<ProductImage> productImages = new LinkedList<>();
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getProductImages().isEmpty()) {
+                continue;
+            }
+            ProductImage productImage = new ProductImage();
+            productImage.setId(products.get(i).getProductImages().get(0).getId());
+            productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+            productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+            productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+            productImage.setProduct(products.get(i));
+            productImages.add(productImage);
+        }
+        return ResponseEntity.ok().body(productImages);
+    }
+
+    @GetMapping("/best-selling")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> getProductsBestSelling() {
+        List<Product> products = productRepository.findAllByOrderByQuantityPurchasedDesc(PageRequest.of(0, 4));
+        if (products.size() == 0) {
             return ResponseEntity.noContent().build();
+        }
+        List<ProductImage> productImages = new LinkedList<>();
+        for (int i = 0; i < products.size(); i++) {
+            ProductImage productImage = new ProductImage();
+            productImage.setId(products.get(i).getProductImages().get(0).getId());
+            productImage.setLink(products.get(i).getProductImages().get(0).getLink());
+            productImage.setCreateAt(products.get(i).getProductImages().get(0).getCreateAt());
+            productImage.setUpdateAt(products.get(i).getProductImages().get(0).getUpdateAt());
+            productImage.setProduct(products.get(i));
+            productImages.add(productImage);
         }
         return ResponseEntity.ok().body(productImages);
     }
 
     @GetMapping("/{imageId}")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> getProductImageById(@PathVariable("imageId") Long imageId) {
         Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
         if (!optionalProductImage.isPresent()) {
@@ -84,9 +242,10 @@ public class ProductImageController {
     }
 
     @PostMapping
+    @Transactional(rollbackFor = Exception.class)
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
     public ResponseEntity<?> createNewImages(@RequestParam("productId") Long productId,
-            @RequestParam("files") MultipartFile[] files) throws IOException {
+                                             @RequestParam("files") MultipartFile[] files) throws IOException {
         List<ProductImage> productImages = new ArrayList<>();
         Optional<Product> optionalProduct = productRepository.findById(productId);
         if (!optionalProduct.isPresent()) {
@@ -106,9 +265,10 @@ public class ProductImageController {
     }
 
     @PatchMapping
+    @Transactional(rollbackFor = Exception.class)
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
     public ResponseEntity<?> editProductImageByProductId(@RequestParam("productId") Long productId,
-            @RequestParam(name = "files") MultipartFile[] files) throws IOException {
+                                                         @RequestParam(name = "files") MultipartFile[] files) throws IOException {
 
         Optional<Product> optionalProduct = productRepository.findById(productId);
         if (!optionalProduct.isPresent()) {
@@ -161,14 +321,15 @@ public class ProductImageController {
                 list.add(newProductImage);
             }
         }
-        
+
         newProductImages = productImageRepository.saveAll(list);
         return ResponseEntity.status(200).body(newProductImages);
     }
 
     @DeleteMapping("/{imageId}")
+    @Transactional(rollbackFor = Exception.class)
     @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable("imageId") Long imageId) throws IOException {
+    public ResponseEntity<?> deleteProductImage(@PathVariable("imageId") Long imageId) throws IOException {
         Optional<ProductImage> optionalProductImage = productImageRepository.findById(imageId);
         if (!optionalProductImage.isPresent()) {
             throw new NotFoundException("Product Image not found");
@@ -179,5 +340,23 @@ public class ProductImageController {
         productImageRepository.deleteById(imageId);
 
         return ResponseEntity.status(200).body(optionalProductImage.get());
+    }
+
+    @DeleteMapping("/product/{productId}")
+    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+    public ResponseEntity<?> deleteProductImagesByProductId(@PathVariable("productId") Long productId) throws IOException {
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (!optionalProduct.isPresent()) {
+            throw new NotFoundException("Product not found by product id " + productId);
+        }
+        List<ProductImage> productImages = optionalProduct.get().getProductImages();
+
+        for (int i = 0; i < productImages.size(); i++) {
+            ProductImage productImage = productImages.get(i);
+            cloudinary.uploader().destroy(productImage.getPublicId(), ObjectUtils.emptyMap());
+            productImageRepository.deleteById(productImage.getId());
+        }
+
+        return ResponseEntity.status(200).body(productImages);
     }
 }
