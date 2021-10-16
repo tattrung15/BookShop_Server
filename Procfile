@@ -1,0 +1,1 @@
+web: java -jar build/libs/BookShop_Server-0.0.1-SNAPSHOT.jar
