@@ -1,10 +1,12 @@
 package com.bookshop.dao;
 
+import com.bookshop.constants.RoleEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -49,11 +51,24 @@ public class User {
     private String role;
 
     @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
     private String phone;
 
     @CreationTimestamp
-    private Timestamp createAt;
+    private Timestamp createdAt;
 
     @UpdateTimestamp
-    private Timestamp updateAt;
+    private Timestamp updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.amount == null) {
+            this.amount = 0L;
+        }
+        if (this.role == null) {
+            this.role = RoleEnum.MEMBER;
+        }
+    }
 }
