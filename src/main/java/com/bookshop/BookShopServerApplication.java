@@ -23,8 +23,6 @@ public class BookShopServerApplication {
         return new CharacterEncodingFilter("UTF-8", true);
     }
 
-
-
     @Bean
     CommandLineRunner init(StorageService storageService) {
         return (args -> {
