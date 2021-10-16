@@ -24,7 +24,7 @@ spring:
 
 jwt:
   secret_key: ${JWT_SECRET}
-  time_expiration: 6000000
+  time_expiration: 86400000
 
 cloudinary:
   url: ${CLOUDINARY_URL}
