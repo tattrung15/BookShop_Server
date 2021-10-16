@@ -11,8 +11,6 @@ import java.lang.annotation.*;
 public @interface IsIn {
     String[] value() default {};
 
-    boolean required() default false;
-
     String message() default "";
 
     Class<?>[] groups() default {};
