@@ -1,8 +1,8 @@
 package com.bookshop.repositories;
 
 import com.bookshop.dao.User;
-import com.bookshop.specifications.executors.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository

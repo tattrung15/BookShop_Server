@@ -1,7 +1,5 @@
 package com.bookshop.base;
 
-import java.util.List;
-
 public interface BaseService<E, D> {
     Long countAll();
 
