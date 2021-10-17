@@ -57,7 +57,7 @@ public class User {
     @Column(nullable = false)
     private String phone;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<SaleOrder> saleOrders;
 

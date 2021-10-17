@@ -36,7 +36,7 @@ public class Category {
     @Column(nullable = false)
     private String slug;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Product> products;
 

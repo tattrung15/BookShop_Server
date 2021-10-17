@@ -31,7 +31,7 @@ public class Delivery {
     @Column(nullable = false)
     private String value;
 
-    @OneToMany(mappedBy = "delivery", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<SaleOrder> saleOrders;
 
