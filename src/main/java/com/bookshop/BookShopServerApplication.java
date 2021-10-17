@@ -2,7 +2,12 @@ package com.bookshop;
 
 import com.bookshop.configs.StorageProperties;
 import com.bookshop.configs.UserInfoProperties;
+import com.bookshop.dao.User;
 import com.bookshop.services.StorageService;
+import com.bookshop.services.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,9 +15,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+@Slf4j
 @SpringBootApplication
 @EnableConfigurationProperties({StorageProperties.class, UserInfoProperties.class})
 public class BookShopServerApplication {
+
+    @Autowired
+    private ModelMapper mapper;
+
+    @Autowired
+    private UserService userService;
 
     public static void main(String[] args) {
         SpringApplication.run(BookShopServerApplication.class, args);
@@ -24,9 +36,15 @@ public class BookShopServerApplication {
     }
 
     @Bean
-    CommandLineRunner init(StorageService storageService) {
+    CommandLineRunner init(StorageService storageService, UserInfoProperties userInfo) {
         return (args -> {
             storageService.init();
+
+            if (userService.countAll() == 0) {
+                User user = mapper.map(userInfo, User.class);
+                userService.createAdminAccount(user);
+                log.info("admin account has been created");
+            }
         });
     }
 }

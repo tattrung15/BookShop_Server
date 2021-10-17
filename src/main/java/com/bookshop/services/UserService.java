@@ -1,11 +1,12 @@
 package com.bookshop.services;
 
+import com.bookshop.base.BaseService;
 import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
+import com.bookshop.dto.pagination.PaginateDTO;
 
-import java.util.List;
+public interface UserService extends BaseService<User, UserDTO> {
+    User createAdminAccount(User user);
 
-public interface UserService {
-    User create(UserDTO userDTO);
-    List<User> getListUsers();
+    PaginateDTO<User> getListUsers(Integer page, Integer perPage);
 }
