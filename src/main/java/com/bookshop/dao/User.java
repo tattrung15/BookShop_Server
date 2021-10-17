@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -69,5 +70,6 @@ public class User {
         if (this.role == null) {
             this.role = RoleEnum.MEMBER;
         }
+        this.password = new BCryptPasswordEncoder().encode(this.password);
     }
 }

@@ -44,11 +44,6 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
-    public List<User> createMany(Iterable<User> entities) {
-        return userRepository.saveAll(entities);
-    }
-
-    @Override
     public Long countAll() {
         return userRepository.count();
     }
