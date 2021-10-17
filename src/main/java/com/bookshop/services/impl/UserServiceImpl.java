@@ -6,9 +6,11 @@ import com.bookshop.dto.UserDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.repositories.UserRepository;
 import com.bookshop.services.UserService;
+import com.bookshop.specifications.impl.UsersSpecs;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,9 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UsersSpecs usersSpecs;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -51,5 +56,11 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     @Override
     public PaginateDTO<User> getListUsers(Integer page, Integer perPage) {
         return this.paginate(page, perPage);
+    }
+
+    @Override
+    public PaginateDTO<User> getUsersByUsername(Integer page, Integer perPage, String username) {
+        Page<User> pageData = userRepository.findAll(usersSpecs.likeUsernameSpec(username), PageRequest.of(page, perPage));
+        return this.paginate(page, perPage, pageData);
     }
 }

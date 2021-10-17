@@ -9,4 +9,6 @@ public interface UserService extends BaseService<User, UserDTO> {
     User createAdminAccount(User user);
 
     PaginateDTO<User> getListUsers(Integer page, Integer perPage);
+
+    PaginateDTO<User> getUsersByUsername(Integer page, Integer perPage, String username);
 }

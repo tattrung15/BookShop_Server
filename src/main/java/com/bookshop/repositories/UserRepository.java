@@ -1,14 +1,11 @@
 package com.bookshop.repositories;
 
 import com.bookshop.dao.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.bookshop.specifications.executors.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User findByUsername(String username);
-
-    Page<User> findByUsernameContaining(String username, Pageable pageable);
 }

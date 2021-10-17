@@ -2,7 +2,6 @@ package com.bookshop.filters;
 
 import com.bookshop.services.MyUserDetailsService;
 import com.bookshop.utils.JwtUtil;
-import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
