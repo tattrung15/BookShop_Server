@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,22 +70,22 @@ public class AuthController {
 //        return ResponseEntity.ok(new AuthenticationResponse(jwt, newUser.getId(), newUser.getUsername(), newUser.getRole()));
 //    }
 
-//    @PostMapping("/validate")
-//    public ResponseEntity<?> validateToken(@RequestBody AuthenticationResponse authenticationResponse) {
-//        try {
-//            String jwt = authenticationResponse.getJwt();
-//            String username = jwtUtil.extractUsername(jwt);
-//            UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
-//            if (jwtUtil.validateToken(jwt, userDetails)) {
-//                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-//                        userDetails, null, userDetails.getAuthorities());
-//                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-//            }
-//            User user = userRepository.findByUsername(username);
-//            return ResponseEntity.ok(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user.getId(),
-//                    user.getUsername(), user.getRole()));
-//        } catch (Exception e) {
-//            throw new InvalidException(e.getMessage());
-//        }
-//    }
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestBody AuthenticationResponse authenticationResponse) {
+        try {
+            String jwt = authenticationResponse.getJwt();
+            String username = jwtUtil.extractUsername(jwt);
+            UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+            User user = userRepository.findByUsername(username);
+            return ResponseEntity.ok(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user.getId(),
+                    user.getUsername(), user.getRole()));
+        } catch (Exception e) {
+            throw new LoginException(e.getMessage());
+        }
+    }
 }
