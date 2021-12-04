@@ -31,8 +31,8 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
-    public User createAdminAccount(User user) {
-        return userRepository.save(user);
+    public void createAdminAccount(User user) {
+        userRepository.save(user);
     }
 
     @Override
