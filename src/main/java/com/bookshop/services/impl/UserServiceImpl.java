@@ -6,11 +6,12 @@ import com.bookshop.dto.UserDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.repositories.UserRepository;
 import com.bookshop.services.UserService;
-import com.bookshop.specifications.specs.UserSpecs;
+import com.bookshop.specifications.GenericSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,9 +22,6 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserSpecs userSpecs;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -47,13 +45,14 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
-    public PaginateDTO<User> getListUsers(Integer page, Integer perPage) {
-        return this.paginate(page, perPage);
-    }
-
-    @Override
-    public PaginateDTO<User> getUsersByUsername(Integer page, Integer perPage, String username) {
-        Page<User> pageData = userRepository.findAll(userSpecs.likeUsernameSpec(username), PageRequest.of(page, perPage));
+    public PaginateDTO<User> getList(Integer page, Integer perPage, GenericSpecification<User> specification) {
+        if (page == null) {
+            page = 0;
+        }
+        if (perPage == null) {
+            perPage = 10;
+        }
+        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by("createdAt").descending()));
         return this.paginate(page, perPage, pageData);
     }
 }

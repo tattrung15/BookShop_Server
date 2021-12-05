@@ -5,10 +5,12 @@ import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.services.UserService;
+import com.bookshop.specifications.GenericSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -22,15 +24,11 @@ public class UserController extends BaseController<User> {
     public ResponseEntity<?> getListUsers(
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "perPage", required = false) Integer perPage,
-            @RequestParam(name = "usernameLike", required = false) String usernameLike) {
+            HttpServletRequest request) {
 
-        PaginateDTO<User> paginateUsers;
+        GenericSpecification<User> specification = new GenericSpecification<User>().getBasicQuery(request);
 
-        if (usernameLike != null) {
-            paginateUsers = userService.getUsersByUsername(page, perPage, usernameLike);
-        } else {
-            paginateUsers = userService.getListUsers(page, perPage);
-        }
+        PaginateDTO<User> paginateUsers = userService.getList(page, perPage, specification);
 
         return this.resPagination(paginateUsers);
     }

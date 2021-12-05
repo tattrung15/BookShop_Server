@@ -34,12 +34,6 @@ public class BasePagination<E, R extends JpaRepository<E, ?>> {
     }
 
     public PaginateDTO<E> paginate(Integer page, Integer perPage, Page<E> pageData) {
-        if (page == null) {
-            page = 0;
-        }
-        if (perPage == null) {
-            perPage = 10;
-        }
         Pagination pagination = new Pagination(page, perPage, pageData.getTotalPages() - 1, pageData.getTotalElements());
         return new PaginateDTO<>(pageData, pagination);
     }

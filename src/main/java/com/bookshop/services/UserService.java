@@ -3,6 +3,7 @@ package com.bookshop.services;
 import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.specifications.GenericSpecification;
 
 public interface UserService {
     Long countAll();
@@ -11,7 +12,5 @@ public interface UserService {
 
     void createAdminAccount(User user);
 
-    PaginateDTO<User> getListUsers(Integer page, Integer perPage);
-
-    PaginateDTO<User> getUsersByUsername(Integer page, Integer perPage, String username);
+    PaginateDTO<User> getList(Integer page, Integer perPage, GenericSpecification<User> specification);
 }
