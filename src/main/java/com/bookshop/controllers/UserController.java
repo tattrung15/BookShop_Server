@@ -5,6 +5,7 @@ import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
 import com.bookshop.dto.UserUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.exceptions.DuplicateRecordException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.UserService;
 import com.bookshop.specifications.GenericSpecification;
@@ -40,6 +41,12 @@ public class UserController extends BaseController<User> {
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDTO userDTO) {
+        User oldUser = userService.findByUsername(userDTO.getUsername());
+
+        if (oldUser != null) {
+            throw new DuplicateRecordException("User has already exists");
+        }
+
         User user = userService.create(userDTO);
         return this.resSuccess(user);
     }
