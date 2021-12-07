@@ -3,6 +3,7 @@ package com.bookshop;
 import com.bookshop.configs.StorageProperties;
 import com.bookshop.configs.UserInfoProperties;
 import com.bookshop.dao.User;
+import com.bookshop.services.DeliveryService;
 import com.bookshop.services.StorageService;
 import com.bookshop.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,9 @@ public class BookShopServerApplication {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private DeliveryService deliveryService;
+
     public static void main(String[] args) {
         SpringApplication.run(BookShopServerApplication.class, args);
     }
@@ -44,6 +48,10 @@ public class BookShopServerApplication {
                 User user = mapper.map(userInfo, User.class);
                 userService.createAdminAccount(user);
                 log.info("admin account has been created");
+            }
+
+            if (deliveryService.countAll() == 0) {
+                deliveryService.seedData();
             }
         });
     }
