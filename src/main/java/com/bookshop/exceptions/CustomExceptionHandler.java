@@ -51,9 +51,9 @@ public class CustomExceptionHandler {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
-    @ExceptionHandler(DuplicateRecordException.class)
+    @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlerDuplicateRecordException(DuplicateRecordException ex, WebRequest req) {
+    public ErrorResponse handlerAppException(AppException ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
@@ -61,12 +61,6 @@ public class CustomExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleForbiddenException(ForbiddenException ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
-    }
-
-    @ExceptionHandler(LoginException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleLoginException(LoginException ex, WebRequest req) {
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

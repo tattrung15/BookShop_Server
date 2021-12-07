@@ -3,8 +3,7 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.User;
 import com.bookshop.dto.SignUpDTO;
-import com.bookshop.exceptions.DuplicateRecordException;
-import com.bookshop.exceptions.LoginException;
+import com.bookshop.exceptions.AppException;
 import com.bookshop.models.AuthenticationRequest;
 import com.bookshop.models.AuthenticationResponse;
 import com.bookshop.services.MyUserDetailsService;
@@ -45,7 +44,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getUsername(), authenticationRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            throw new LoginException("Incorrect username or password");
+            throw new AppException("Incorrect username or password");
         }
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
@@ -57,7 +56,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpDTO signUpDTO) {
         User oldUser = userService.findByUsername(signUpDTO.getUsername());
         if (oldUser != null) {
-            throw new DuplicateRecordException("Username has already exists");
+            throw new AppException("Username has already exists");
         }
         User newUser = userService.create(signUpDTO);
 
@@ -81,7 +80,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
             return this.resSuccess(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user.getId(),
                     user.getUsername(), user.getRole()));
         } catch (Exception e) {
-            throw new LoginException(e.getMessage());
+            throw new AppException(e.getMessage());
         }
     }
 }

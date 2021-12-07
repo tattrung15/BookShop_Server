@@ -64,6 +64,11 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
+    public void deleteById(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
     public Long countAll() {
         return userRepository.count();
     }

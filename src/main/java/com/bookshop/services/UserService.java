@@ -22,6 +22,8 @@ public interface UserService {
 
     User update(UserUpdateDTO userUpdateDTO, User currentUser);
 
+    void deleteById(Long userId);
+
     void createAdminAccount(User user);
 
     PaginateDTO<User> getList(Integer page, Integer perPage, GenericSpecification<User> specification);
