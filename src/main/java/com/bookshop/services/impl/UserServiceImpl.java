@@ -1,6 +1,7 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.base.BasePagination;
+import com.bookshop.constants.Common;
 import com.bookshop.dao.User;
 import com.bookshop.dto.SignUpDTO;
 import com.bookshop.dto.UserDTO;
@@ -85,13 +86,13 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
 
     @Override
     public PaginateDTO<User> getList(Integer page, Integer perPage, GenericSpecification<User> specification) {
-        if (page == null) {
-            page = 0;
+        if (page == null || page <= 0) {
+            page = 1;
         }
-        if (perPage == null) {
-            perPage = 10;
+        if (perPage == null || perPage <= 0) {
+            perPage = Common.PAGING_DEFAULT_LIMIT;
         }
-        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by("createdAt").descending()));
+        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page - 1, perPage, Sort.by("createdAt").descending()));
         return this.paginate(page, perPage, pageData);
     }
 }
