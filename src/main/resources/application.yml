@@ -19,6 +19,11 @@ spring:
     multipart:
       max-file-size: 5MB
 
+# Show Hibernate SQL query
+logging:
+  level:
+    org.hibernate.SQL: debug
+
 jwt:
   secret_key: ${JWT_SECRET}
   time_expiration: 86400000
