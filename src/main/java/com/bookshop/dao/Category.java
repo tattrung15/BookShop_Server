@@ -1,5 +1,6 @@
 package com.bookshop.dao;
 
+import com.bookshop.helpers.ConvertString;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,4 +46,9 @@ public class Category {
 
     @UpdateTimestamp
     private Timestamp updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.slug = ConvertString.toSlug(this.name);
+    }
 }
