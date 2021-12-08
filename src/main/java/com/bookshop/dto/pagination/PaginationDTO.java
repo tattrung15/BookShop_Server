@@ -17,7 +17,7 @@ public class PaginationDTO<T> {
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class Pagination{
+    public static class Pagination {
         private Integer page;
         private Integer perPage;
         private Integer lastPage;
