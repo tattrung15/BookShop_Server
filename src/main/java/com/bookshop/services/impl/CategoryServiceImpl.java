@@ -4,6 +4,7 @@ import com.bookshop.base.BasePagination;
 import com.bookshop.constants.Common;
 import com.bookshop.dao.Category;
 import com.bookshop.dto.CategoryDTO;
+import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.services.CategoryService;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl extends BasePagination<Category, CategoryRepository> implements CategoryService {
@@ -30,6 +33,11 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     }
 
     @Override
+    public Optional<Category> findById(Long id) {
+        return categoryRepository.findById(id);
+    }
+
+    @Override
     public Category findBySlug(String slug) {
         return categoryRepository.findBySlug(slug);
     }
@@ -38,6 +46,18 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     public Category create(CategoryDTO categoryDTO) {
         Category category = mapper.map(categoryDTO, Category.class);
         return categoryRepository.save(category);
+    }
+
+    @Override
+    public Category update(CategoryUpdateDTO categoryUpdateDTO, Category currentCategory) {
+        Category updated = mapper.map(categoryUpdateDTO, Category.class);
+        mapper.map(updated, currentCategory);
+        return categoryRepository.save(currentCategory);
+    }
+
+    @Override
+    public void deleteById(Long categoryId) {
+        categoryRepository.deleteById(categoryId);
     }
 
     @Override

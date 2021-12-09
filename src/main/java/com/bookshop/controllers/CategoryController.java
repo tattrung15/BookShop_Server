@@ -3,13 +3,17 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.Category;
 import com.bookshop.dto.CategoryDTO;
+import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
+import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.ConvertString;
 import com.bookshop.services.CategoryService;
 import com.bookshop.specifications.GenericSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +39,24 @@ public class CategoryController extends BaseController<Category> {
         return this.resPagination(paginateCategories);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCategoryByIdOrSlug(@PathVariable("id") Object id) {
+        Category category;
+        try {
+            Long categoryId = Long.parseLong((String) id);
+            category = categoryService.findById(categoryId).orElse(null);
+        } catch (Exception e) {
+            category = categoryService.findBySlug(id.toString());
+        }
+
+        if (category == null) {
+            throw new NotFoundException("Category not found");
+        }
+        return this.resSuccess(category);
+    }
+
     @PostMapping
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO categoryDTO) {
         Category oldCategory = categoryService.findBySlug(ConvertString.toSlug(categoryDTO.getName()));
 
@@ -44,6 +65,39 @@ public class CategoryController extends BaseController<Category> {
         }
 
         Category category = categoryService.create(categoryDTO);
+        return this.resSuccess(category);
+    }
+
+    @PatchMapping("/{categoryId}")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> editCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
+                                          @PathVariable("categoryId") Long categoryId) {
+        Category category = categoryService.findById(categoryId).orElse(null);
+
+        if (category == null) {
+            throw new NotFoundException("Category not found");
+        }
+
+        Category savedCategory = categoryService.update(categoryUpdateDTO, category);
+
+        return this.resSuccess(savedCategory);
+    }
+
+    @DeleteMapping("/{categoryId}")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
+        Category category = categoryService.findById(categoryId).orElse(null);
+        if (category == null) {
+            throw new NotFoundException("Category not found");
+        }
+
+        if (!category.getProducts().isEmpty()) {
+            throw new AppException("Delete failed");
+        }
+
+        categoryService.deleteById(categoryId);
+
         return this.resSuccess(category);
     }
 }

@@ -51,4 +51,9 @@ public class Category {
     public void prePersist() {
         this.slug = ConvertString.toSlug(this.name);
     }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.slug = ConvertString.toSlug(this.name);
+    }
 }
