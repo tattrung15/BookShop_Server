@@ -1,6 +1,7 @@
 package com.bookshop.specifications;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class GenericSpecification<T> implements Specification<T> {
 
     private List<SearchCriteria> list;
+    private Sort sort = Sort.by("createdAt").descending();
 
     public GenericSpecification() {
         this.list = new ArrayList<>();
@@ -23,6 +25,18 @@ public class GenericSpecification<T> implements Specification<T> {
 
     public void add(SearchCriteria searchCriteria) {
         this.list.add(searchCriteria);
+    }
+
+    public Sort getSort() {
+        return this.sort;
+    }
+
+    public void buildSort(String field, SortType sortType) {
+        if (sortType.equals(SortType.ASC)) {
+            this.sort = Sort.by(field).ascending();
+        } else if (sortType.equals(SortType.DESC)) {
+            this.sort = Sort.by(field).descending();
+        }
     }
 
     public GenericSpecification<T> getBasicQuery(HttpServletRequest request) {
@@ -38,6 +52,14 @@ public class GenericSpecification<T> implements Specification<T> {
                 specification.add(new SearchCriteria(StringUtils.substringBetween(item.getKey(), "[", "]"),
                         StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]"),
                         SearchOperation.EQUAL));
+            }
+            if (item.getKey().contains("sort")) {
+                String field = StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]");
+                if (field.contains("-")) {
+                    specification.buildSort(field.substring(1), SortType.DESC);
+                } else {
+                    specification.buildSort(field, SortType.ASC);
+                }
             }
         }
 

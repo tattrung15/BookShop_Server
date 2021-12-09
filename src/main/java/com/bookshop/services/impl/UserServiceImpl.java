@@ -14,7 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -92,7 +91,7 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
         if (perPage == null || perPage <= 0) {
             perPage = Common.PAGING_DEFAULT_LIMIT;
         }
-        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page - 1, perPage, Sort.by("createdAt").descending()));
+        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page - 1, perPage, specification.getSort()));
         return this.paginate(page, perPage, pageData);
     }
 }

@@ -1,6 +1,8 @@
 package com.bookshop.dao;
 
+import com.bookshop.helpers.ConvertString;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +43,8 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<ProductImage> productImages;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -75,4 +77,20 @@ public class Product {
 
     @UpdateTimestamp
     private Timestamp updatedAt;
+
+    @PrePersist
+    public void PrePersist() {
+        this.slug = ConvertString.toSlug(this.title);
+        this.shortDescription = this.longDescription.length() >= 60
+                ? this.longDescription.substring(0, 60)
+                : this.longDescription;
+    }
+
+    @PreUpdate
+    public void PreUpdate() {
+        this.slug = ConvertString.toSlug(this.title);
+        this.shortDescription = this.longDescription.length() >= 60
+                ? this.longDescription.substring(0, 60)
+                : this.longDescription;
+    }
 }

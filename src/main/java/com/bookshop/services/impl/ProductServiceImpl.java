@@ -5,6 +5,7 @@ import com.bookshop.constants.Common;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.ProductDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.helpers.ConvertString;
 import com.bookshop.repositories.ProductRepository;
 import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
@@ -12,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -37,7 +37,7 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
 
     @Override
     public Product findBySlug(String slug) {
-        return productRepository.findBySlug(slug);
+        return productRepository.findBySlug(ConvertString.toSlug(slug));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
         if (perPage == null || perPage <= 0) {
             perPage = Common.PAGING_DEFAULT_LIMIT;
         }
-        Page<Product> pageData = productRepository.findAll(specification, PageRequest.of(page - 1, perPage, Sort.by("createdAt").descending()));
+        Page<Product> pageData = productRepository.findAll(specification, PageRequest.of(page - 1, perPage, specification.getSort()));
         return this.paginate(page, perPage, pageData);
     }
 }
