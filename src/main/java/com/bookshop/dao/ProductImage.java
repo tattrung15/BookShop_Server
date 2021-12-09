@@ -22,10 +22,9 @@ public class ProductImage {
     private Long id;
 
     @Column(nullable = false)
-    private String link;
+    private String imageUrl;
 
-    @Column(name = "image_public_id",nullable = false)
-    private String publicId;
+    private String imagePublicId;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

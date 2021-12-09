@@ -61,6 +61,10 @@ public class User {
     @JsonIgnore
     private List<SaleOrder> saleOrders;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ProductRate> productRates;
+
     @CreationTimestamp
     private Timestamp createdAt;
 
