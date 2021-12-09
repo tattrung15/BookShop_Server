@@ -1,7 +1,6 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.base.BasePagination;
-import com.bookshop.constants.Common;
 import com.bookshop.dao.User;
 import com.bookshop.dto.SignUpDTO;
 import com.bookshop.dto.UserDTO;
@@ -12,8 +11,6 @@ import com.bookshop.services.UserService;
 import com.bookshop.specifications.GenericSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,13 +82,6 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
 
     @Override
     public PaginateDTO<User> getList(Integer page, Integer perPage, GenericSpecification<User> specification) {
-        if (page == null || page <= 0) {
-            page = 1;
-        }
-        if (perPage == null || perPage <= 0) {
-            perPage = Common.PAGING_DEFAULT_LIMIT;
-        }
-        Page<User> pageData = userRepository.findAll(specification, PageRequest.of(page - 1, perPage, specification.getSort()));
-        return this.paginate(page, perPage, pageData);
+        return this.paginate(page, perPage, specification);
     }
 }
