@@ -47,13 +47,13 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlerAppException(AppException ex, WebRequest req) {
+    public ErrorResponse handleAppException(AppException ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlerConversionException(HttpMessageNotReadableException e) {
+    public ErrorResponse handleConversionException(HttpMessageNotReadableException e) {
         String msg = null;
         Throwable cause = e.getCause();
         if (cause instanceof JsonParseException) {
