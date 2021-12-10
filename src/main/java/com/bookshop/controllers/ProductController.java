@@ -14,6 +14,7 @@ import com.bookshop.specifications.GenericSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -99,5 +100,23 @@ public class ProductController extends BaseController<Product> {
         Product savedProduct = productService.update(productUpdateDTO, product);
 
         return this.resSuccess(savedProduct);
+    }
+
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteCategory(@PathVariable("productId") Long productId) {
+        Product product = productService.findById(productId).orElse(null);
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
+        if (!product.getProductImages().isEmpty() || !product.getProductRates().isEmpty() || !product.getOrderItems().isEmpty()) {
+            throw new AppException("Delete failed");
+        }
+
+        productService.deleteById(productId);
+
+        return this.resSuccess(product);
     }
 }
