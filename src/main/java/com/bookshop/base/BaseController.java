@@ -17,14 +17,14 @@ public class BaseController<T> {
         );
     }
 
-    public ResponseEntity<?> resListSuccess(List<T> data) {
+    public ResponseEntity<?> resListSuccess(List<?> data) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseDTO<>(HttpStatus.OK.value(), ResponseMessageEnum.SUCCESS, data)
         );
     }
 
-    public ResponseEntity<?> resPagination(PaginateDTO<T> paginateDTO) {
-        PaginationDTO<List<T>> paginationDTO = new PaginationDTO<>(
+    public ResponseEntity<?> resPagination(PaginateDTO<?> paginateDTO) {
+        PaginationDTO<List<?>> paginationDTO = new PaginationDTO<>(
                 paginateDTO.getPageData().getContent(),
                 paginateDTO.getPagination()
         );

@@ -80,6 +80,9 @@ public class Product {
 
     @PrePersist
     public void PrePersist() {
+        if (this.quantityPurchased == null) {
+            this.quantityPurchased = 0;
+        }
         this.slug = ConvertString.toSlug(this.title);
         this.shortDescription = this.longDescription.length() >= 60
                 ? this.longDescription.substring(0, 60)

@@ -1,10 +1,13 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.base.BasePagination;
+import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.ProductDTO;
+import com.bookshop.dto.ProductUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.helpers.ConvertString;
+import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductRepository;
 import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
@@ -23,6 +26,9 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     public ProductServiceImpl(ProductRepository productRepository) {
         super(productRepository);
     }
@@ -40,7 +46,17 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     @Override
     public Product create(ProductDTO productDTO) {
         Product product = mapper.map(productDTO, Product.class);
+        Category category = categoryRepository.findById(productDTO.getCategoryId()).orElse(null);
+        product.setCategory(category);
         return productRepository.save(product);
+    }
+
+    @Override
+    public Product update(ProductUpdateDTO productUpdateDTO, Product currentProduct) {
+        Product updated = mapper.map(productUpdateDTO, Product.class);
+        mapper.map(updated, currentProduct);
+        currentProduct.getCategory().setId(productUpdateDTO.getCategoryId());
+        return productRepository.save(currentProduct);
     }
 
     @Override

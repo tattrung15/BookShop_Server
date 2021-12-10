@@ -4,6 +4,7 @@ import com.bookshop.base.BaseController;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.ProductDTO;
+import com.bookshop.dto.ProductUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
@@ -53,7 +54,7 @@ public class ProductController extends BaseController<Product> {
         }
 
         if (product == null) {
-            throw new NotFoundException("Product not found");
+            throw new NotFoundException("Not found product");
         }
 
         return this.resSuccess(product);
@@ -76,5 +77,27 @@ public class ProductController extends BaseController<Product> {
         Product product = productService.create(productDTO);
 
         return this.resSuccess(product);
+    }
+
+    @PatchMapping("/{productId}")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> editProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
+                                         @PathVariable("productId") Long productId) {
+        Product product = productService.findById(productId).orElse(null);
+
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
+        if (productUpdateDTO.getCategoryId() != null) {
+            Category category = categoryService.findById(productUpdateDTO.getCategoryId()).orElse(null);
+            if (category == null) {
+                throw new NotFoundException("Not found category");
+            }
+        }
+
+        Product savedProduct = productService.update(productUpdateDTO, product);
+
+        return this.resSuccess(savedProduct);
     }
 }

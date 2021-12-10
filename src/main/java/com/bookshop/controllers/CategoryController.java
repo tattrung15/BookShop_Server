@@ -2,6 +2,7 @@ package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.Category;
+import com.bookshop.dao.Product;
 import com.bookshop.dto.CategoryDTO;
 import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
@@ -9,7 +10,10 @@ import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.ConvertString;
 import com.bookshop.services.CategoryService;
+import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
+import com.bookshop.specifications.SearchCriteria;
+import com.bookshop.specifications.SearchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +29,9 @@ public class CategoryController extends BaseController<Category> {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping
     public ResponseEntity<?> getListCategories(
@@ -50,7 +57,7 @@ public class CategoryController extends BaseController<Category> {
         }
 
         if (category == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException("Not found category");
         }
         return this.resSuccess(category);
     }
@@ -75,7 +82,7 @@ public class CategoryController extends BaseController<Category> {
         Category category = categoryService.findById(categoryId).orElse(null);
 
         if (category == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException("Not found category");
         }
 
         Category savedCategory = categoryService.update(categoryUpdateDTO, category);
@@ -89,7 +96,7 @@ public class CategoryController extends BaseController<Category> {
     public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
         Category category = categoryService.findById(categoryId).orElse(null);
         if (category == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException("Not found category");
         }
 
         if (!category.getProducts().isEmpty()) {
@@ -99,5 +106,30 @@ public class CategoryController extends BaseController<Category> {
         categoryService.deleteById(categoryId);
 
         return this.resSuccess(category);
+    }
+
+    @GetMapping("/{id}/products")
+    public ResponseEntity<?> getProductsByCategory(@PathVariable("id") Object id,
+                                                   @RequestParam(name = "page", required = false) Integer page,
+                                                   @RequestParam(name = "perPage", required = false) Integer perPage,
+                                                   HttpServletRequest request) {
+        Category category;
+        try {
+            Long categoryId = Long.parseLong((String) id);
+            category = categoryService.findById(categoryId).orElse(null);
+        } catch (Exception e) {
+            category = categoryService.findBySlug(id.toString());
+        }
+
+        if (category == null) {
+            throw new NotFoundException("Not found category");
+        }
+
+        GenericSpecification<Product> specification = new GenericSpecification<Product>().getBasicQuery(request);
+        specification.add(new SearchCriteria("category", category.getId(), SearchOperation.EQUAL));
+
+        PaginateDTO<Product> paginateProducts = productService.getList(page, perPage, specification);
+
+        return this.resPagination(paginateProducts);
     }
 }

@@ -57,7 +57,7 @@ public class UserController extends BaseController<User> {
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException("Not found user");
         }
         return this.resSuccess(user.get());
     }
@@ -67,7 +67,7 @@ public class UserController extends BaseController<User> {
     public ResponseEntity<?> editUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO, @PathVariable("userId") Long userId) {
         Optional<User> optionalUser = userService.findById(userId);
         if (optionalUser.isEmpty()) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException("Not found user");
         }
 
         User savedUser = userService.update(userUpdateDTO, optionalUser.get());
@@ -81,7 +81,7 @@ public class UserController extends BaseController<User> {
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
         Optional<User> optionalUser = userService.findById(userId);
         if (optionalUser.isEmpty()) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException("Not found user");
         }
 
         if (!optionalUser.get().getSaleOrders().isEmpty()) {
