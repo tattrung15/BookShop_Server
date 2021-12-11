@@ -11,6 +11,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 @Service
 public class FileSystemStorageService implements StorageService {
@@ -70,6 +72,20 @@ public class FileSystemStorageService implements StorageService {
             }
         } catch (MalformedURLException e) {
             throw new NotFoundException("Could not read file: " + filename);
+        }
+    }
+
+    @Override
+    public void deleteFilesByPrefix(String prefix) {
+        try {
+            File file = new File(this.rootLocation.toString() + Common.PRODUCT_IMAGE_UPLOAD_PATH);
+            for (File item : Objects.requireNonNull(file.listFiles())) {
+                if (item.getName().compareTo(prefix) == 0) {
+                    Files.deleteIfExists(Paths.get(item.getAbsolutePath()));
+                }
+            }
+        } catch (IOException e) {
+            throw new AppException("Failed to delete files");
         }
     }
 }

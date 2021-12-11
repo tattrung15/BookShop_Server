@@ -31,6 +31,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public List<ProductImage> createOrUpdateMany(Product product, MultipartFile[] files) {
         this.deleteByProductId(product.getId());
+        storageService.deleteFilesByPrefix(String.valueOf(product.getId()));
         List<ProductImage> productImages = new ArrayList<>();
         for (MultipartFile file : files) {
             String randomUniqueFileName = FileHelper.randomUniqueFileName(product.getId() + "-" + file.getOriginalFilename());

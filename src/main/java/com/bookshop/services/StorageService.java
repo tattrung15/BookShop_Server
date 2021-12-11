@@ -9,4 +9,6 @@ public interface StorageService {
     String store(String dir, MultipartFile file, String fileName);
 
     Resource loadAsResource(String filename);
+
+    void deleteFilesByPrefix(String prefix);
 }
