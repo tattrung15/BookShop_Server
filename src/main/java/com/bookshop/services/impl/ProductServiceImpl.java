@@ -55,7 +55,9 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     public Product update(ProductUpdateDTO productUpdateDTO, Product currentProduct) {
         Product updated = mapper.map(productUpdateDTO, Product.class);
         mapper.map(updated, currentProduct);
-        currentProduct.getCategory().setId(productUpdateDTO.getCategoryId());
+        if (productUpdateDTO.getCategoryId() != null) {
+            currentProduct.getCategory().setId(productUpdateDTO.getCategoryId());
+        }
         return productRepository.save(currentProduct);
     }
 
