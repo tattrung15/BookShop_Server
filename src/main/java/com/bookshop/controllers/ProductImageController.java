@@ -3,7 +3,9 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
+import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.helpers.FileHelper;
 import com.bookshop.services.ProductImageService;
 import com.bookshop.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,13 @@ public class ProductImageController extends BaseController<ProductImage> {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> createOrUpdateProductImages(@RequestParam("productId") Long productId,
                                                          @RequestParam("files") MultipartFile[] files) {
+
+        for (MultipartFile file : files) {
+            if (!FileHelper.isAllowImageType(file.getOriginalFilename())) {
+                throw new AppException("This file type is not allowed");
+            }
+        }
+
         Product product = productService.findById(productId).orElse(null);
 
         if (product == null) {
