@@ -1,6 +1,6 @@
 package com.bookshop.dao;
 
-import com.bookshop.helpers.ConvertString;
+import com.bookshop.helpers.StringHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,11 +49,11 @@ public class Category {
 
     @PrePersist
     public void prePersist() {
-        this.slug = ConvertString.toSlug(this.name);
+        this.slug = StringHelper.toSlug(this.name);
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.slug = ConvertString.toSlug(this.name);
+        this.slug = StringHelper.toSlug(this.name);
     }
 }

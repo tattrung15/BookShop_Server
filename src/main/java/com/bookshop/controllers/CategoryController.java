@@ -8,7 +8,7 @@ import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
-import com.bookshop.helpers.ConvertString;
+import com.bookshop.helpers.StringHelper;
 import com.bookshop.services.CategoryService;
 import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
@@ -65,7 +65,7 @@ public class CategoryController extends BaseController<Category> {
     @PostMapping
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO categoryDTO) {
-        Category oldCategory = categoryService.findBySlug(ConvertString.toSlug(categoryDTO.getName()));
+        Category oldCategory = categoryService.findBySlug(StringHelper.toSlug(categoryDTO.getName()));
 
         if (oldCategory != null) {
             throw new AppException("Category has already exists");

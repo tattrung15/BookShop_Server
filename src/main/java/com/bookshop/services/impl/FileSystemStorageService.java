@@ -1,8 +1,9 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.configs.StorageProperties;
-import com.bookshop.exceptions.StorageException;
-import com.bookshop.exceptions.StorageFileNotFoundException;
+import com.bookshop.constants.Common;
+import com.bookshop.exceptions.AppException;
+import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
 
 @Service
 public class FileSystemStorageService implements StorageService {
@@ -31,49 +31,45 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void init() {
         try {
-            Files.createDirectories(rootLocation);
+            Files.createDirectories(Paths.get(rootLocation + Common.PRODUCT_IMAGE_UPLOAD_PATH));
         } catch (IOException e) {
-            throw new StorageException("Could not initialize storage", e);
+            throw new AppException("Could not initialize storage");
         }
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public String store(String dir, MultipartFile file, String fileName) {
         try {
             if (file.isEmpty()) {
-                throw new StorageException("Failed to store empty file.");
+                throw new AppException("Failed to store empty file");
             }
-            Path destinationFile = this.rootLocation
-                    .resolve(Paths.get(Objects.requireNonNull(file.getOriginalFilename())))
-                    .normalize().toAbsolutePath();
-            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+            Path pathDes = Paths.get(this.rootLocation.toString() + dir);
+            Path destinationFile = pathDes.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+            if (!destinationFile.getParent().equals(pathDes.toAbsolutePath())) {
                 // This is a security check
-                throw new StorageException("Cannot store file outside current directory.");
+                throw new AppException("Cannot store file outside current directory");
             }
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                return Common.PRODUCT_IMAGE_PATTERN_PATH + "/" + fileName;
             }
         } catch (IOException e) {
-            throw new StorageException("Failed to store file.", e);
+            throw new AppException("Failed to store file");
         }
-    }
-
-    public Path load(String filename) {
-        return rootLocation.resolve(filename);
     }
 
     @Override
     public Resource loadAsResource(String filename) {
         try {
-            Path file = load(filename);
+            Path file = rootLocation.resolve(filename);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new StorageFileNotFoundException("Could not read file: " + filename);
+                throw new NotFoundException("Could not read file: " + filename);
             }
         } catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+            throw new NotFoundException("Could not read file: " + filename);
         }
     }
 }

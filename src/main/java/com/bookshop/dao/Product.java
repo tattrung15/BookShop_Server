@@ -1,6 +1,6 @@
 package com.bookshop.dao;
 
-import com.bookshop.helpers.ConvertString;
+import com.bookshop.helpers.StringHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
@@ -83,7 +83,7 @@ public class Product {
         if (this.quantityPurchased == null) {
             this.quantityPurchased = 0;
         }
-        this.slug = ConvertString.toSlug(this.title);
+        this.slug = StringHelper.toSlug(this.title);
         this.shortDescription = this.longDescription.length() >= 60
                 ? this.longDescription.substring(0, 60)
                 : this.longDescription;
@@ -91,7 +91,7 @@ public class Product {
 
     @PreUpdate
     public void PreUpdate() {
-        this.slug = ConvertString.toSlug(this.title);
+        this.slug = StringHelper.toSlug(this.title);
         this.shortDescription = this.longDescription.length() >= 60
                 ? this.longDescription.substring(0, 60)
                 : this.longDescription;

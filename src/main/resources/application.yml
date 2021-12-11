@@ -17,7 +17,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   servlet:
     multipart:
-      max-file-size: 5MB
+      max-file-size: 10MB
 
 # Show Hibernate SQL query
 logging:
@@ -32,7 +32,7 @@ cloudinary:
   url: ${CLOUDINARY_URL}
 
 storage:
-  location: ${STORAGE_LOCATION}
+  location: upload-dir
 
 user:
   firstName: ${USER_FIRST_NAME}

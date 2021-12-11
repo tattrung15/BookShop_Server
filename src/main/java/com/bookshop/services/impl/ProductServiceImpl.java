@@ -6,7 +6,7 @@ import com.bookshop.dao.Product;
 import com.bookshop.dto.ProductDTO;
 import com.bookshop.dto.ProductUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
-import com.bookshop.helpers.ConvertString;
+import com.bookshop.helpers.StringHelper;
 import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.repositories.ProductRepository;
 import com.bookshop.services.ProductService;
@@ -40,7 +40,7 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
 
     @Override
     public Product findBySlug(String slug) {
-        return productRepository.findBySlug(ConvertString.toSlug(slug));
+        return productRepository.findBySlug(StringHelper.toSlug(slug));
     }
 
     @Override
