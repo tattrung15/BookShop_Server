@@ -1,6 +1,7 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
+import com.bookshop.constants.ProductTypeEnum;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.ProductDTO;
@@ -11,12 +12,15 @@ import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.CategoryService;
 import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
+import com.bookshop.specifications.JoinCriteria;
+import com.bookshop.specifications.SearchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -34,9 +38,18 @@ public class ProductController extends BaseController<Product> {
     public ResponseEntity<?> getListProducts(
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "perPage", required = false) Integer perPage,
+            @RequestParam(name = "productType", required = false) String productType,
             HttpServletRequest request) {
 
         GenericSpecification<Product> specification = new GenericSpecification<Product>().getBasicQuery(request);
+
+        if (productType != null) {
+            if (productType.equals(ProductTypeEnum.HAVE_IMAGE)) {
+                specification.buildJoin(new JoinCriteria(SearchOperation.NOT_NULL, "productImages", "id", null, JoinType.LEFT));
+            } else if (productType.equals(ProductTypeEnum.NO_IMAGE)) {
+                specification.buildJoin(new JoinCriteria(SearchOperation.NULL, "productImages", "id", null, JoinType.LEFT));
+            }
+        }
 
         PaginateDTO<Product> paginateProducts = productService.getList(page, perPage, specification);
 

@@ -4,10 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +13,17 @@ import java.util.Map;
 
 public class GenericSpecification<T> implements Specification<T> {
 
-    private List<SearchCriteria> list;
+    private List<SearchCriteria> listSearchCriteria;
+    private JoinCriteria joinCriteria;
     private Sort sort = Sort.by("createdAt").descending();
 
     public GenericSpecification() {
-        this.list = new ArrayList<>();
+        this.listSearchCriteria = new ArrayList<>();
+        this.joinCriteria = null;
     }
 
     public void add(SearchCriteria searchCriteria) {
-        this.list.add(searchCriteria);
+        this.listSearchCriteria.add(searchCriteria);
     }
 
     public Sort getSort() {
@@ -37,6 +36,10 @@ public class GenericSpecification<T> implements Specification<T> {
         } else if (sortType.equals(SortType.DESC)) {
             this.sort = Sort.by(field).descending();
         }
+    }
+
+    public void buildJoin(JoinCriteria joinCriteria) {
+        this.joinCriteria = joinCriteria;
     }
 
     public GenericSpecification<T> getBasicQuery(HttpServletRequest request) {
@@ -66,11 +69,51 @@ public class GenericSpecification<T> implements Specification<T> {
         return specification;
     }
 
+    private Predicate buildJoinPredicate(SearchOperation searchOperation, String key, Object value,
+                                         CriteriaBuilder builder,
+                                         Join<Object, Object> join) {
+        if (searchOperation.equals(SearchOperation.GREATER_THAN)) {
+            return builder.greaterThan(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.LESS_THAN)) {
+            return builder.lessThan(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.GREATER_THAN_EQUAL)) {
+            return builder.greaterThanOrEqualTo(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.LESS_THAN_EQUAL)) {
+            return builder.lessThanOrEqualTo(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.NOT_EQUAL)) {
+            return builder.notEqual(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.EQUAL)) {
+            return builder.equal(join.get(key), value.toString());
+        } else if (searchOperation.equals(SearchOperation.LIKE)) {
+            return builder.like(builder.lower(join.get(key)), "%" + value.toString().toLowerCase() + "%");
+        } else if (searchOperation.equals(SearchOperation.LIKE_END)) {
+            return builder.like(builder.lower(join.get(key)), value.toString().toLowerCase() + "%");
+        } else if (searchOperation.equals(SearchOperation.NULL)) {
+            return builder.isNull(join.get(key));
+        } else if (searchOperation.equals(SearchOperation.NOT_NULL)) {
+            return builder.isNotNull(join.get(key));
+        }
+        return null;
+    }
+
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         List<Predicate> predicates = new ArrayList<>();
 
-        for (SearchCriteria criteria : list) {
+        if (this.joinCriteria != null) {
+            Join<Object, Object> join = root.join(this.joinCriteria.getJoinColumnName(), this.joinCriteria.getJoinType());
+            predicates.add(
+                    this.buildJoinPredicate(
+                            this.joinCriteria.getSearchOperation(),
+                            this.joinCriteria.getKey(),
+                            this.joinCriteria.getValue(),
+                            builder,
+                            join
+                    )
+            );
+        }
+
+        for (SearchCriteria criteria : listSearchCriteria) {
             if (criteria.getOperation().equals(SearchOperation.GREATER_THAN)) {
                 predicates.add(builder.greaterThan(root.get(criteria.getKey()), criteria.getValue().toString()));
             } else if (criteria.getOperation().equals(SearchOperation.LESS_THAN)) {
@@ -89,8 +132,14 @@ public class GenericSpecification<T> implements Specification<T> {
             } else if (criteria.getOperation().equals(SearchOperation.LIKE_END)) {
                 predicates.add(builder.like(builder.lower(root.get(criteria.getKey())),
                         criteria.getValue().toString().toLowerCase() + "%"));
+            } else if (criteria.getOperation().equals(SearchOperation.NULL)) {
+                predicates.add(builder.isNull(root.get(criteria.getKey())));
+            } else if (criteria.getOperation().equals(SearchOperation.NOT_NULL)) {
+                predicates.add(builder.isNotNull(root.get(criteria.getKey())));
             }
         }
+
+        query.distinct(true);
 
         return builder.and(predicates.toArray(new Predicate[0]));
     }

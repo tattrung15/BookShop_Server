@@ -9,4 +9,6 @@ public enum SearchOperation {
     EQUAL,
     LIKE,
     LIKE_END,
+    NULL,
+    NOT_NULL,
 }
