@@ -4,13 +4,16 @@ import com.bookshop.base.BaseController;
 import com.bookshop.constants.ProductTypeEnum;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
+import com.bookshop.dao.ProductImage;
 import com.bookshop.dto.ProductDTO;
 import com.bookshop.dto.ProductUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.CategoryService;
+import com.bookshop.services.ProductImageService;
 import com.bookshop.services.ProductService;
+import com.bookshop.services.StorageService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.JoinCriteria;
 import com.bookshop.specifications.SearchOperation;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -33,6 +37,12 @@ public class ProductController extends BaseController<Product> {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ProductImageService productImageService;
+
+    @Autowired
+    private StorageService storageService;
 
     @GetMapping
     public ResponseEntity<?> getListProducts(
@@ -131,5 +141,23 @@ public class ProductController extends BaseController<Product> {
         productService.deleteById(productId);
 
         return this.resSuccess(product);
+    }
+
+    @DeleteMapping("/{productId}/product-images")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteProductImageByProductId(@PathVariable("productId") Long productId) {
+        Product product = productService.findById(productId).orElse(null);
+
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
+        List<ProductImage> productImageList = product.getProductImages();
+
+        productImageService.deleteByProductId(productId);
+        storageService.deleteFilesByPrefix(String.valueOf(productId));
+
+        return this.resListSuccess(productImageList);
     }
 }

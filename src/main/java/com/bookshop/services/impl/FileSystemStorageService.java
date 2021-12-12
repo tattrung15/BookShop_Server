@@ -80,7 +80,7 @@ public class FileSystemStorageService implements StorageService {
         try {
             File file = new File(this.rootLocation.toString() + Common.PRODUCT_IMAGE_UPLOAD_PATH);
             for (File item : Objects.requireNonNull(file.listFiles())) {
-                if (item.getName().compareTo(prefix) == 0) {
+                if (item.getName().indexOf(prefix) == 0) {
                     Files.deleteIfExists(Paths.get(item.getAbsolutePath()));
                 }
             }
