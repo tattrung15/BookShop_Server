@@ -52,9 +52,15 @@ public class GenericSpecification<T> implements Specification<T> {
                         SearchOperation.LIKE));
             }
             if (item.getKey().contains("equal")) {
-                specification.add(new SearchCriteria(StringUtils.substringBetween(item.getKey(), "[", "]"),
-                        StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]"),
-                        SearchOperation.EQUAL));
+                try {
+                    specification.add(new SearchCriteria(StringUtils.substringBetween(item.getKey(), "[", "]"),
+                            Long.parseLong(StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]")),
+                            SearchOperation.EQUAL));
+                } catch (NumberFormatException e) {
+                    specification.add(new SearchCriteria(StringUtils.substringBetween(item.getKey(), "[", "]"),
+                            StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]"),
+                            SearchOperation.EQUAL));
+                }
             }
             if (item.getKey().contains("sort")) {
                 String field = StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]");
