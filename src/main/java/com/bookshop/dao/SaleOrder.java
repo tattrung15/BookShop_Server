@@ -1,6 +1,7 @@
 package com.bookshop.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +40,9 @@ public class SaleOrder {
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
-    @OneToMany(mappedBy = "saleOrder", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "saleOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
+    @JsonManagedReference
     private List<OrderItem> orderItems;
 
     @CreationTimestamp

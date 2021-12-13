@@ -62,6 +62,11 @@ public class GenericSpecification<T> implements Specification<T> {
                             SearchOperation.EQUAL));
                 }
             }
+            if (item.getKey().contains("in")) {
+                specification.add(new SearchCriteria(StringUtils.substringBetween(item.getKey(), "[", "]"),
+                        Arrays.asList(item.getValue()),
+                        SearchOperation.IN));
+            }
             if (item.getKey().contains("sort")) {
                 String field = StringUtils.substringBetween(Arrays.toString(item.getValue()), "[", "]");
                 if (field.contains("-")) {
@@ -100,6 +105,10 @@ public class GenericSpecification<T> implements Specification<T> {
             return builder.isNotNull(join.get(key));
         }
         return null;
+    }
+
+    private CriteriaBuilder.In<Object> buildCriteriaIn(CriteriaBuilder.In<Object> builderIn, Object value) {
+        return builderIn.value(value);
     }
 
     @Override
@@ -142,6 +151,22 @@ public class GenericSpecification<T> implements Specification<T> {
                 predicates.add(builder.isNull(root.get(criteria.getKey())));
             } else if (criteria.getOperation().equals(SearchOperation.NOT_NULL)) {
                 predicates.add(builder.isNotNull(root.get(criteria.getKey())));
+            } else if (criteria.getOperation().equals(SearchOperation.IN)) {
+                List<Object> listValue = (List<Object>) criteria.getValue();
+                CriteriaBuilder.In<Object> builderIn;
+                try {
+                    builderIn = this.buildCriteriaIn(builder.in(root.get(criteria.getKey())), Long.parseLong(String.valueOf(listValue.get(0))));
+                } catch (NumberFormatException e) {
+                    builderIn = this.buildCriteriaIn(builder.in(root.get(criteria.getKey())), String.valueOf(listValue.get(0)));
+                }
+                for (int i = 1; i < listValue.size(); i++) {
+                    try {
+                        builderIn.value(Long.parseLong(String.valueOf(listValue.get(i))));
+                    } catch (NumberFormatException e) {
+                        builderIn.value(String.valueOf(listValue.get(i)));
+                    }
+                }
+                predicates.add(builderIn);
             }
         }
 

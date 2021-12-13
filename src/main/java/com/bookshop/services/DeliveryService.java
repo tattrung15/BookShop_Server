@@ -7,6 +7,10 @@ import java.util.List;
 public interface DeliveryService {
     Long countAll();
 
+    Delivery findByIndex(String index);
+
+    Delivery findByAddedToCartState();
+
     List<Delivery> findAll();
 
     void seedData();
