@@ -24,6 +24,11 @@ public class UserAuthorizerImpl implements UserAuthorizer {
     }
 
     @Override
+    public boolean isMember(Authentication authentication) {
+        return Arrays.toString(authentication.getAuthorities().toArray()).contains(RoleEnum.MEMBER);
+    }
+
+    @Override
     public boolean isYourself(Authentication authentication, Long userId) {
         User userAuth = (User) authentication.getPrincipal();
         com.bookshop.dao.User user = userService.findByUsername(userAuth.getUsername());

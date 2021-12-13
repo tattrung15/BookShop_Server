@@ -21,6 +21,11 @@ public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRep
     }
 
     @Override
+    public SaleOrder findOne(GenericSpecification<SaleOrder> specification) {
+        return saleOrderRepository.findOne(specification).orElse(null);
+    }
+
+    @Override
     public PaginateDTO<SaleOrder> getList(Integer page, Integer perPage, GenericSpecification<SaleOrder> specification) {
         return this.paginate(page, perPage, specification);
     }
