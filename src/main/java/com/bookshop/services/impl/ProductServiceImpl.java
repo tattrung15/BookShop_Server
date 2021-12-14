@@ -62,6 +62,11 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     }
 
     @Override
+    public void updateCurrentNumber(Product product) {
+        productRepository.save(product);
+    }
+
+    @Override
     public void deleteById(Long productId) {
         productRepository.deleteById(productId);
     }

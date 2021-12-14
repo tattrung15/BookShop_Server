@@ -17,4 +17,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItem findOne(GenericSpecification<OrderItem> specification) {
         return orderItemRepository.findOne(specification).orElse(null);
     }
+
+    @Override
+    public OrderItem createOrUpdate(OrderItem orderItem) {
+        return orderItemRepository.save(orderItem);
+    }
 }

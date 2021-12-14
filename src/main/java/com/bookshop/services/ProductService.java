@@ -17,6 +17,8 @@ public interface ProductService {
 
     Product update(ProductUpdateDTO productUpdateDTO, Product currentProduct);
 
+    void updateCurrentNumber(Product product);
+
     void deleteById(Long productId);
 
     PaginateDTO<Product> getList(Integer page, Integer perPage, GenericSpecification<Product> specification);
