@@ -3,13 +3,16 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.Product;
+import com.bookshop.dao.SaleOrder;
 import com.bookshop.dto.OrderItemDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.OrderItemService;
 import com.bookshop.services.ProductService;
+import com.bookshop.services.SaleOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +28,11 @@ public class OrderItemController extends BaseController<OrderItem> {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private SaleOrderService saleOrderService;
+
     @PatchMapping("/{orderItemId}")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> updateQuantity(@PathVariable("orderItemId") Long orderItemId,
                                             @RequestBody @Valid OrderItemDTO orderItemDTO) {
@@ -53,5 +60,24 @@ public class OrderItemController extends BaseController<OrderItem> {
         productService.updateCurrentNumber(product);
 
         return ResponseEntity.ok().body(orderItem);
+    }
+
+    @DeleteMapping("/{orderItemId}")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteOrderItem(@PathVariable("orderItemId") Long orderItemId) {
+        OrderItem orderItem = orderItemService.findById(orderItemId);
+        if (orderItem == null) {
+            throw new NotFoundException("Not found order item");
+        }
+
+        orderItemService.deleteById(orderItemId);
+
+        SaleOrder saleOrder = saleOrderService.findById(orderItem.getSaleOrder().getId());
+        if (saleOrder.getOrderItems().size() == 0) {
+            saleOrderService.deleteById(saleOrder.getId());
+        }
+
+        return this.resSuccess(orderItem);
     }
 }

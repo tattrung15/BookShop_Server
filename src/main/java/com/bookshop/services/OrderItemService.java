@@ -9,4 +9,6 @@ public interface OrderItemService {
     OrderItem findOne(GenericSpecification<OrderItem> specification);
 
     OrderItem createOrUpdate(OrderItem orderItem);
+
+    void deleteById(Long orderItemId);
 }

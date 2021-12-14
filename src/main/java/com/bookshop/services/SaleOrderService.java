@@ -13,5 +13,7 @@ public interface SaleOrderService {
 
     SaleOrder update(SaleOrder saleOrder);
 
+    void deleteById(Long saleOrderId);
+
     PaginateDTO<SaleOrder> getList(Integer page, Integer perPage, GenericSpecification<SaleOrder> specification);
 }
