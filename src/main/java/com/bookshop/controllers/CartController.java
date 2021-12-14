@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,13 +37,29 @@ public class CartController extends BaseController<Object> {
     @Autowired
     private DeliveryService deliveryService;
 
+    @GetMapping
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> getOrderItemsOfCart(HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        Delivery delivery = deliveryService.findByAddedToCartState();
+
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
+
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
+
+        return this.resSuccess(saleOrder);
+    }
+
     @PostMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> addToCart(@RequestBody @Valid OrderItemDTO orderItemDTO, HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
 
-        Product product = productService.findById(orderItemDTO.getProductId()).orElse(null);
+        Product product = productService.findById(orderItemDTO.getProductId());
         if (product == null) {
             throw new NotFoundException("Not found product");
         }

@@ -15,8 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class ProductServiceImpl extends BasePagination<Product, ProductRepository> implements ProductService {
 
@@ -34,8 +32,8 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     }
 
     @Override
-    public Optional<Product> findById(Long id) {
-        return productRepository.findById(id);
+    public Product findById(Long productId) {
+        return productRepository.findById(productId).orElse(null);
     }
 
     @Override

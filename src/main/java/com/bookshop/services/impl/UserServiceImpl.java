@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class UserServiceImpl extends BasePagination<User, UserRepository> implements UserService {
 
@@ -71,8 +69,8 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
     }
 
     @Override

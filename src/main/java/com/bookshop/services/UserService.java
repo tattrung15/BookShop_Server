@@ -7,12 +7,10 @@ import com.bookshop.dto.UserUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.specifications.GenericSpecification;
 
-import java.util.Optional;
-
 public interface UserService {
     Long countAll();
 
-    Optional<User> findById(Long id);
+    User findById(Long userId);
 
     User findByUsername(String username);
 

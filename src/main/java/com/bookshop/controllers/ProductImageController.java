@@ -42,7 +42,7 @@ public class ProductImageController extends BaseController<ProductImage> {
             }
         }
 
-        Product product = productService.findById(productId).orElse(null);
+        Product product = productService.findById(productId);
 
         if (product == null) {
             throw new NotFoundException("Not found product");

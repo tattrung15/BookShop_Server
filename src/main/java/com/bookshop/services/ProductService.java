@@ -6,10 +6,8 @@ import com.bookshop.dto.ProductUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.specifications.GenericSpecification;
 
-import java.util.Optional;
-
 public interface ProductService {
-    Optional<Product> findById(Long id);
+    Product findById(Long productId);
 
     Product findBySlug(String slug);
 

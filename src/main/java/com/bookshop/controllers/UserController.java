@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -55,22 +54,20 @@ public class UserController extends BaseController<User> {
     @GetMapping("/{userId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication) || @userAuthorizer.isYourself(authentication, #userId)")
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
-        Optional<User> user = userService.findById(userId);
-        if (user.isEmpty()) {
-            throw new NotFoundException("Not found user");
-        }
-        return this.resSuccess(user.get());
+        User user = userService.findById(userId);
+
+        return this.resSuccess(user);
     }
 
     @PatchMapping("/{userId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication) || @userAuthorizer.isYourself(authentication, #userId)")
     public ResponseEntity<?> editUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO, @PathVariable("userId") Long userId) {
-        Optional<User> optionalUser = userService.findById(userId);
-        if (optionalUser.isEmpty()) {
+        User user = userService.findById(userId);
+        if (user == null) {
             throw new NotFoundException("Not found user");
         }
 
-        User savedUser = userService.update(userUpdateDTO, optionalUser.get());
+        User savedUser = userService.update(userUpdateDTO, user);
 
         return this.resSuccess(savedUser);
     }
@@ -79,17 +76,17 @@ public class UserController extends BaseController<User> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId) {
-        Optional<User> optionalUser = userService.findById(userId);
-        if (optionalUser.isEmpty()) {
+        User user = userService.findById(userId);
+        if (user == null) {
             throw new NotFoundException("Not found user");
         }
 
-        if (!optionalUser.get().getSaleOrders().isEmpty()) {
+        if (!user.getSaleOrders().isEmpty()) {
             throw new AppException("Delete failed");
         }
 
         userService.deleteById(userId);
 
-        return this.resSuccess(optionalUser.get());
+        return this.resSuccess(user);
     }
 }

@@ -12,8 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class CategoryServiceImpl extends BasePagination<Category, CategoryRepository> implements CategoryService {
 
@@ -29,8 +27,8 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     }
 
     @Override
-    public Optional<Category> findById(Long id) {
-        return categoryRepository.findById(id);
+    public Category findById(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElse(null);
     }
 
     @Override

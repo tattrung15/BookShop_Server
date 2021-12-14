@@ -26,6 +26,11 @@ public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRep
     }
 
     @Override
+    public SaleOrder findById(Long saleOrderId) {
+        return saleOrderRepository.findById(saleOrderId).orElse(null);
+    }
+
+    @Override
     public SaleOrder create(SaleOrder saleOrder) {
         return saleOrderRepository.save(saleOrder);
     }

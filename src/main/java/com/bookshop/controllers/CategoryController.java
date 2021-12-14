@@ -51,14 +51,11 @@ public class CategoryController extends BaseController<Category> {
         Category category;
         try {
             Long categoryId = Long.parseLong((String) id);
-            category = categoryService.findById(categoryId).orElse(null);
+            category = categoryService.findById(categoryId);
         } catch (Exception e) {
             category = categoryService.findBySlug(id.toString());
         }
 
-        if (category == null) {
-            throw new NotFoundException("Not found category");
-        }
         return this.resSuccess(category);
     }
 
@@ -79,7 +76,7 @@ public class CategoryController extends BaseController<Category> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> editCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
                                           @PathVariable("categoryId") Long categoryId) {
-        Category category = categoryService.findById(categoryId).orElse(null);
+        Category category = categoryService.findById(categoryId);
 
         if (category == null) {
             throw new NotFoundException("Not found category");
@@ -94,7 +91,7 @@ public class CategoryController extends BaseController<Category> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
-        Category category = categoryService.findById(categoryId).orElse(null);
+        Category category = categoryService.findById(categoryId);
         if (category == null) {
             throw new NotFoundException("Not found category");
         }
@@ -116,7 +113,7 @@ public class CategoryController extends BaseController<Category> {
         Category category;
         try {
             Long categoryId = Long.parseLong((String) id);
-            category = categoryService.findById(categoryId).orElse(null);
+            category = categoryService.findById(categoryId);
         } catch (Exception e) {
             category = categoryService.findBySlug(id.toString());
         }

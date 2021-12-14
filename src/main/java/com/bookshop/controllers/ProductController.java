@@ -71,14 +71,10 @@ public class ProductController extends BaseController<Product> {
         Product product;
         try {
             Long productId = Long.parseLong((String) id);
-            product = productService.findById(productId).orElse(null);
+            product = productService.findById(productId);
 
         } catch (Exception e) {
             product = productService.findBySlug(id.toString());
-        }
-
-        if (product == null) {
-            throw new NotFoundException("Not found product");
         }
 
         return this.resSuccess(product);
@@ -92,7 +88,7 @@ public class ProductController extends BaseController<Product> {
             throw new AppException("Product has already exists");
         }
 
-        Category category = categoryService.findById(productDTO.getCategoryId()).orElse(null);
+        Category category = categoryService.findById(productDTO.getCategoryId());
 
         if (category == null) {
             throw new NotFoundException("Not found category");
@@ -107,14 +103,14 @@ public class ProductController extends BaseController<Product> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> editProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
                                          @PathVariable("productId") Long productId) {
-        Product product = productService.findById(productId).orElse(null);
+        Product product = productService.findById(productId);
 
         if (product == null) {
             throw new NotFoundException("Not found product");
         }
 
         if (productUpdateDTO.getCategoryId() != null) {
-            Category category = categoryService.findById(productUpdateDTO.getCategoryId()).orElse(null);
+            Category category = categoryService.findById(productUpdateDTO.getCategoryId());
             if (category == null) {
                 throw new NotFoundException("Not found category");
             }
@@ -128,8 +124,8 @@ public class ProductController extends BaseController<Product> {
     @DeleteMapping("/{productId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<?> deleteCategory(@PathVariable("productId") Long productId) {
-        Product product = productService.findById(productId).orElse(null);
+    public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId) {
+        Product product = productService.findById(productId);
         if (product == null) {
             throw new NotFoundException("Not found product");
         }
@@ -147,7 +143,7 @@ public class ProductController extends BaseController<Product> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteProductImageByProductId(@PathVariable("productId") Long productId) {
-        Product product = productService.findById(productId).orElse(null);
+        Product product = productService.findById(productId);
 
         if (product == null) {
             throw new NotFoundException("Not found product");
