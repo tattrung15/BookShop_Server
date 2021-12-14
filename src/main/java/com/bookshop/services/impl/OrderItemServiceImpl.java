@@ -14,6 +14,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     private OrderItemRepository orderItemRepository;
 
     @Override
+    public OrderItem findById(Long orderItemId) {
+        return orderItemRepository.findById(orderItemId).orElse(null);
+    }
+
+    @Override
     public OrderItem findOne(GenericSpecification<OrderItem> specification) {
         return orderItemRepository.findOne(specification).orElse(null);
     }
