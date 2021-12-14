@@ -23,6 +23,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    public Delivery findById(Long deliveryId) {
+        return deliveryRepository.findById(deliveryId).orElse(null);
+    }
+
+    @Override
     public Delivery findByIndex(String index) {
         return deliveryRepository.findByIndex(index);
     }

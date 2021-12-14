@@ -7,6 +7,8 @@ import java.util.List;
 public interface DeliveryService {
     Long countAll();
 
+    Delivery findById(Long deliveryId);
+
     Delivery findByIndex(String index);
 
     Delivery findByAddedToCartState();

@@ -11,5 +11,7 @@ public interface SaleOrderService {
 
     SaleOrder create(SaleOrder saleOrder);
 
+    SaleOrder update(SaleOrder saleOrder);
+
     PaginateDTO<SaleOrder> getList(Integer page, Integer perPage, GenericSpecification<SaleOrder> specification);
 }
