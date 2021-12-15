@@ -1,54 +1,40 @@
 package com.bookshop.services.impl;
 
-import com.bookshop.exceptions.ForbiddenException;
-import com.bookshop.repositories.UserRepository;
+import com.bookshop.constants.RoleEnum;
 import com.bookshop.services.UserAuthorizer;
-
+import com.bookshop.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @Service("userAuthorizer")
 public class UserAuthorizerImpl implements UserAuthorizer {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
-	@Override
-	public boolean authorizeAdmin(Authentication authentication, String role) {
-		Object[] objectAuthentication = authentication.getAuthorities().toArray();
-		if (objectAuthentication[0].toString().compareTo(role) != 0) {
-			throw new ForbiddenException("Access denied");
-		}
-		return true;
-	}
+    @Override
+    public boolean isAdmin(Authentication authentication) {
+        return Arrays.toString(authentication.getAuthorities().toArray()).contains(RoleEnum.ADMIN);
+    }
 
-	@Override
-	public boolean authorizeGetUserById(Authentication authentication, String role, Long userId) {
-		Object[] objectAuthentication = authentication.getAuthorities().toArray();
-		if (objectAuthentication[0].toString().compareTo(role) == 0) {
-			return true;
-		}
+    @Override
+    public boolean isMember(Authentication authentication) {
+        return Arrays.toString(authentication.getAuthorities().toArray()).contains(RoleEnum.MEMBER);
+    }
 
-		User userAuth = (User) authentication.getPrincipal();
-		com.bookshop.dao.User user = userRepository.findByUsername(userAuth.getUsername());
-
-		if (user.getId() != userId) {
-			throw new ForbiddenException("Access denied");
-		}
-		return true;
-	}
-
-	@Override
-	public boolean authorizeUser(Authentication authentication, Long userId) {
-		User userAuthentication = (User) authentication.getPrincipal();
-
-		com.bookshop.dao.User user = userRepository.findByUsername(userAuthentication.getUsername());
-
-		if (user.getId() != userId) {
-			throw new ForbiddenException("Access denied");
-		}
-		return true;
-	}
+    @Override
+    public boolean isYourself(Authentication authentication, Long userId) {
+        User userAuth = (User) authentication.getPrincipal();
+        com.bookshop.dao.User user = userService.findByUsername(userAuth.getUsername());
+        if (!Objects.equals(user.getId(), userId)) {
+            throw new AccessDeniedException("Access denied");
+        }
+        return true;
+    }
 }

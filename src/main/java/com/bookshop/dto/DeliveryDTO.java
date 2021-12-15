@@ -1,20 +1,13 @@
 package com.bookshop.dto;
 
+import lombok.Data;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+@Data
 public class DeliveryDTO {
+    @NotNull
+    @Min(1)
     private Long deliveryId;
-
-    public DeliveryDTO() {
-    }
-
-    public DeliveryDTO(Long deliveryId) {
-        this.deliveryId = deliveryId;
-    }
-
-    public Long getDeliveryId() {
-        return deliveryId;
-    }
-
-    public void setDeliveryId(Long deliveryId) {
-        this.deliveryId = deliveryId;
-    }
 }

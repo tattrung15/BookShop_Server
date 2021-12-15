@@ -1,5 +1,7 @@
 package com.bookshop.configs;
 
+import com.bookshop.exceptions.CustomEntryPoint;
+import com.bookshop.exceptions.ForbiddenException;
 import com.bookshop.filters.JwtRequestFilter;
 import com.bookshop.services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -41,7 +50,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().configurationSource(request -> corsConfiguration()).and().csrf().disable().authorizeRequests()
+        http.cors().configurationSource(request -> corsConfiguration())
+                .and().csrf().disable()
+                .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/categories/**").permitAll()
                 .antMatchers("/api/products/**").permitAll()
@@ -49,10 +60,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/deliveries/**").permitAll()
                 .antMatchers("/api/users/**").authenticated()
                 .antMatchers("/api/carts/**").authenticated()
-                .antMatchers("/api/orders/**").authenticated()
+                .antMatchers("/api/order-items/**").authenticated()
                 .antMatchers("/api/sale-orders/**").authenticated()
-                .and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.exceptionHandling().authenticationEntryPoint(new CustomEntryPoint());
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
@@ -60,13 +71,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.applyPermitDefaultValues();
         corsConfiguration.addAllowedMethod(HttpMethod.PATCH);
-        corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
         corsConfiguration.addAllowedMethod(HttpMethod.PUT);
+        corsConfiguration.addAllowedMethod(HttpMethod.DELETE);
         return corsConfiguration;
     }
 
-    @Override
     @Bean
+    @Override
     protected AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }

@@ -1,0 +1,43 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.bookshop'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.5'
+    implementation 'org.springframework.boot:spring-boot-starter-security:2.5.5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.5'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    runtimeOnly 'org.postgresql:postgresql:42.2.24.jre7'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
+    implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.4.4'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    // https://mvnrepository.com/artifact/com.aventrix.jnanoid/jnanoid
+    implementation group: 'com.aventrix.jnanoid', name: 'jnanoid', version: '2.0.0'
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+}
+
+test {
+    useJUnitPlatform()
+}

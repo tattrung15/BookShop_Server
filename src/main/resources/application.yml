@@ -1,0 +1,46 @@
+server:
+  port: ${PORT}
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    cassandra:
+      schema-action: create_if_not_exists
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+# Show Hibernate SQL query
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+jwt:
+  secret_key: ${JWT_SECRET}
+  time_expiration: 86400000
+
+cloudinary:
+  url: ${CLOUDINARY_URL}
+
+storage:
+  location: upload-dir
+
+user:
+  firstName: ${USER_FIRST_NAME}
+  lastName: ${USER_LAST_NAME}
+  username: ${USER_USERNAME}
+  password: ${USER_PASSWORD}
+  address: ${USER_ADDRESS}
+  amount: ${USER_AMOUNT}
+  role: ${USER_ROLE}
+  email: ${USER_EMAIL}
+  phone: ${USER_PHONE}

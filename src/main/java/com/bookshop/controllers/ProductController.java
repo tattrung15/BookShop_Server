@@ -1,203 +1,159 @@
 package com.bookshop.controllers;
 
+import com.bookshop.base.BaseController;
+import com.bookshop.constants.ProductTypeEnum;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductImage;
 import com.bookshop.dto.ProductDTO;
-import com.bookshop.dto.ProductDetail;
-import com.bookshop.exceptions.DuplicateRecordException;
-import com.bookshop.exceptions.InvalidException;
+import com.bookshop.dto.ProductUpdateDTO;
+import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
-import com.bookshop.helpers.CheckValid;
-import com.bookshop.helpers.ConvertObject;
-import com.bookshop.repositories.CategoryRepository;
-import com.bookshop.repositories.ProductRepository;
+import com.bookshop.services.CategoryService;
+import com.bookshop.services.ProductImageService;
+import com.bookshop.services.ProductService;
+import com.bookshop.services.StorageService;
+import com.bookshop.specifications.GenericSpecification;
+import com.bookshop.specifications.JoinCriteria;
+import com.bookshop.specifications.SearchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
+import javax.persistence.criteria.JoinType;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
-@Transactional(rollbackFor = Exception.class)
-public class ProductController {
+public class ProductController extends BaseController<Product> {
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
+
+    @Autowired
+    private ProductImageService productImageService;
+
+    @Autowired
+    private StorageService storageService;
 
     @GetMapping
-    public ResponseEntity<?> getAllProducts(@RequestParam(name = "page", required = false) Integer pageNum,
-                                            @RequestParam(name = "type", required = false) String type,
-                                            @RequestParam(name = "search", required = false) String search) {
-        if (search != null) {
-            List<Product> products = productRepository.findByTitleContaining(search);
+    public ResponseEntity<?> getListProducts(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "perPage", required = false) Integer perPage,
+            @RequestParam(name = "productType", required = false) String productType,
+            HttpServletRequest request) {
 
-            if (products.size() == 0) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok().body(products);
-        }
-        if (type != null) {
-            if (type.compareTo("without-image") == 0) {
-                List<Product> products = productRepository.findAll();
+        GenericSpecification<Product> specification = new GenericSpecification<Product>().getBasicQuery(request);
 
-                if (products.size() == 0) {
-                    return ResponseEntity.noContent().build();
-                }
-                return ResponseEntity.ok().body(products);
+        if (productType != null) {
+            if (productType.equals(ProductTypeEnum.HAVE_IMAGE)) {
+                specification.buildJoin(new JoinCriteria(SearchOperation.NOT_NULL, "productImages", "id", null, JoinType.LEFT));
+            } else if (productType.equals(ProductTypeEnum.NO_IMAGE)) {
+                specification.buildJoin(new JoinCriteria(SearchOperation.NULL, "productImages", "id", null, JoinType.LEFT));
             }
         }
-        if (pageNum != null) {
-            Page<Product> page = productRepository.findAll(PageRequest.of(pageNum.intValue(), 20));
-            //
-            List<ProductImage> listProdcutImages = new LinkedList<ProductImage>();
 
-            List<Product> listProducts = page.getContent();
-            for (int i = 0; i < listProducts.size(); i++) {
-                if (listProducts.get(i).getProductImages().isEmpty()) {
-                    continue;
-                }
-                listProdcutImages.add(listProducts.get(i).getProductImages().get(0));
-            }
-            //
-            if (page.getNumberOfElements() == 0) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-            }
-            return ResponseEntity.ok().body(listProdcutImages);
-        }
+        PaginateDTO<Product> paginateProducts = productService.getList(page, perPage, specification);
 
-        List<Product> products = productRepository.findAll();
-        //
-        List<ProductImage> listProductImages = new LinkedList<ProductImage>();
-
-        for (int i = 0; i < products.size(); i++) {
-            if (products.get(i).getProductImages().isEmpty()) {
-                continue;
-            }
-            listProductImages.add(products.get(i).getProductImages().get(0));
-        }
-        //
-
-        if (products.size() == 0) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok().body(listProductImages);
+        return this.resPagination(paginateProducts);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductBySlug(@PathVariable("id") Object id) {
+    public ResponseEntity<?> getProductByIdOrSlug(@PathVariable("id") Object id) {
         Product product;
         try {
             Long productId = Long.parseLong((String) id);
-            Optional<Product> optionalProduct = productRepository.findById(productId);
-            if (!optionalProduct.isPresent()) {
-                throw new NotFoundException("Not found product with product id " + productId);
-            }
-            product = optionalProduct.get();
+            product = productService.findById(productId);
+
         } catch (Exception e) {
-            product = productRepository.findBySlug(id.toString());
+            product = productService.findBySlug(id.toString());
         }
 
-        if (product == null) {
-            throw new NotFoundException("Product not found");
-        }
-
-        ProductDetail productDetail = new ProductDetail(product, product.getProductImages());
-
-        return ResponseEntity.ok().body(productDetail);
+        return this.resSuccess(product);
     }
 
     @PostMapping
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO productDTO) {
-        Product oldProduct = productRepository.findBySlug(ConvertObject.toSlug(productDTO.getTitle()));
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> createNewProduct(@RequestBody @Valid ProductDTO productDTO) {
+        Product oldProduct = productService.findBySlug(productDTO.getTitle());
         if (oldProduct != null) {
-            throw new DuplicateRecordException("Product has already exists");
-        }
-        Product product = ConvertObject.fromProductDTOToProductDAO(productDTO);
-
-        Optional<Category> optionalCategory = categoryRepository.findById(productDTO.getCategoryId());
-
-        if (!optionalCategory.isPresent()) {
-            throw new NotFoundException("Not found category with category id " + productDTO.getCategoryId());
+            throw new AppException("Product has already exists");
         }
 
-        product.setCategory(optionalCategory.get());
+        Category category = categoryService.findById(productDTO.getCategoryId());
 
-        CheckValid.checkProduct(product);
+        if (category == null) {
+            throw new NotFoundException("Not found category");
+        }
 
-        Product newProduct = productRepository.save(product);
+        Product product = productService.create(productDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+        return this.resSuccess(product);
     }
 
     @PatchMapping("/{productId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
-    public ResponseEntity<?> editProduct(@RequestBody ProductDTO productDTO,
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> editProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
                                          @PathVariable("productId") Long productId) {
-        Optional<Product> optionalProduct = productRepository.findById(productId);
+        Product product = productService.findById(productId);
 
-        if (!optionalProduct.isPresent()) {
-            throw new NotFoundException("Product not found");
+        if (product == null) {
+            throw new NotFoundException("Not found product");
         }
-        Product product = optionalProduct.get();
 
-        if (productDTO.getTitle() != null) {
-            product.setTitle(productDTO.getTitle().trim().replaceAll("\\s+", " "));
-            product.setSlug(ConvertObject.toSlug(productDTO.getTitle().trim().replaceAll("\\s+", " ")));
-        }
-        if (productDTO.getLongDescription() != null) {
-            product.setLongDescription(productDTO.getLongDescription().trim().replaceAll("\\s+", " "));
-            if (product.getLongDescription().length() > 60) {
-                product.setShortDescription(product.getLongDescription().substring(0, 60));
-            } else {
-                product.setShortDescription(product.getLongDescription());
+        if (productUpdateDTO.getCategoryId() != null) {
+            Category category = categoryService.findById(productUpdateDTO.getCategoryId());
+            if (category == null) {
+                throw new NotFoundException("Not found category");
             }
         }
-        if (productDTO.getCategoryId() != null) {
-            Category category = categoryRepository.findById(productDTO.getCategoryId()).get();
-            product.setCategory(category);
-        }
-        if (productDTO.getPrice() != null) {
-            product.setPrice(productDTO.getPrice());
-        }
-        if (productDTO.getAuthor() != null) {
-            product.setAuthor(productDTO.getAuthor().trim().replaceAll("\\s+", " "));
-        }
-        if (productDTO.getCurrentNumber() != null) {
-            product.setCurrentNumber(productDTO.getCurrentNumber());
-        }
 
-        productRepository.save(product);
+        Product savedProduct = productService.update(productUpdateDTO, product);
 
-        return ResponseEntity.status(HttpStatus.OK).body(product);
+        return this.resSuccess(savedProduct);
     }
 
     @DeleteMapping("/{productId}")
-    @PreAuthorize("@userAuthorizer.authorizeAdmin(authentication, 'ADMIN')")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId) {
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (!optionalProduct.isPresent()) {
-            throw new NotFoundException("Product not found");
+        Product product = productService.findById(productId);
+        if (product == null) {
+            throw new NotFoundException("Not found product");
         }
 
-        if (!optionalProduct.get().getProductImages().isEmpty()) {
-            throw new InvalidException("Delete failed");
+        if (!product.getProductImages().isEmpty() || !product.getProductRates().isEmpty() || !product.getOrderItems().isEmpty()) {
+            throw new AppException("Delete failed");
         }
 
-        productRepository.deleteById(productId);
+        productService.deleteById(productId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(optionalProduct.get());
+        return this.resSuccess(product);
+    }
+
+    @DeleteMapping("/{productId}/product-images")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteProductImageByProductId(@PathVariable("productId") Long productId) {
+        Product product = productService.findById(productId);
+
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
+        List<ProductImage> productImageList = product.getProductImages();
+
+        productImageService.deleteByProductId(productId);
+        storageService.deleteFilesByPrefix(String.valueOf(productId));
+
+        return this.resListSuccess(productImageList);
     }
 }

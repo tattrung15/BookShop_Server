@@ -1,148 +1,159 @@
 package com.bookshop.controllers;
 
-import com.bookshop.dao.Delivery;
-import com.bookshop.dao.OrderItem;
-import com.bookshop.dao.ProductImage;
-import com.bookshop.dao.SaleOrder;
+import com.bookshop.base.BaseController;
+import com.bookshop.constants.Common;
+import com.bookshop.dao.*;
 import com.bookshop.dto.DeliveryDTO;
-import com.bookshop.dto.OrderDetail;
-import com.bookshop.dto.OrderItemDetailDTO;
-import com.bookshop.dto.SaleOrderResponseDTO;
+import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
-import com.bookshop.repositories.DeliveryRepository;
-import com.bookshop.repositories.SaleOrderRepository;
+import com.bookshop.services.DeliveryService;
+import com.bookshop.services.ProductService;
+import com.bookshop.services.SaleOrderService;
+import com.bookshop.services.UserService;
+import com.bookshop.specifications.GenericSpecification;
+import com.bookshop.specifications.SearchCriteria;
+import com.bookshop.specifications.SearchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/sale-orders")
-public class SaleOrderController {
+@RequestMapping(value = "/api/sale-orders")
+public class SaleOrderController extends BaseController<SaleOrder> {
 
     @Autowired
-    private SaleOrderRepository saleOrderRepository;
+    private SaleOrderService saleOrderService;
 
     @Autowired
-    private DeliveryRepository deliveryRepository;
+    private DeliveryService deliveryService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> getAllSaleOrders(@RequestParam(name = "search", required = false) Long saleOrderId,
-                                              @RequestParam(name = "deliveryId", required = false) Long deliveryId,
-                                              @RequestParam(name = "recent", required = false) String recent) {
-        if (recent != null) {
-            if (recent.compareTo("true") == 0) {
-                Delivery delivery = deliveryRepository.findByIndex("DaGiao");
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> getListSaleOrdersForMember(@RequestParam(name = "page", required = false) Integer page,
+                                                        @RequestParam(name = "perPage", required = false) Integer perPage,
+                                                        HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
 
-                if (delivery == null) {
-                    throw new NotFoundException("Not found delivery by index DaGiao");
-                }
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
 
-                List<SaleOrder> saleOrders = saleOrderRepository.findByDeliveryOrderByCreateAtDesc(delivery);
-                if (saleOrders.isEmpty()) {
-                    return ResponseEntity.status(204).build();
-                }
+        PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
 
-                List<SaleOrderResponseDTO> saleOrdersResponseDTO = new LinkedList<>();
+        return this.resPagination(paginateSaleOrders);
+    }
 
-                for (int i = 0; i < saleOrders.size(); i++) {
-                    SaleOrderResponseDTO saleOrderResponseDTO = new SaleOrderResponseDTO();
-                    saleOrderResponseDTO.setId(saleOrders.get(i).getId());
-                    saleOrderResponseDTO.setCreateAt(saleOrders.get(i).getCreateAt());
-                    saleOrderResponseDTO.setUpdateAt(saleOrders.get(i).getUpdateAt());
-                    saleOrderResponseDTO.setCustomerAddress(saleOrders.get(i).getCustomerAddress());
-                    saleOrderResponseDTO.setDelivery(saleOrders.get(i).getDelivery());
-                    saleOrderResponseDTO.setPhone(saleOrders.get(i).getPhone());
-                    saleOrderResponseDTO.setOrderItems(saleOrders.get(i).getOrderItems());
-                    saleOrderResponseDTO.setUser(saleOrders.get(i).getUser());
-                    saleOrderResponseDTO
-                            .setProductImage(saleOrders.get(i).getOrderItems().get(0).getProduct().getProductImages().get(0));
-                    saleOrdersResponseDTO.add(saleOrderResponseDTO);
-                }
+    @GetMapping("/admin")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> getListSaleOrdersForAdmin(@RequestParam(name = "page", required = false) Integer page,
+                                                       @RequestParam(name = "perPage", required = false) Integer perPage,
+                                                       HttpServletRequest request) {
 
-                return ResponseEntity.status(200).body(saleOrdersResponseDTO);
-            }
-        }
-        if (deliveryId != null) {
-            List<SaleOrder> saleOrders = saleOrderRepository.findByDeliveryId(deliveryId);
-            if (saleOrders.isEmpty()) {
-                return ResponseEntity.status(204).build();
-            }
-            return ResponseEntity.status(200).body(saleOrders);
-        }
-        if (saleOrderId != null) {
-            Optional<SaleOrder> saleOrders = saleOrderRepository.findById(saleOrderId);
-            if (!saleOrders.isPresent()) {
-                return ResponseEntity.status(204).build();
-            }
-            return ResponseEntity.status(200).body(Collections.singletonList(saleOrders.get()));
-        }
-        List<SaleOrder> saleOrders = saleOrderRepository.findAll();
-        if (saleOrders.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
 
-        return ResponseEntity.status(200).body(saleOrders);
+        PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
+
+        return this.resPagination(paginateSaleOrders);
     }
 
     @GetMapping("/{saleOrderId}")
-    public ResponseEntity<?> getSaleOrderById(@PathVariable("saleOrderId") Long saleOrderId) {
-        Optional<SaleOrder> optionalSaleOrder = saleOrderRepository.findById(saleOrderId);
-        if (!optionalSaleOrder.isPresent()) {
-            throw new NotFoundException("Not found sale order by id " + saleOrderId);
-        }
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> getSaleOrderByIdForMember(@PathVariable("saleOrderId") Long saleOrderId, HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
 
-        SaleOrder saleOrder = optionalSaleOrder.get();
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
 
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setId(saleOrder.getId());
-        orderDetail.setCreateAt(saleOrder.getCreateAt());
-        orderDetail.setUpdateAt(saleOrder.getUpdateAt());
-        orderDetail.setCustomerAddress(saleOrder.getCustomerAddress());
-        orderDetail.setDelivery(saleOrder.getDelivery());
-        orderDetail.setUser(saleOrder.getUser());
-        orderDetail.setPhone(saleOrder.getPhone());
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
 
-        List<OrderItemDetailDTO> orderItemDetailDTOs = new LinkedList<>();
+        return this.resSuccess(saleOrder);
+    }
 
-        for (int i = 0; i < saleOrder.getOrderItems().size(); i++) {
-            OrderItem orderItem = saleOrder.getOrderItems().get(i);
-            ProductImage productImage = orderItem.getProduct().getProductImages().get(0);
+    @GetMapping("/admin/{saleOrderId}")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> getSaleOrderByIdForAdmin(@PathVariable("saleOrderId") Long saleOrderId) {
+        SaleOrder saleOrder = saleOrderService.findById(saleOrderId);
 
-            OrderItemDetailDTO orderItemDetailDTO = new OrderItemDetailDTO();
-            orderItemDetailDTO.setOrderItem(orderItem);
-            orderItemDetailDTO.setProductImage(productImage);
-
-            orderItemDetailDTOs.add(orderItemDetailDTO);
-        }
-
-        orderDetail.setOrderItems(orderItemDetailDTOs);
-
-        return ResponseEntity.status(200).body(orderDetail);
+        return this.resSuccess(saleOrder);
     }
 
     @PatchMapping("/{saleOrderId}")
-    public ResponseEntity<?> editSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId, @RequestBody DeliveryDTO deliveryDTO) {
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> editSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
+                                                   @RequestBody @Valid DeliveryDTO deliveryDTO) {
+        SaleOrder saleOrder = saleOrderService.findById(saleOrderId);
 
-        Optional<SaleOrder> optionalSaleOrder = saleOrderRepository.findById(saleOrderId);
-        if (!optionalSaleOrder.isPresent()) {
-            throw new NotFoundException("Not found sale order by saleOrderId " + saleOrderId);
+        if (saleOrder == null) {
+            throw new NotFoundException("Not found sale order");
         }
 
-        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryDTO.getDeliveryId());
-        if (!optionalDelivery.isPresent()) {
-            throw new NotFoundException("Not found delivery by deliveryId " + deliveryDTO.getDeliveryId());
+        Delivery delivery = deliveryService.findById(deliveryDTO.getDeliveryId());
+
+        if (delivery == null) {
+            throw new NotFoundException("Not found delivery");
         }
 
-        SaleOrder saleOrder = optionalSaleOrder.get();
-        saleOrder.setDelivery(optionalDelivery.get());
+        saleOrder.setDelivery(delivery);
+        SaleOrder savedSaleOrder = saleOrderService.update(saleOrder);
 
-        SaleOrder newSaleOrder = saleOrderRepository.save(saleOrder);
+        return this.resSuccess(savedSaleOrder);
+    }
 
-        return ResponseEntity.status(200).body(newSaleOrder);
+    @PatchMapping("/{saleOrderId}/payment")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> handlePaymentSaleOrder(@PathVariable("saleOrderId") Long saleOrderId,
+                                                    HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        Delivery delivery = deliveryService.findByAddedToCartState();
+
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
+
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
+
+        if (saleOrder == null) {
+            throw new NotFoundException("Not found sale order");
+        }
+
+        List<OrderItem> orderItems = saleOrder.getOrderItems();
+
+        Long totalAmount = saleOrderService.calculateTotalAmount(orderItems);
+
+        if (totalAmount > requestedUser.getAmount()) {
+            throw new AppException("Not enough money");
+        }
+
+        for (int i = 0; i < orderItems.size(); i++) {
+            Product product = orderItems.get(i).getProduct();
+            product.setQuantityPurchased(product.getQuantityPurchased() + orderItems.get(i).getQuantity());
+            productService.update(product);
+        }
+
+        requestedUser.setAmount(requestedUser.getAmount() - totalAmount);
+        userService.update(requestedUser);
+
+        Delivery deliveryWaitingToConfirm = deliveryService.findByIndex(Common.DELIVERY_WAITING_TO_CONFIRM_INDEX);
+
+        saleOrder.setDelivery(deliveryWaitingToConfirm);
+        SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
+
+        return this.resSuccess(newSaleOrder);
     }
 }
