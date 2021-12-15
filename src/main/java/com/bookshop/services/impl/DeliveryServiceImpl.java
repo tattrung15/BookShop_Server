@@ -46,7 +46,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     public void seedData() {
         Delivery delivery1 = new Delivery(null, Common.DELIVERY_ADDED_TO_CART_INDEX, Common.DELIVERY_ADDED_TO_CART_VALUE, null, null, null);
-        Delivery delivery2 = new Delivery(null, Common.DELIVERY_WAITING_CONFIRM_INDEX, Common.DELIVERY_WAITING_CONFIRM_VALUE, null, null, null);
+        Delivery delivery2 = new Delivery(null, Common.DELIVERY_WAITING_TO_CONFIRM_INDEX, Common.DELIVERY_WAITING_TO_CONFIRM_VALUE, null, null, null);
         Delivery delivery3 = new Delivery(null, Common.DELIVERY_DELIVERING_INDEX, Common.DELIVERY_DELIVERING_VALUE, null, null, null);
         Delivery delivery4 = new Delivery(null, Common.DELIVERY_DELIVERED_INDEX, Common.DELIVERY_DELIVERED_VALUE, null, null, null);
         Delivery delivery5 = new Delivery(null, Common.DELIVERY_CANCELED_INDEX, Common.DELIVERY_CANCELED_VALUE, null, null, null);

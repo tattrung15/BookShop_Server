@@ -20,6 +20,8 @@ public interface UserService {
 
     User update(UserUpdateDTO userUpdateDTO, User currentUser);
 
+    User update(User user);
+
     void deleteById(Long userId);
 
     void createAdminAccount(User user);

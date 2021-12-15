@@ -1,6 +1,7 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.base.BasePagination;
+import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.SaleOrder;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.repositories.SaleOrderRepository;
@@ -8,6 +9,8 @@ import com.bookshop.services.SaleOrderService;
 import com.bookshop.specifications.GenericSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRepository> implements SaleOrderService {
@@ -43,6 +46,15 @@ public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRep
     @Override
     public void deleteById(Long saleOrderId) {
         saleOrderRepository.deleteById(saleOrderId);
+    }
+
+    @Override
+    public Long calculateTotalAmount(List<OrderItem> orderItems) {
+        long totalAmount = 0L;
+        for (OrderItem orderItem : orderItems) {
+            totalAmount += orderItem.getProduct().getPrice() * orderItem.getQuantity();
+        }
+        return totalAmount;
     }
 
     @Override

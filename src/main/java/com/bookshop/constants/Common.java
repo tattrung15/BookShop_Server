@@ -11,8 +11,8 @@ public class Common {
     public static final String DELIVERY_ADDED_TO_CART_INDEX = "DaThemVaoGio";
     public static final String DELIVERY_ADDED_TO_CART_VALUE = "Đã thêm vào giỏ";
 
-    public static final String DELIVERY_WAITING_CONFIRM_INDEX = "ChoXacNhan";
-    public static final String DELIVERY_WAITING_CONFIRM_VALUE = "Chờ xác nhận";
+    public static final String DELIVERY_WAITING_TO_CONFIRM_INDEX = "ChoXacNhan";
+    public static final String DELIVERY_WAITING_TO_CONFIRM_VALUE = "Chờ xác nhận";
 
     public static final String DELIVERY_DELIVERING_INDEX = "DangGiaoHang";
     public static final String DELIVERY_DELIVERING_VALUE = "Đang giao hàng";

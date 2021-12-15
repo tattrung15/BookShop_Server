@@ -60,7 +60,7 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     }
 
     @Override
-    public void updateCurrentNumber(Product product) {
+    public void update(Product product) {
         productRepository.save(product);
     }
 

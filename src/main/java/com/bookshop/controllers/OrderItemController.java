@@ -57,7 +57,7 @@ public class OrderItemController extends BaseController<OrderItem> {
         orderItemService.createOrUpdate(orderItem);
 
         product.setCurrentNumber(updatedCurrentNumber);
-        productService.updateCurrentNumber(product);
+        productService.update(product);
 
         return ResponseEntity.ok().body(orderItem);
     }

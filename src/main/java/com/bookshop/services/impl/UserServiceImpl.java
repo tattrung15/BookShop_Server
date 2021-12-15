@@ -59,6 +59,11 @@ public class UserServiceImpl extends BasePagination<User, UserRepository> implem
     }
 
     @Override
+    public User update(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     public void deleteById(Long userId) {
         userRepository.deleteById(userId);
     }

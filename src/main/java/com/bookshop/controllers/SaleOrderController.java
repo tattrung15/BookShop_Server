@@ -1,24 +1,28 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
-import com.bookshop.dao.Delivery;
-import com.bookshop.dao.SaleOrder;
-import com.bookshop.dao.User;
+import com.bookshop.constants.Common;
+import com.bookshop.dao.*;
 import com.bookshop.dto.DeliveryDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.DeliveryService;
+import com.bookshop.services.ProductService;
 import com.bookshop.services.SaleOrderService;
+import com.bookshop.services.UserService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/sale-orders")
@@ -29,6 +33,12 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @Autowired
     private DeliveryService deliveryService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
@@ -100,5 +110,46 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         SaleOrder savedSaleOrder = saleOrderService.update(saleOrder);
 
         return this.resSuccess(savedSaleOrder);
+    }
+
+    @PatchMapping("/{saleOrderId}/payment")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> handlePaymentSaleOrder(@PathVariable("saleOrderId") Long saleOrderId,
+                                                    HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        Delivery delivery = deliveryService.findByAddedToCartState();
+
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
+
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
+
+        List<OrderItem> orderItems = saleOrder.getOrderItems();
+
+        Long totalAmount = saleOrderService.calculateTotalAmount(orderItems);
+
+        if (totalAmount > requestedUser.getAmount()) {
+            throw new AppException("Not enough money");
+        }
+
+        for (int i = 0; i < orderItems.size(); i++) {
+            Product product = orderItems.get(i).getProduct();
+            product.setQuantityPurchased(product.getQuantityPurchased() + orderItems.get(i).getQuantity());
+            productService.update(product);
+        }
+
+        requestedUser.setAmount(requestedUser.getAmount() - totalAmount);
+        userService.update(requestedUser);
+
+        Delivery deliveryWaitingToConfirm = deliveryService.findByIndex(Common.DELIVERY_WAITING_TO_CONFIRM_INDEX);
+
+        saleOrder.setDelivery(deliveryWaitingToConfirm);
+        SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
+
+        return this.resSuccess(newSaleOrder);
     }
 }
