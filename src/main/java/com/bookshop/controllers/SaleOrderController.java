@@ -128,6 +128,10 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
         SaleOrder saleOrder = saleOrderService.findOne(specification);
 
+        if (saleOrder == null) {
+            throw new NotFoundException("Not found sale order");
+        }
+
         List<OrderItem> orderItems = saleOrder.getOrderItems();
 
         Long totalAmount = saleOrderService.calculateTotalAmount(orderItems);
