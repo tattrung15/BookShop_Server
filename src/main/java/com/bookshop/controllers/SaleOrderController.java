@@ -14,6 +14,7 @@ import com.bookshop.services.UserService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/sale-orders")
+@SecurityRequirement(name = "Authorization")
 public class SaleOrderController extends BaseController<SaleOrder> {
 
     @Autowired

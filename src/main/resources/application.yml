@@ -1,6 +1,10 @@
 server:
   port: ${PORT}
 
+springdoc:
+  swagger-ui:
+    path: /api/swagger-ui
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver

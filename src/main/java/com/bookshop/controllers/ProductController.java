@@ -17,6 +17,7 @@ import com.bookshop.services.StorageService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.JoinCriteria;
 import com.bookshop.specifications.SearchOperation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,6 +83,7 @@ public class ProductController extends BaseController<Product> {
 
     @PostMapping
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> createNewProduct(@RequestBody @Valid ProductDTO productDTO) {
         Product oldProduct = productService.findBySlug(productDTO.getTitle());
         if (oldProduct != null) {
@@ -101,6 +103,7 @@ public class ProductController extends BaseController<Product> {
 
     @PatchMapping("/{productId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> editProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
                                          @PathVariable("productId") Long productId) {
         Product product = productService.findById(productId);
@@ -123,6 +126,7 @@ public class ProductController extends BaseController<Product> {
 
     @DeleteMapping("/{productId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteProduct(@PathVariable("productId") Long productId) {
         Product product = productService.findById(productId);
@@ -141,6 +145,7 @@ public class ProductController extends BaseController<Product> {
 
     @DeleteMapping("/{productId}/product-images")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteProductImageByProductId(@PathVariable("productId") Long productId) {
         Product product = productService.findById(productId);

@@ -9,6 +9,7 @@ import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.UserService;
 import com.bookshop.specifications.GenericSpecification;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/users")
+@SecurityRequirement(name = "Authorization")
 public class UserController extends BaseController<User> {
 
     @Autowired
