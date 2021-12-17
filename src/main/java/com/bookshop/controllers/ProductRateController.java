@@ -46,6 +46,20 @@ public class ProductRateController extends BaseController<ProductRate> {
         return this.resPagination(paginateProductRates);
     }
 
+    @GetMapping("/detail")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> getProductRateByProductId(@RequestParam(name = "productId") Long productId, HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        GenericSpecification<ProductRate> specification = new GenericSpecification<ProductRate>().getBasicQuery(request);
+        specification.add(new SearchCriteria("product", productId, SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+
+        ProductRate productRate = productRateService.findOne(specification);
+
+        return this.resSuccess(productRate);
+    }
+
     @PostMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     public ResponseEntity<?> createProductRate(@RequestBody @Valid ProductRateDTO productRateDTO, HttpServletRequest request) {
