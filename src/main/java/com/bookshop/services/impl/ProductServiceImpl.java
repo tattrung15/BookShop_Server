@@ -27,6 +27,7 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
     public ProductServiceImpl(ProductRepository productRepository) {
         super(productRepository);
     }

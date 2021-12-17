@@ -14,6 +14,7 @@ import com.bookshop.services.ProductService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,6 +62,7 @@ public class CategoryController extends BaseController<Category> {
 
     @PostMapping
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoryDTO categoryDTO) {
         Category oldCategory = categoryService.findBySlug(StringHelper.toSlug(categoryDTO.getName()));
 
@@ -74,6 +76,7 @@ public class CategoryController extends BaseController<Category> {
 
     @PatchMapping("/{categoryId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> editCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
                                           @PathVariable("categoryId") Long categoryId) {
         Category category = categoryService.findById(categoryId);
@@ -89,6 +92,7 @@ public class CategoryController extends BaseController<Category> {
 
     @DeleteMapping("/{categoryId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @SecurityRequirement(name = "Authorization")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> deleteCategory(@PathVariable("categoryId") Long categoryId) {
         Category category = categoryService.findById(categoryId);

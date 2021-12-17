@@ -10,6 +10,7 @@ import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.OrderItemService;
 import com.bookshop.services.ProductService;
 import com.bookshop.services.SaleOrderService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/order-items")
+@SecurityRequirement(name = "Authorization")
 public class OrderItemController extends BaseController<OrderItem> {
 
     @Autowired

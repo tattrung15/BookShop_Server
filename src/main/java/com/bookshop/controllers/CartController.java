@@ -12,6 +12,7 @@ import com.bookshop.services.SaleOrderService;
 import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/carts")
+@SecurityRequirement(name = "Authorization")
 public class CartController extends BaseController<Object> {
 
     @Autowired

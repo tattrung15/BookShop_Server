@@ -8,6 +8,7 @@ import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.FileHelper;
 import com.bookshop.services.ProductImageService;
 import com.bookshop.services.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-images")
+@SecurityRequirement(name = "Authorization")
 public class ProductImageController extends BaseController<ProductImage> {
 
     @Autowired
