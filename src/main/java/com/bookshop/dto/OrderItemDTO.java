@@ -1,42 +1,17 @@
 package com.bookshop.dto;
 
+import lombok.Data;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+@Data
 public class OrderItemDTO {
-	private Long userId;
-	private Long productId;
-	private Integer quantity;
+    @NotNull
+    @Min(1)
+    private Long productId;
 
-	public OrderItemDTO() {
-	}
-
-	public OrderItemDTO(Long userId, Long productId, Integer quantity) {
-		super();
-		this.userId = userId;
-		this.productId = productId;
-		this.quantity = quantity;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public Long getProductId() {
-		return productId;
-	}
-
-	public void setProductId(Long productId) {
-		this.productId = productId;
-	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
+    @NotNull
+    @Min(1)
+    private Integer quantity;
 }

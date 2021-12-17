@@ -1,109 +1,50 @@
 package com.bookshop.dto;
 
+import com.bookshop.constants.Common;
+import com.bookshop.constants.RoleEnum;
+import com.bookshop.validators.IsIn;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+@Data
 public class UserDTO {
-	private String firstName;
 
-	private String lastName;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String firstName;
 
-	private String username;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String lastName;
 
-	private String password;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String username;
 
-	private String address;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String address;
 
-	private Long amount;
+    @NotBlank
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,}$", message = "password is invalid")
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String password;
 
-	private String role;
+    private Long amount;
 
-	private String email;
+    @IsIn(value = {RoleEnum.ADMIN, RoleEnum.MEMBER}, message = "role is invalid")
+    private String role;
 
-	private String phone;
+    @NotBlank
+    @Email
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String email;
 
-	public UserDTO() {
-	}
-
-	public UserDTO(String firstName, String lastName, String username, String password, String address, Long amount,
-			String role, String email, String phone) {
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.username = username;
-		this.password = password;
-		this.address = address;
-		this.amount = amount;
-		this.role = role;
-		this.email = email;
-		this.phone = phone;
-	}
-
-	public String getFirstName() {
-		return this.firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return this.lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getUsername() {
-		return this.username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getAddress() {
-		return this.address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public Long getAmount() {
-		return this.amount;
-	}
-
-	public void setAmount(Long amount) {
-		this.amount = amount;
-	}
-
-	public String getRole() {
-		return this.role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public String getEmail() {
-		return this.email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPhone() {
-		return this.phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String phone;
 }

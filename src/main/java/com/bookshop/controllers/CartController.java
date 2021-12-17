@@ -1,138 +1,128 @@
 package com.bookshop.controllers;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-
+import com.bookshop.base.BaseController;
+import com.bookshop.dao.*;
+import com.bookshop.dto.OrderItemDTO;
+import com.bookshop.exceptions.AppException;
+import com.bookshop.exceptions.NotFoundException;
+import com.bookshop.services.DeliveryService;
+import com.bookshop.services.OrderItemService;
+import com.bookshop.services.ProductService;
+import com.bookshop.services.SaleOrderService;
+import com.bookshop.specifications.GenericSpecification;
+import com.bookshop.specifications.SearchCriteria;
+import com.bookshop.specifications.SearchOperation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.bookshop.dao.Delivery;
-import com.bookshop.dao.OrderItem;
-import com.bookshop.dao.Product;
-import com.bookshop.dao.SaleOrder;
-import com.bookshop.dao.User;
-import com.bookshop.dto.CartItemDTO;
-import com.bookshop.dto.OrderItemDTO;
-import com.bookshop.exceptions.NotFoundException;
-import com.bookshop.repositories.DeliveryRepository;
-import com.bookshop.repositories.OrderItemRepository;
-import com.bookshop.repositories.ProductRepository;
-import com.bookshop.repositories.SaleOrderRepository;
-import com.bookshop.repositories.UserRepository;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/carts")
-@Transactional(rollbackFor = Exception.class)
-public class CartController {
+@SecurityRequirement(name = "Authorization")
+public class CartController extends BaseController<Object> {
 
-	@Autowired
-	private SaleOrderRepository saleOrderRepository;
+    @Autowired
+    private ProductService productService;
 
-	@Autowired
-	private OrderItemRepository orderItemRepository;
+    @Autowired
+    private SaleOrderService saleOrderService;
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private OrderItemService orderItemService;
 
-	@Autowired
-	private ProductRepository productRepository;
+    @Autowired
+    private DeliveryService deliveryService;
 
-	@Autowired
-	private DeliveryRepository deliveryRepository;
+    @GetMapping
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> getOrderItemsOfCart(HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
 
-	@GetMapping("/users/{userId}")
-	public ResponseEntity<?> getOrderItemsByUserId(@PathVariable("userId") Long userId) {
-		Optional<User> optionalUser = userRepository.findById(userId);
-		if (!optionalUser.isPresent()) {
-			throw new NotFoundException("Not found user with userId " + userId);
-		}
+        Delivery delivery = deliveryService.findByAddedToCartState();
 
-		Delivery delivery = deliveryRepository.findByIndex("DaThemVaoGio");
-		User user = optionalUser.get();
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
 
-		SaleOrder saleOrder = saleOrderRepository.findByUserIdAndDeliveryId(user.getId(), delivery.getId());
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
 
-		if (saleOrder == null) {
-			throw new NotFoundException("Not found cart with userId " + userId);
-		}
+        return this.resSuccess(saleOrder);
+    }
 
-		List<CartItemDTO> cartItemDTOs = new LinkedList<>();
-		for (int i = 0; i < saleOrder.getOrderItems().size(); i++) {
-			OrderItem orderItem = saleOrder.getOrderItems().get(i);
-			CartItemDTO cartItemDTO = new CartItemDTO();
-			cartItemDTO.setOrderItemId(orderItem.getId());
-			cartItemDTO.setProduct(orderItem.getProduct());
-			cartItemDTO.setSaleOrder(orderItem.getSaleOrder());
-			cartItemDTO.setQuantity(orderItem.getQuantity());
-			cartItemDTO.setProductImage(orderItem.getProduct().getProductImages().get(0));
-			cartItemDTOs.add(cartItemDTO);
-		}
+    @PostMapping
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> addToCart(@RequestBody @Valid OrderItemDTO orderItemDTO, HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
 
-		return ResponseEntity.status(200).body(cartItemDTOs);
-	}
+        Product product = productService.findById(orderItemDTO.getProductId());
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
 
-	@PostMapping
-	public ResponseEntity<?> postCart(@RequestBody OrderItemDTO orderItemDTO) {
-		Optional<User> optionalUser = userRepository.findById(orderItemDTO.getUserId());
-		if (!optionalUser.isPresent()) {
-			throw new NotFoundException("Not found user with userId " + orderItemDTO.getUserId());
-		}
-		Optional<Product> optionalProduct = productRepository.findById(orderItemDTO.getProductId());
-		if (!optionalProduct.isPresent()) {
-			throw new NotFoundException("Not found product with productId " + orderItemDTO.getProductId());
-		}
+        if (product.getCurrentNumber() < orderItemDTO.getQuantity()) {
+            throw new AppException("Not enough quantity");
+        }
 
-		Delivery delivery = deliveryRepository.findByIndex("DaThemVaoGio");
+        Delivery delivery = deliveryService.findByAddedToCartState();
 
-		User user = optionalUser.get();
-		Product product = optionalProduct.get();
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
+        SaleOrder oldSaleOrder = saleOrderService.findOne(specification);
 
-		// tìm sản phẩm đã được thêm vào giỏ hàng
-		SaleOrder oldSaleOrder = saleOrderRepository.findByUserIdAndDeliveryId(user.getId(), delivery.getId());
-		if (oldSaleOrder != null) {
+        // update order item if exists
+        if (oldSaleOrder != null) {
+            GenericSpecification<OrderItem> orderItemGenericSpecification = new GenericSpecification<>();
+            orderItemGenericSpecification.add(new SearchCriteria("saleOrder", oldSaleOrder.getId(), SearchOperation.EQUAL));
+            orderItemGenericSpecification.add(new SearchCriteria("product", product.getId(), SearchOperation.EQUAL));
 
-			// sản phẩm đã có trong giỏ hàng
-			OrderItem oldOrderItem = orderItemRepository.findBySaleOrderIdAndProductId(oldSaleOrder.getId(),
-					product.getId());
-			if (oldOrderItem != null) {
-				oldOrderItem.setQuantity(oldOrderItem.getQuantity() + orderItemDTO.getQuantity());
-				orderItemRepository.save(oldOrderItem);
-			} else {
-				OrderItem orderItem = new OrderItem();
-				orderItem.setSaleOrder(oldSaleOrder);
-				orderItem.setProduct(product);
-				orderItem.setQuantity(orderItemDTO.getQuantity());
-				orderItemRepository.save(orderItem);
-			}
+            OrderItem oldOrderItem = orderItemService.findOne(orderItemGenericSpecification);
 
-			return ResponseEntity.status(201).body(oldSaleOrder.getOrderItems());
-		}
+            OrderItem newOrderItem;
 
-		SaleOrder saleOrder = new SaleOrder();
-		saleOrder.setUser(user);
-		saleOrder.setDelivery(delivery);
-		saleOrder.setCustomerAddress(user.getAddress());
-		saleOrder.setPhone(user.getPhone());
+            if (oldOrderItem != null) {
+                oldOrderItem.setQuantity(oldOrderItem.getQuantity() + orderItemDTO.getQuantity());
+                newOrderItem = orderItemService.createOrUpdate(oldOrderItem);
+            } else {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setSaleOrder(oldSaleOrder);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(orderItemDTO.getQuantity());
+                newOrderItem = orderItemService.createOrUpdate(orderItem);
+            }
 
-		SaleOrder newSaleOrder = saleOrderRepository.save(saleOrder);
+            product.setCurrentNumber(product.getCurrentNumber() - orderItemDTO.getQuantity());
+            productService.update(product);
 
-		OrderItem orderItem = new OrderItem();
-		orderItem.setSaleOrder(newSaleOrder);
-		orderItem.setProduct(product);
-		orderItem.setQuantity(orderItemDTO.getQuantity());
-		orderItemRepository.save(orderItem);
+            return this.resSuccess(newOrderItem);
+        }
 
-		newSaleOrder.setOrderItems(Arrays.asList(orderItem));
+        // create new sale order and order item
+        SaleOrder saleOrder = new SaleOrder();
+        saleOrder.setUser(requestedUser);
+        saleOrder.setDelivery(delivery);
+        saleOrder.setCustomerAddress(requestedUser.getAddress());
+        saleOrder.setPhone(requestedUser.getPhone());
 
-		return ResponseEntity.status(201).body(newSaleOrder.getOrderItems());
-	}
+        SaleOrder newSaleOrder = saleOrderService.create(saleOrder);
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setSaleOrder(newSaleOrder);
+        orderItem.setProduct(product);
+        orderItem.setQuantity(orderItemDTO.getQuantity());
+
+        OrderItem newOrderItem = orderItemService.createOrUpdate(orderItem);
+
+        product.setCurrentNumber(product.getCurrentNumber() - orderItemDTO.getQuantity());
+        productService.update(product);
+
+        return this.resSuccess(newOrderItem);
+    }
 }

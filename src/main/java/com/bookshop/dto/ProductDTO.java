@@ -1,87 +1,40 @@
 package com.bookshop.dto;
 
+import com.bookshop.constants.Common;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Data
 public class ProductDTO {
-	private String title;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String title;
 
-	private String longDescription;
+    @NotBlank
+    @Length(max = 100000)
+    private String longDescription;
 
-	private Long categoryId;
+    @NotNull
+    @Min(1)
+    private Long categoryId;
 
-	private Long price;
+    @NotNull
+    @Min(1)
+    private Long price;
 
-	private String author;
+    @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
+    private String author;
 
-	private Integer currentNumber;
+    @NotNull
+    @Min(0)
+    private Integer currentNumber;
 
-	private Integer numberOfPage;
-
-	public ProductDTO() {
-	}
-
-	public ProductDTO(String title, String longDescription, Long categoryId, Long price, String author,
-			Integer currentNumber, Integer numberOfPage) {
-		this.title = title;
-		this.longDescription = longDescription;
-		this.categoryId = categoryId;
-		this.price = price;
-		this.author = author;
-		this.currentNumber = currentNumber;
-		this.numberOfPage = numberOfPage;
-	}
-
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getLongDescription() {
-		return this.longDescription;
-	}
-
-	public void setLongDescription(String longDescription) {
-		this.longDescription = longDescription;
-	}
-
-	public Long getCategoryId() {
-		return this.categoryId;
-	}
-
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
-	}
-
-	public Long getPrice() {
-		return this.price;
-	}
-
-	public void setPrice(Long price) {
-		this.price = price;
-	}
-
-	public String getAuthor() {
-		return this.author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public Integer getCurrentNumber() {
-		return this.currentNumber;
-	}
-
-	public void setCurrentNumber(Integer currentNumber) {
-		this.currentNumber = currentNumber;
-	}
-
-	public Integer getNumberOfPage() {
-		return this.numberOfPage;
-	}
-
-	public void setNumberOfPage(Integer numberOfPage) {
-		this.numberOfPage = numberOfPage;
-	}
+    @NotNull
+    @Min(1)
+    private Integer numberOfPage;
 }

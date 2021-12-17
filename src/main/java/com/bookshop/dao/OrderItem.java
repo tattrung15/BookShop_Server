@@ -1,77 +1,42 @@
 package com.bookshop.dao;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
-@Table(name = "OrderItem")
-public class OrderItem implements Serializable {
+@Table(name = "order_items", uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "sale_order_id"}))
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class OrderItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private static final long serialVersionUID = 1L;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "orderItem_id")
-	private Long id;
+    @ManyToOne
+    @JoinColumn(name = "sale_order_id")
+    @JsonBackReference
+    private SaleOrder saleOrder;
 
-	@ManyToOne
-	@JoinColumn(name = "product_id")
-	private Product product;
+    @Column(nullable = false)
+    private Integer quantity;
 
-	@ManyToOne
-	@JoinColumn(name = "saleOrder_id")
-	private SaleOrder saleOrder;
+    @CreationTimestamp
+    private Timestamp createdAt;
 
-	@Column(name = "quantity", nullable = false)
-	private Integer quantity;
-
-	public OrderItem() {
-	}
-
-	public OrderItem(Long id, Product product, SaleOrder saleOrder, Integer quantity) {
-		this.id = id;
-		this.product = product;
-		this.saleOrder = saleOrder;
-		this.quantity = quantity;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Product getProduct() {
-		return this.product;
-	}
-
-	public void setProduct(Product product) {
-		this.product = product;
-	}
-
-	public SaleOrder getSaleOrder() {
-		return this.saleOrder;
-	}
-
-	public void setSaleOrder(SaleOrder saleOrder) {
-		this.saleOrder = saleOrder;
-	}
-
-	public Integer getQuantity() {
-		return this.quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
+    @UpdateTimestamp
+    private Timestamp updatedAt;
 }
