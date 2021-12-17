@@ -1,5 +1,6 @@
 package com.bookshop.dto;
 
+import com.bookshop.constants.Common;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class ProductDTO {
     @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
     private String title;
 
     @NotBlank
@@ -25,6 +27,7 @@ public class ProductDTO {
     private Long price;
 
     @NotBlank
+    @Length(max = Common.STRING_LENGTH_LIMIT)
     private String author;
 
     @NotNull

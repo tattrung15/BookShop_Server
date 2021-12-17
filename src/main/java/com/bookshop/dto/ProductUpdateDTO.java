@@ -1,5 +1,6 @@
 package com.bookshop.dto;
 
+import com.bookshop.constants.Common;
 import com.bookshop.validators.NullOrNotEmpty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Min;
 public class ProductUpdateDTO {
 
     @NullOrNotEmpty(message = "title is invalid")
+    @Length(max = Common.STRING_LENGTH_LIMIT)
     private String title;
 
     @NullOrNotEmpty(message = "longDescription is invalid")
@@ -25,6 +27,7 @@ public class ProductUpdateDTO {
     private Long price;
 
     @NullOrNotEmpty(message = "author is invalid")
+    @Length(max = Common.STRING_LENGTH_LIMIT)
     private String author;
 
     @NullOrNotEmpty(message = "currentNumber is invalid")

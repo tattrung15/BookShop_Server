@@ -3,6 +3,8 @@ package com.bookshop.constants;
 public class Common {
     public static final Integer PAGING_DEFAULT_LIMIT = 10;
 
+    public static final int STRING_LENGTH_LIMIT = 255;
+
     public static final String RESPONSE_MESSAGE_SUCCESS = "Response success";
 
     public static final String PRODUCT_IMAGE_UPLOAD_PATH = "/productImages";
