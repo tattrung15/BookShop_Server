@@ -12,7 +12,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "product_rates")
+@Table(name = "product_rates", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}))
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

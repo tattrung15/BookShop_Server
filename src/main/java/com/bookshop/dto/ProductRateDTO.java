@@ -16,6 +16,8 @@ public class ProductRateDTO {
     @Min(1)
     private Long productId;
 
+    private Long userId;
+
     @NotNull
     @Min(ProductRateEnum.MIN)
     @Max(ProductRateEnum.MAX)

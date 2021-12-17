@@ -3,10 +3,12 @@ package com.bookshop.services.impl;
 import com.bookshop.base.BasePagination;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.ProductRate;
+import com.bookshop.dao.User;
 import com.bookshop.dto.ProductRateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.repositories.ProductRateRepository;
 import com.bookshop.repositories.ProductRepository;
+import com.bookshop.repositories.UserRepository;
 import com.bookshop.services.ProductRateService;
 import com.bookshop.specifications.GenericSpecification;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,9 @@ public class ProductRateServiceImpl extends BasePagination<ProductRate, ProductR
     private ProductRepository productRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     public ProductRateServiceImpl(ProductRateRepository productRateRepository) {
         super(productRateRepository);
     }
@@ -38,8 +43,10 @@ public class ProductRateServiceImpl extends BasePagination<ProductRate, ProductR
     @Override
     public ProductRate create(ProductRateDTO productRateDTO) {
         Product product = productRepository.findById(productRateDTO.getProductId()).orElse(null);
+        User user = userRepository.findById(productRateDTO.getUserId()).orElse(null);
         ProductRate productRate = mapper.map(productRateDTO, ProductRate.class);
         productRate.setProduct(product);
+        productRate.setUser(user);
         return productRateRepository.save(productRate);
     }
 
