@@ -49,7 +49,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
         User user = userService.findByUsername(authenticationRequest.getUsername());
-        return this.resSuccess(new AuthenticationResponse(jwt, user.getId(), user.getUsername(), user.getRole()));
+        return this.resSuccess(new AuthenticationResponse(jwt, user));
     }
 
     @PostMapping("/signup")
@@ -62,7 +62,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
 
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(newUser.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
-        return this.resSuccess(new AuthenticationResponse(jwt, newUser.getId(), newUser.getUsername(), newUser.getRole()));
+        return this.resSuccess(new AuthenticationResponse(jwt, newUser));
     }
 
     @PostMapping("/validate")
@@ -77,8 +77,7 @@ public class AuthController extends BaseController<AuthenticationResponse> {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
             User user = userService.findByUsername(username);
-            return this.resSuccess(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user.getId(),
-                    user.getUsername(), user.getRole()));
+            return this.resSuccess(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user));
         } catch (Exception e) {
             throw new AppException(e.getMessage());
         }
