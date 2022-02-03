@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 @Data
 public class CategoryUpdateDTO {
 
-    @NullOrNotEmpty(message = "name is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Length(max = Common.STRING_LENGTH_LIMIT)
     private String name;
 

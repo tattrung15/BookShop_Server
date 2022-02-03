@@ -10,31 +10,31 @@ import javax.validation.constraints.Min;
 @Data
 public class ProductUpdateDTO {
 
-    @NullOrNotEmpty(message = "title is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Length(max = Common.STRING_LENGTH_LIMIT)
     private String title;
 
-    @NullOrNotEmpty(message = "longDescription is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Length(max = 100000)
     private String longDescription;
 
-    @NullOrNotEmpty(message = "categoryId is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Min(1)
     private Long categoryId;
 
-    @NullOrNotEmpty(message = "price is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Min(1)
     private Long price;
 
-    @NullOrNotEmpty(message = "author is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Length(max = Common.STRING_LENGTH_LIMIT)
     private String author;
 
-    @NullOrNotEmpty(message = "currentNumber is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Min(0)
     private Integer currentNumber;
 
-    @NullOrNotEmpty(message = "numberOfPage is invalid")
+    @NullOrNotEmpty(message = "is invalid")
     @Min(1)
     private Integer numberOfPage;
 }
