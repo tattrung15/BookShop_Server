@@ -34,6 +34,7 @@ public class FileSystemStorageService implements StorageService {
     public void init() {
         try {
             Files.createDirectories(Paths.get(rootLocation + Common.PRODUCT_IMAGE_UPLOAD_PATH));
+            Files.createDirectories(Paths.get(rootLocation + Common.BANNER_IMAGE_UPLOAD_PATH));
         } catch (IOException e) {
             throw new AppException("Could not initialize storage");
         }
@@ -53,6 +54,12 @@ public class FileSystemStorageService implements StorageService {
             }
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                if (dir.equals(Common.PRODUCT_IMAGE_UPLOAD_PATH)) {
+                    return Common.PRODUCT_IMAGE_PATTERN_PATH + "/" + fileName;
+                }
+                if (dir.equals(Common.BANNER_IMAGE_UPLOAD_PATH)) {
+                    return Common.BANNER_IMAGE_PATTERN_PATH + "/" + fileName;
+                }
                 return Common.PRODUCT_IMAGE_PATTERN_PATH + "/" + fileName;
             }
         } catch (IOException e) {

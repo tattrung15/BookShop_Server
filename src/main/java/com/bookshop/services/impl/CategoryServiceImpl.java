@@ -5,12 +5,15 @@ import com.bookshop.dao.Category;
 import com.bookshop.dto.CategoryDTO;
 import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.repositories.CategoryRepository;
 import com.bookshop.services.CategoryService;
 import com.bookshop.specifications.GenericSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl extends BasePagination<Category, CategoryRepository> implements CategoryService {
@@ -27,6 +30,11 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     }
 
     @Override
+    public List<Category> findAll(GenericSpecification<Category> specification) {
+        return categoryRepository.findAll(specification);
+    }
+
+    @Override
     public Category findById(Long categoryId) {
         return categoryRepository.findById(categoryId).orElse(null);
     }
@@ -39,6 +47,17 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     @Override
     public Category create(CategoryDTO categoryDTO) {
         Category category = mapper.map(categoryDTO, Category.class);
+
+        if (categoryDTO.getParentCategoryId() != null) {
+            Category parentCategory = categoryRepository.findById(categoryDTO.getParentCategoryId()).orElse(null);
+
+            if (parentCategory == null) {
+                throw new NotFoundException("Not found parent category");
+            }
+
+            category.setParentCategory(parentCategory);
+        }
+
         return categoryRepository.save(category);
     }
 
@@ -46,6 +65,15 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
     public Category update(CategoryUpdateDTO categoryUpdateDTO, Category currentCategory) {
         Category updated = mapper.map(categoryUpdateDTO, Category.class);
         mapper.map(updated, currentCategory);
+        if (categoryUpdateDTO.getParentCategoryId() != null) {
+            Category parentCategory = categoryRepository.findById(categoryUpdateDTO.getParentCategoryId()).orElse(null);
+
+            if (parentCategory == null) {
+                throw new NotFoundException("Not found parent category");
+            }
+
+            updated.setParentCategory(parentCategory);
+        }
         return categoryRepository.save(currentCategory);
     }
 

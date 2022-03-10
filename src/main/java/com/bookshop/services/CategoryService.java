@@ -6,7 +6,11 @@ import com.bookshop.dto.CategoryUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.specifications.GenericSpecification;
 
+import java.util.List;
+
 public interface CategoryService {
+    List<Category> findAll(GenericSpecification<Category> specification);
+
     Category findById(Long categoryId);
 
     Category findBySlug(String slug);

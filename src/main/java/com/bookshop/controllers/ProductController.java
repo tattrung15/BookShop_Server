@@ -104,7 +104,7 @@ public class ProductController extends BaseController<Product> {
     @PatchMapping("/{productId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> editProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
+    public ResponseEntity<?> updateProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
                                          @PathVariable("productId") Long productId) {
         Product product = productService.findById(productId);
 

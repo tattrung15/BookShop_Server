@@ -94,7 +94,7 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @PatchMapping("/{saleOrderId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
-    public ResponseEntity<?> editSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
+    public ResponseEntity<?> updateSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
                                                    @RequestBody @Valid DeliveryDTO deliveryDTO) {
         SaleOrder saleOrder = saleOrderService.findById(saleOrderId);
 

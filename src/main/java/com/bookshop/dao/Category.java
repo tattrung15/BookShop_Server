@@ -14,6 +14,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "categories")
@@ -37,6 +38,17 @@ public class Category {
     @Column(nullable = false)
     private String slug;
 
+    @Column(nullable = false)
+    private Boolean isAuthor;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_category_id")
+    @JsonIgnore
+    private Category parentCategory;
+
+    @OneToMany(mappedBy = "parentCategory", fetch = FetchType.EAGER)
+    private Set<Category> linkedCategories;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Product> products;
@@ -50,10 +62,16 @@ public class Category {
     @PrePersist
     public void prePersist() {
         this.slug = StringHelper.toSlug(this.name);
+        if (this.isAuthor == null) {
+            this.isAuthor = false;
+        }
     }
 
     @PreUpdate
     public void preUpdate() {
         this.slug = StringHelper.toSlug(this.name);
+        if (this.isAuthor == null) {
+            this.isAuthor = false;
+        }
     }
 }

@@ -5,10 +5,16 @@ public class Common {
 
     public static final int STRING_LENGTH_LIMIT = 255;
 
+    public static final Integer FETCH_TYPE_ADMIN = 1;
+    public static final Integer FETCH_TYPE_USER = 2;
+
     public static final String RESPONSE_MESSAGE_SUCCESS = "Response success";
 
-    public static final String PRODUCT_IMAGE_UPLOAD_PATH = "/productImages";
+    public static final String PRODUCT_IMAGE_UPLOAD_PATH = "/product-images";
     public static final String PRODUCT_IMAGE_PATTERN_PATH = "/images/product-images";
+
+    public static final String BANNER_IMAGE_UPLOAD_PATH = "/banner-images";
+    public static final String BANNER_IMAGE_PATTERN_PATH = "/images/banner-images";
 
     public static final String DELIVERY_ADDED_TO_CART_INDEX = "DaThemVaoGio";
     public static final String DELIVERY_ADDED_TO_CART_VALUE = "Đã thêm vào giỏ";

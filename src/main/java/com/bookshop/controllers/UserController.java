@@ -63,7 +63,7 @@ public class UserController extends BaseController<User> {
 
     @PatchMapping("/{userId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication) || @userAuthorizer.isYourself(authentication, #userId)")
-    public ResponseEntity<?> editUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO, @PathVariable("userId") Long userId) {
+    public ResponseEntity<?> updateUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO, @PathVariable("userId") Long userId) {
         User user = userService.findById(userId);
         if (user == null) {
             throw new NotFoundException("Not found user");

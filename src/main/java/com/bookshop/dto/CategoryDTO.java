@@ -15,4 +15,8 @@ public class CategoryDTO {
 
     @Length(max = 100000)
     private String description;
+
+    private Boolean isAuthor;
+
+    private Long parentCategoryId;
 }

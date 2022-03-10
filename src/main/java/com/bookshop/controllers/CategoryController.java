@@ -1,6 +1,7 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
+import com.bookshop.constants.Common;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.CategoryDTO;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/categories")
@@ -38,9 +40,21 @@ public class CategoryController extends BaseController<Category> {
     public ResponseEntity<?> getListCategories(
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "perPage", required = false) Integer perPage,
+            @RequestParam(name = "fetchType", required = false) Integer fetchType,
             HttpServletRequest request) {
 
         GenericSpecification<Category> specification = new GenericSpecification<Category>().getBasicQuery(request);
+
+        if (fetchType != null) {
+            if (fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
+                PaginateDTO<Category> paginateCategories = categoryService.getList(page, perPage, specification);
+                return this.resPagination(paginateCategories);
+            } else if (fetchType.equals(Common.FETCH_TYPE_USER)) {
+                specification.add(new SearchCriteria("parentCategory", null, SearchOperation.NULL));
+                List<Category> categories = categoryService.findAll(specification);
+                return this.resListSuccess(categories);
+            }
+        }
 
         PaginateDTO<Category> paginateCategories = categoryService.getList(page, perPage, specification);
 
@@ -77,7 +91,7 @@ public class CategoryController extends BaseController<Category> {
     @PatchMapping("/{categoryId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @SecurityRequirement(name = "Authorization")
-    public ResponseEntity<?> editCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
+    public ResponseEntity<?> updateCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
                                           @PathVariable("categoryId") Long categoryId) {
         Category category = categoryService.findById(categoryId);
 
