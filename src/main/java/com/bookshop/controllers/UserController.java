@@ -42,6 +42,7 @@ public class UserController extends BaseController<User> {
     }
 
     @PostMapping
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> createUser(@RequestBody @Valid UserDTO userDTO) {
         User oldUser = userService.findByUsername(userDTO.getUsername());
 
