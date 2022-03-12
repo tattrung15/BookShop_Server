@@ -83,11 +83,11 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void deleteFilesByPrefix(String prefix) {
+    public void deleteFilesByPrefix(String prefix, String path) {
         try {
-            File file = new File(this.rootLocation.toString() + Common.PRODUCT_IMAGE_UPLOAD_PATH);
+            File file = new File(this.rootLocation.toString() + path);
             for (File item : Objects.requireNonNull(file.listFiles())) {
-                if (item.getName().indexOf(prefix) == 0) {
+                if (item.getName().indexOf(prefix + "-") == 0) {
                     Files.deleteIfExists(Paths.get(item.getAbsolutePath()));
                 }
             }

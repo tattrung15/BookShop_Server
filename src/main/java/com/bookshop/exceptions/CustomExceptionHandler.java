@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 
 import java.util.List;
 
@@ -27,9 +28,9 @@ public class CustomExceptionHandler {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), msg);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class, ForbiddenException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleAccessDeniedException(AccessDeniedException ex, WebRequest req) {
+    public ErrorResponse handleAccessDeniedException(Exception ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
 
@@ -39,22 +40,16 @@ public class CustomExceptionHandler {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler({AppException.class, MultipartException.class, DataIntegrityViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConstraintViolationException(DataIntegrityViolationException ex, WebRequest req) {
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-    }
-
-    @ExceptionHandler(AppException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAppException(AppException ex, WebRequest req) {
+    public ErrorResponse handleAppException(Exception ex, WebRequest req) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConversionException(HttpMessageNotReadableException e) {
-        String msg = null;
+        String msg = "Missing value of body";
         Throwable cause = e.getCause();
         if (cause instanceof JsonParseException) {
             JsonParseException jpe = (JsonParseException) cause;
@@ -74,13 +69,6 @@ public class CustomExceptionHandler {
             }
         }
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), msg);
-    }
-
-
-    @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleForbiddenException(ForbiddenException ex, WebRequest req) {
-        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

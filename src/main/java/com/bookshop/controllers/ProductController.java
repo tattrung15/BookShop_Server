@@ -1,6 +1,7 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
+import com.bookshop.constants.Common;
 import com.bookshop.constants.ProductTypeEnum;
 import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
@@ -157,7 +158,7 @@ public class ProductController extends BaseController<Product> {
         List<ProductImage> productImageList = product.getProductImages();
 
         productImageService.deleteByProductId(productId);
-        storageService.deleteFilesByPrefix(String.valueOf(productId));
+        storageService.deleteFilesByPrefix(String.valueOf(productId), Common.PRODUCT_IMAGE_UPLOAD_PATH);
 
         return this.resListSuccess(productImageList);
     }

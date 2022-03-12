@@ -10,5 +10,5 @@ public interface StorageService {
 
     Resource loadAsResource(String filename);
 
-    void deleteFilesByPrefix(String prefix);
+    void deleteFilesByPrefix(String prefix, String path);
 }
