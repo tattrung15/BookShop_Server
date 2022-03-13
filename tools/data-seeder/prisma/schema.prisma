@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model banners {
+  id         BigInt    @id @default(autoincrement())
+  created_at DateTime? @db.Timestamp(6)
+  image_url  String?   @db.VarChar(255)
+  is_active  Boolean
+  title      String    @db.VarChar(255)
+  type       Int
+  updated_at DateTime? @db.Timestamp(6)
+}
+
+model categories {
+  id                 BigInt       @id @default(autoincrement())
+  created_at         DateTime?    @db.Timestamp(6)
+  description        String?      @db.VarChar(100000)
+  is_author          Boolean
+  name               String       @db.VarChar(255)
+  slug               String       @db.VarChar(255)
+  updated_at         DateTime?    @db.Timestamp(6)
+  parent_category_id BigInt?
+  categories         categories?  @relation("categoriesTocategories_parent_category_id", fields: [parent_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk9il7y6fehxwunjeepq0n7g5rd")
+  other_categories   categories[] @relation("categoriesTocategories_parent_category_id")
+  products           products[]
+}
+
+model deliveries {
+  id          BigInt        @id @default(autoincrement())
+  created_at  DateTime?     @db.Timestamp(6)
+  index       String        @unique(map: "uk_kyqdkfm9upsgcubxa20o37i18") @db.VarChar(255)
+  updated_at  DateTime?     @db.Timestamp(6)
+  value       String        @db.VarChar(255)
+  sale_orders sale_orders[]
+}
+
+model order_items {
+  id            BigInt       @id @default(autoincrement())
+  created_at    DateTime?    @db.Timestamp(6)
+  quantity      Int
+  updated_at    DateTime?    @db.Timestamp(6)
+  product_id    BigInt?
+  sale_order_id BigInt?
+  products      products?    @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkocimc7dtr037rh4ls4l95nlfi")
+  sale_orders   sale_orders? @relation(fields: [sale_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk617qjnbugdcu19l0ujrmvc0k0")
+
+  @@unique([product_id, sale_order_id], map: "uknrjaeb0gey1e706e2ivn9sygs")
+}
+
+model product_images {
+  id              BigInt    @id @default(autoincrement())
+  created_at      DateTime? @db.Timestamp(6)
+  image_public_id String?   @db.VarChar(255)
+  image_url       String    @db.VarChar(255)
+  updated_at      DateTime? @db.Timestamp(6)
+  product_id      BigInt?
+  products        products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkqnq71xsohugpqwf3c9gxmsuy")
+}
+
+model product_rates {
+  id         BigInt    @id @default(autoincrement())
+  comment    String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+  value      Int
+  product_id BigInt?
+  user_id    BigInt?
+  products   products? @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkghguf5u0jqoeqe644on63rtqi")
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkgaxwtr1nvvmb66in9enivvgax")
+
+  @@unique([user_id, product_id], map: "ukrc0so10gt0yy6hy7xlt1vkyib")
+}
+
+model products {
+  id                 BigInt           @id @default(autoincrement())
+  author             String?          @db.VarChar(255)
+  created_at         DateTime?        @db.Timestamp(6)
+  current_number     Int
+  long_description   String           @db.VarChar(100000)
+  number_of_page     Int
+  price              BigInt
+  quantity_purchased Int?
+  short_description  String?          @db.VarChar(255)
+  slug               String           @db.VarChar(255)
+  title              String           @db.VarChar(255)
+  updated_at         DateTime?        @db.Timestamp(6)
+  category_id        BigInt?
+  categories         categories?      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkog2rp4qthbtt2lfyhfo32lsw9")
+  order_items        order_items[]
+  product_images     product_images[]
+  product_rates      product_rates[]
+}
+
+model sale_orders {
+  id               BigInt        @id @default(autoincrement())
+  created_at       DateTime?     @db.Timestamp(6)
+  customer_address String        @db.VarChar(255)
+  phone            String        @db.VarChar(255)
+  updated_at       DateTime?     @db.Timestamp(6)
+  delivery_id      BigInt?
+  user_id          BigInt?
+  deliveries       deliveries?   @relation(fields: [delivery_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkonw1ulg2n52kvuqry9tx8fqqy")
+  users            users?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk878qlowl178in2cloggfloetw")
+  order_items      order_items[]
+}
+
+model users {
+  id            BigInt          @id @default(autoincrement())
+  address       String          @db.VarChar(255)
+  amount        BigInt
+  created_at    DateTime?       @db.Timestamp(6)
+  email         String          @db.VarChar(255)
+  first_name    String          @db.VarChar(255)
+  last_name     String          @db.VarChar(255)
+  password      String          @db.VarChar(255)
+  phone         String          @db.VarChar(255)
+  role          String          @db.VarChar(255)
+  updated_at    DateTime?       @db.Timestamp(6)
+  username      String          @unique(map: "uk_r43af9ap4edm43mmtq01oddj6") @db.VarChar(255)
+  product_rates product_rates[]
+  sale_orders   sale_orders[]
+}
