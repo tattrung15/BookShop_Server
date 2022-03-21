@@ -7,6 +7,7 @@ public class Common {
 
     public static final Integer FETCH_TYPE_ADMIN = 1;
     public static final Integer FETCH_TYPE_USER = 2;
+    public static final Integer FETCH_TYPE_ALL = 3;
 
     public static final String RESPONSE_MESSAGE_SUCCESS = "Response success";
 

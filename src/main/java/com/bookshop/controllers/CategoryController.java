@@ -65,6 +65,9 @@ public class CategoryController extends BaseController<Category> {
                     getCategoryDTOs.add(getCategoryDTO);
                 }
                 return this.resListSuccess(getCategoryDTOs);
+            } else if (fetchType.equals(Common.FETCH_TYPE_ALL)) {
+                List<Category> categories = categoryService.findAll(specification);
+                return this.resListSuccess(categories);
             }
         }
 
