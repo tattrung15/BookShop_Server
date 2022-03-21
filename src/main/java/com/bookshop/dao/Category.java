@@ -1,7 +1,9 @@
 package com.bookshop.dao;
 
 import com.bookshop.helpers.StringHelper;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,10 +45,11 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "parent_category_id")
-    @JsonIgnore
+    @JsonManagedReference
     private Category parentCategory;
 
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.EAGER)
+    @JsonBackReference
     private Set<Category> linkedCategories;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

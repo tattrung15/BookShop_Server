@@ -6,6 +6,7 @@ import com.bookshop.dao.Category;
 import com.bookshop.dao.Product;
 import com.bookshop.dto.CategoryDTO;
 import com.bookshop.dto.CategoryUpdateDTO;
+import com.bookshop.dto.GetCategoryDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
@@ -16,6 +17,7 @@ import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,11 +26,15 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/categories")
 public class CategoryController extends BaseController<Category> {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     private CategoryService categoryService;
@@ -52,7 +58,13 @@ public class CategoryController extends BaseController<Category> {
             } else if (fetchType.equals(Common.FETCH_TYPE_USER)) {
                 specification.add(new SearchCriteria("parentCategory", null, SearchOperation.NULL));
                 List<Category> categories = categoryService.findAll(specification);
-                return this.resListSuccess(categories);
+                List<GetCategoryDTO> getCategoryDTOs = new ArrayList<>();
+                for (Category category : categories) {
+                    GetCategoryDTO getCategoryDTO = modelMapper.map(category, GetCategoryDTO.class);
+                    getCategoryDTO.setLinkedCategories(category.getLinkedCategories());
+                    getCategoryDTOs.add(getCategoryDTO);
+                }
+                return this.resListSuccess(getCategoryDTOs);
             }
         }
 
@@ -92,7 +104,7 @@ public class CategoryController extends BaseController<Category> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> updateCategory(@RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO,
-                                          @PathVariable("categoryId") Long categoryId) {
+                                            @PathVariable("categoryId") Long categoryId) {
         Category category = categoryService.findById(categoryId);
 
         if (category == null) {
