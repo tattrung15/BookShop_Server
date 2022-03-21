@@ -85,7 +85,7 @@ public class UserController extends BaseController<User> {
         }
 
         if (!user.getSaleOrders().isEmpty()) {
-            throw new AppException("Delete failed");
+            throw new AppException("Cannot delete user");
         }
 
         userService.deleteById(userId);

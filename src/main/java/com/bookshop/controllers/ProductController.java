@@ -106,7 +106,7 @@ public class ProductController extends BaseController<Product> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @SecurityRequirement(name = "Authorization")
     public ResponseEntity<?> updateProduct(@RequestBody @Valid ProductUpdateDTO productUpdateDTO,
-                                         @PathVariable("productId") Long productId) {
+                                           @PathVariable("productId") Long productId) {
         Product product = productService.findById(productId);
 
         if (product == null) {
@@ -136,7 +136,7 @@ public class ProductController extends BaseController<Product> {
         }
 
         if (!product.getProductImages().isEmpty() || !product.getProductRates().isEmpty() || !product.getOrderItems().isEmpty()) {
-            throw new AppException("Delete failed");
+            throw new AppException("Cannot delete product");
         }
 
         productService.deleteById(productId);

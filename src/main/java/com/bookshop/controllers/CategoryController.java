@@ -126,8 +126,12 @@ public class CategoryController extends BaseController<Category> {
             throw new NotFoundException("Not found category");
         }
 
+        if (category.getLinkedCategories().size() != 0) {
+            throw new AppException("Cannot delete category");
+        }
+
         if (!category.getProducts().isEmpty()) {
-            throw new AppException("Delete failed");
+            throw new AppException("Cannot delete category");
         }
 
         categoryService.deleteById(categoryId);
