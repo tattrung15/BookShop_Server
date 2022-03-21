@@ -72,7 +72,7 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
                 throw new NotFoundException("Not found parent category");
             }
 
-            updated.setParentCategory(parentCategory);
+            currentCategory.setParentCategory(parentCategory);
         }
         return categoryRepository.save(currentCategory);
     }
