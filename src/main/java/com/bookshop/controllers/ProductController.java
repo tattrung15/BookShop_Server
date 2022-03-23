@@ -60,6 +60,8 @@ public class ProductController extends BaseController<Product> {
                 specification.buildJoin(new JoinCriteria(SearchOperation.NOT_NULL, "productImages", "id", null, JoinType.LEFT));
             } else if (productType.equals(ProductTypeEnum.NO_IMAGE)) {
                 specification.buildJoin(new JoinCriteria(SearchOperation.NULL, "productImages", "id", null, JoinType.LEFT));
+                List<Product> products = productService.findAll(specification);
+                return this.resListSuccess(products);
             }
         }
 

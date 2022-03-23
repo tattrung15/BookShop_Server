@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl extends BasePagination<Product, ProductRepository> implements ProductService {
 
@@ -30,6 +32,11 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository) {
         super(productRepository);
+    }
+
+    @Override
+    public List<Product> findAll(GenericSpecification<Product> specification) {
+        return productRepository.findAll(specification);
     }
 
     @Override
