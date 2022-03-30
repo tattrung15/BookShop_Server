@@ -5,6 +5,7 @@ import com.bookshop.constants.Common;
 import com.bookshop.dao.Banner;
 import com.bookshop.dto.BannerDTO;
 import com.bookshop.dto.BannerStatusDTO;
+import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.FileHelper;
@@ -31,16 +32,24 @@ public class BannerController extends BaseController<Banner> {
     private BannerService bannerService;
 
     @GetMapping
-    public ResponseEntity<?> getAllBanners(@RequestParam(name = "fetchType", required = false) Integer fetchType,
-                                           HttpServletRequest request) {
+    public ResponseEntity<?> getListBanners(@RequestParam(name = "page", required = false) Integer page,
+                                            @RequestParam(name = "perPage", required = false) Integer perPage,
+                                            @RequestParam(name = "fetchType", required = false) Integer fetchType,
+                                            HttpServletRequest request) {
         GenericSpecification<Banner> specification = new GenericSpecification<Banner>().getBasicQuery(request);
         if (fetchType != null) {
             if (fetchType.equals(Common.FETCH_TYPE_USER)) {
                 specification.add(new SearchCriteria("isActive", true, SearchOperation.EQUAL));
+                List<Banner> banners = bannerService.findAll(specification);
+                return this.resListSuccess(banners);
+            } else if (fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
+                PaginateDTO<Banner> paginateBanners = bannerService.getList(page, perPage, specification);
+                return this.resPagination(paginateBanners);
             }
         }
-        List<Banner> banners = bannerService.findAll(specification);
-        return this.resListSuccess(banners);
+
+        PaginateDTO<Banner> paginateBanners = bannerService.getList(page, perPage, specification);
+        return this.resPagination(paginateBanners);
     }
 
     @PostMapping

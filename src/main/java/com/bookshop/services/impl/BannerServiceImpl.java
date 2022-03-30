@@ -1,8 +1,10 @@
 package com.bookshop.services.impl;
 
+import com.bookshop.base.BasePagination;
 import com.bookshop.constants.Common;
 import com.bookshop.dao.Banner;
 import com.bookshop.dto.BannerDTO;
+import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.helpers.FileHelper;
 import com.bookshop.repositories.BannerRepository;
@@ -17,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public class BannerServiceImpl implements BannerService {
+public class BannerServiceImpl extends BasePagination<Banner, BannerRepository> implements BannerService {
 
     @Autowired
     private ModelMapper mapper;
@@ -27,6 +29,10 @@ public class BannerServiceImpl implements BannerService {
 
     @Autowired
     private BannerRepository bannerRepository;
+
+    public BannerServiceImpl(BannerRepository bannerRepository) {
+        super(bannerRepository);
+    }
 
     @Override
     public List<Banner> findAll(GenericSpecification<Banner> specification) {
@@ -83,5 +89,10 @@ public class BannerServiceImpl implements BannerService {
     public void deleteById(Long bannerId) {
         bannerRepository.deleteById(bannerId);
         storageService.deleteFilesByPrefix(String.valueOf(bannerId), Common.BANNER_IMAGE_UPLOAD_PATH);
+    }
+
+    @Override
+    public PaginateDTO<Banner> getList(Integer page, Integer perPage, GenericSpecification<Banner> specification) {
+        return this.paginate(page, perPage, specification);
     }
 }
