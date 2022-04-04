@@ -83,6 +83,10 @@ public class ProductController extends BaseController<Product> {
             product = productService.findBySlug(id.toString());
         }
 
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
         return this.resSuccess(product);
     }
 
