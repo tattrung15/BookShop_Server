@@ -29,6 +29,7 @@ import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -51,6 +52,7 @@ public class ProductController extends BaseController<Product> {
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "perPage", required = false) Integer perPage,
             @RequestParam(name = "productType", required = false) String productType,
+            @RequestParam(name = "ids", required = false) List<Integer> ids,
             HttpServletRequest request) {
 
         GenericSpecification<Product> specification = new GenericSpecification<Product>().getBasicQuery(request);
@@ -65,6 +67,12 @@ public class ProductController extends BaseController<Product> {
                 List<Product> products = productService.findAll(specification);
                 return this.resListSuccess(products);
             }
+        }
+
+        if (ids != null && ids.size() > 0) {
+            String numberString = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
+            List<Product> products = productService.findByIdsWithOrder(ids, numberString);
+            return this.resListSuccess(products);
         }
 
         PaginateDTO<Product> paginateProducts = productService.getList(page, perPage, specification);

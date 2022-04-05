@@ -45,6 +45,11 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     }
 
     @Override
+    public List<Product> findByIdsWithOrder(List<Integer> whereIds, String positionIds) {
+        return productRepository.findByIdsWithOrder(whereIds, positionIds);
+    }
+
+    @Override
     public Product findBySlug(String slug) {
         return productRepository.findBySlug(StringHelper.toSlug(slug));
     }

@@ -13,6 +13,8 @@ public interface ProductService {
 
     Product findById(Long productId);
 
+    List<Product> findByIdsWithOrder(List<Integer> whereIds, String positionIds);
+
     Product findBySlug(String slug);
 
     Product create(ProductDTO productDTO);
