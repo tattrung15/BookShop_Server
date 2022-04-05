@@ -1,6 +1,7 @@
 package com.bookshop.repositories;
 
 import com.bookshop.dao.Product;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "FROM products " +
             "WHERE id in ?1 " +
             "ORDER BY POSITION(id\\:\\:text in ?2)", nativeQuery = true)
-    List<Product> findByIdsWithOrder(List<Integer> whereIds, String positionIds);
+    List<Product> findByIdsWithOrder(List<Integer> whereIds, String positionIds, Pageable pageable);
 }

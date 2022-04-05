@@ -20,6 +20,7 @@ import com.bookshop.specifications.JoinCriteria;
 import com.bookshop.specifications.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,8 +71,14 @@ public class ProductController extends BaseController<Product> {
         }
 
         if (ids != null && ids.size() > 0) {
+            if (page == null || page <= 0) {
+                page = 1;
+            }
+            if (perPage == null || perPage <= 0) {
+                perPage = Common.PAGING_DEFAULT_LIMIT;
+            }
             String numberString = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
-            List<Product> products = productService.findByIdsWithOrder(ids, numberString);
+            List<Product> products = productService.findByIdsWithOrder(ids, numberString, PageRequest.of(page - 1, perPage));
             return this.resListSuccess(products);
         }
 
