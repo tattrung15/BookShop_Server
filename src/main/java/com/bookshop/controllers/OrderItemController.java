@@ -4,7 +4,6 @@ import com.bookshop.base.BaseController;
 import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.SaleOrder;
-import com.bookshop.dto.OrderItemDTO;
 import com.bookshop.dto.OrderItemUpdateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
@@ -59,7 +58,7 @@ public class OrderItemController extends BaseController<OrderItem> {
         product.setCurrentNumber(updatedCurrentNumber);
         productService.update(product);
 
-        return ResponseEntity.ok().body(orderItem);
+        return this.resSuccess(orderItem);
     }
 
     @DeleteMapping("/{orderItemId}")
