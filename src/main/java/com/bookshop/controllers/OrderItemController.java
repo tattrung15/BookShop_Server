@@ -5,6 +5,7 @@ import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.Product;
 import com.bookshop.dao.SaleOrder;
 import com.bookshop.dto.OrderItemDTO;
+import com.bookshop.dto.OrderItemUpdateDTO;
 import com.bookshop.exceptions.AppException;
 import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.services.OrderItemService;
@@ -37,7 +38,7 @@ public class OrderItemController extends BaseController<OrderItem> {
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> updateQuantity(@PathVariable("orderItemId") Long orderItemId,
-                                            @RequestBody @Valid OrderItemDTO orderItemDTO) {
+                                            @RequestBody @Valid OrderItemUpdateDTO orderItemUpdateDTO) {
         OrderItem orderItem = orderItemService.findById(orderItemId);
         if (orderItem == null) {
             throw new NotFoundException("Not found order item");
@@ -46,13 +47,13 @@ public class OrderItemController extends BaseController<OrderItem> {
         Product product = orderItem.getProduct();
 
         int currentNumber = product.getCurrentNumber() + orderItem.getQuantity();
-        if (currentNumber < orderItemDTO.getQuantity()) {
+        if (currentNumber < orderItemUpdateDTO.getQuantity()) {
             throw new AppException("Not enough quantity");
         }
 
-        Integer updatedCurrentNumber = (product.getCurrentNumber() + orderItem.getQuantity()) - orderItemDTO.getQuantity();
+        Integer updatedCurrentNumber = (product.getCurrentNumber() + orderItem.getQuantity()) - orderItemUpdateDTO.getQuantity();
 
-        orderItem.setQuantity(orderItemDTO.getQuantity());
+        orderItem.setQuantity(orderItemUpdateDTO.getQuantity());
         orderItemService.createOrUpdate(orderItem);
 
         product.setCurrentNumber(updatedCurrentNumber);

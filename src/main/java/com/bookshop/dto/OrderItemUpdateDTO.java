@@ -6,11 +6,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class OrderItemDTO {
-    @NotNull
-    @Min(1)
-    private Long productId;
-
+public class OrderItemUpdateDTO {
     @NotNull
     @Min(1)
     private Integer quantity;
