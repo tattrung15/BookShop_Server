@@ -43,10 +43,7 @@ public class OrderItemController extends BaseController<OrderItem> {
             throw new NotFoundException("Not found order item");
         }
 
-        Product product = productService.findById(orderItemDTO.getProductId());
-        if (product == null) {
-            throw new NotFoundException("Not found product");
-        }
+        Product product = orderItem.getProduct();
 
         int currentNumber = product.getCurrentNumber() + orderItem.getQuantity();
         if (currentNumber < orderItemDTO.getQuantity()) {

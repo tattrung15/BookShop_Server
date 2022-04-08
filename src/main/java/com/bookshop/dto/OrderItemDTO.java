@@ -9,9 +9,5 @@ import javax.validation.constraints.NotNull;
 public class OrderItemDTO {
     @NotNull
     @Min(1)
-    private Long productId;
-
-    @NotNull
-    @Min(1)
     private Integer quantity;
 }
