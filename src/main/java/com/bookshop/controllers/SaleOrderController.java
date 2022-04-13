@@ -95,8 +95,14 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     @PatchMapping("/{saleOrderId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> updateSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
-                                                   @RequestBody @Valid DeliveryDTO deliveryDTO) {
-        SaleOrder saleOrder = saleOrderService.findById(saleOrderId);
+                                                     @RequestBody @Valid DeliveryDTO deliveryDTO) {
+        Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
+
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
+        specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
+
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
 
         if (saleOrder == null) {
             throw new NotFoundException("Not found sale order");
