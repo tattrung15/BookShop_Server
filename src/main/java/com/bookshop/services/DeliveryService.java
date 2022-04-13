@@ -13,6 +13,8 @@ public interface DeliveryService {
 
     Delivery findByAddedToCartState();
 
+    Delivery findByCancelState();
+
     List<Delivery> findAll();
 
     void seedData();

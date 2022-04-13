@@ -102,9 +102,11 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     public ResponseEntity<?> updateSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
                                                      @RequestBody @Valid DeliveryDTO deliveryDTO) {
         Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
+        Delivery deliveryCancel = deliveryService.findByCancelState();
 
         GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
         specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
+        specification.add(new SearchCriteria("delivery", deliveryCancel.getId(), SearchOperation.NOT_EQUAL));
         specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
 
         SaleOrder saleOrder = saleOrderService.findOne(specification);

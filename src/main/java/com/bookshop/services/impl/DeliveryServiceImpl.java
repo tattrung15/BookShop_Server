@@ -38,6 +38,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    public Delivery findByCancelState() {
+        return this.findByIndex(Common.DELIVERY_CANCELED_INDEX);
+    }
+
+    @Override
     public List<Delivery> findAll() {
         return deliveryRepository.findAll();
     }
