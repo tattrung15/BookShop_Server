@@ -49,7 +49,10 @@ public class SaleOrderController extends BaseController<SaleOrder> {
                                                         HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
 
+        Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
+
         GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
+        specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
         specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
@@ -62,8 +65,10 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     public ResponseEntity<?> getListSaleOrdersForAdmin(@RequestParam(name = "page", required = false) Integer page,
                                                        @RequestParam(name = "perPage", required = false) Integer perPage,
                                                        HttpServletRequest request) {
+        Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
 
         GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
+        specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
 
