@@ -1,7 +1,6 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
-import com.bookshop.constants.Common;
 import com.bookshop.dao.*;
 import com.bookshop.dto.DeliveryDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
@@ -164,9 +163,37 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         requestedUser.setAmount(requestedUser.getAmount() - totalAmount);
         userService.update(requestedUser);
 
-        Delivery deliveryWaitingToConfirm = deliveryService.findByIndex(Common.DELIVERY_WAITING_TO_CONFIRM_INDEX);
+        Delivery deliveryWaitingToConfirm = deliveryService.findByWaitingToConfirmState();
 
         saleOrder.setDelivery(deliveryWaitingToConfirm);
+        SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
+
+        return this.resSuccess(newSaleOrder);
+    }
+
+    @DeleteMapping("/{saleOrderId}")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public ResponseEntity<?> cancelSaleOrder(@PathVariable("saleOrderId") Long saleOrderId,
+                                             HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        Delivery deliveryWaitingToConfirm = deliveryService.findByWaitingToConfirmState();
+
+        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", deliveryWaitingToConfirm.getId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("id", saleOrderId, SearchOperation.EQUAL));
+
+        SaleOrder saleOrder = saleOrderService.findOne(specification);
+
+        if (saleOrder == null) {
+            throw new NotFoundException("Not found sale order");
+        }
+
+        Delivery deliveryCancel = deliveryService.findByCancelState();
+
+        saleOrder.setDelivery(deliveryCancel);
+
         SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
 
         return this.resSuccess(newSaleOrder);

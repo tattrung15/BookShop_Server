@@ -13,6 +13,8 @@ public interface DeliveryService {
 
     Delivery findByAddedToCartState();
 
+    Delivery findByWaitingToConfirmState();
+
     Delivery findByCancelState();
 
     List<Delivery> findAll();

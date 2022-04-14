@@ -38,6 +38,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    public Delivery findByWaitingToConfirmState() {
+        return this.findByIndex(Common.DELIVERY_WAITING_TO_CONFIRM_INDEX);
+    }
+
+    @Override
     public Delivery findByCancelState() {
         return this.findByIndex(Common.DELIVERY_CANCELED_INDEX);
     }
