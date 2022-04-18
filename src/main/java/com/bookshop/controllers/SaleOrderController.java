@@ -43,9 +43,11 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @GetMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
-    public ResponseEntity<?> getListSaleOrdersForMember(@RequestParam(name = "page", required = false) Integer page,
-                                                        @RequestParam(name = "perPage", required = false) Integer perPage,
-                                                        HttpServletRequest request) {
+    public ResponseEntity<?> getListSaleOrdersForMember(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "perPage", required = false) Integer perPage,
+            @RequestParam(name = "deliveryIndex", required = false) String deliveryIndex,
+            HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
 
         Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
@@ -53,6 +55,13 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
         specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
         specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
+
+        if (deliveryIndex != null) {
+            Delivery deliverySearch = deliveryService.findByIndex(deliveryIndex);
+            if (deliverySearch != null) {
+                specification.add(new SearchCriteria("delivery", deliverySearch.getId(), SearchOperation.EQUAL));
+            }
+        }
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
 
