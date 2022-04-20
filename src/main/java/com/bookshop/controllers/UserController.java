@@ -3,6 +3,7 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
+import com.bookshop.dto.UserPasswordDTO;
 import com.bookshop.dto.UserUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,9 @@ public class UserController extends BaseController<User> {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
@@ -73,6 +78,23 @@ public class UserController extends BaseController<User> {
         User savedUser = userService.update(userUpdateDTO, user);
 
         return this.resSuccess(savedUser);
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid UserPasswordDTO userPasswordDTO, HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+
+        User user = userService.findByUsername(requestedUser.getUsername());
+
+        if (!passwordEncoder.matches(userPasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new AppException("oldPassword is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(userPasswordDTO.getNewPassword()));
+
+        User updatedUser = userService.update(user);
+
+        return this.resSuccess(updatedUser);
     }
 
     @DeleteMapping("/{userId}")

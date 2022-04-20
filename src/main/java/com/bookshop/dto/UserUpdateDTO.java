@@ -29,8 +29,7 @@ public class UserUpdateDTO {
     private String address;
 
     @NullOrNotEmpty(message = "is invalid")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,}$", message = "is invalid")
-    @Length(max = Common.STRING_LENGTH_LIMIT)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,255}$", message = "is invalid")
     private String password;
 
     private Long amount;

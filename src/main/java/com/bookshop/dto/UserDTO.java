@@ -30,13 +30,12 @@ public class UserDTO {
     private String address;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,}$", message = "password is invalid")
-    @Length(max = Common.STRING_LENGTH_LIMIT)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,255}$", message = "is invalid")
     private String password;
 
     private Long amount;
 
-    @IsIn(value = {RoleEnum.ADMIN, RoleEnum.MEMBER}, message = "role is invalid")
+    @IsIn(value = {RoleEnum.ADMIN, RoleEnum.MEMBER}, message = "is invalid")
     private String role;
 
     @NotBlank
