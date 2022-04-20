@@ -1,5 +1,6 @@
 package com.bookshop;
 
+import com.bookshop.configs.MailInfoProperties;
 import com.bookshop.configs.StorageProperties;
 import com.bookshop.configs.UserInfoProperties;
 import com.bookshop.dao.User;
@@ -18,7 +19,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 @Slf4j
 @SpringBootApplication
-@EnableConfigurationProperties({StorageProperties.class, UserInfoProperties.class})
+@EnableConfigurationProperties({StorageProperties.class, UserInfoProperties.class, MailInfoProperties.class})
 public class BookShopServerApplication {
 
     @Autowired

@@ -32,6 +32,10 @@ jwt:
   secret_key: ${JWT_SECRET}
   time_expiration: 86400000
 
+mail:
+  username: ${MAIL_USERNAME}
+  password: ${MAIL_PASSWORD}
+
 cloudinary:
   url: ${CLOUDINARY_URL}
 
