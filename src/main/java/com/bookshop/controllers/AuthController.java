@@ -29,6 +29,8 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -115,15 +117,19 @@ public class AuthController extends BaseController {
         context.setVariable("userAgent", userAgent);
         context.setVariable("time", time);
         context.setVariable("password", newPassword);
-        try {
-            String html = templateEngine.process("password-changed-email.html", context);
-            mailService.send("Thay đổi mật khẩu", html, "trungnokia1504@gmail.com", true);
+        String html = templateEngine.process("password-changed-email.html", context);
 
-            user.setPassword(passwordEncoder.encode(newPassword));
+        ExecutorService service = Executors.newFixedThreadPool(2);
+        service.submit(() -> {
+            try {
+                mailService.send("Thay đổi mật khẩu", html, user.getEmail(), true);
 
-            userService.update(user);
-        } catch (MessagingException ignored) {
-        }
+                user.setPassword(passwordEncoder.encode(newPassword));
+
+                userService.update(user);
+            } catch (MessagingException ignored) {
+            }
+        });
 
         return this.resSuccess("We have sent a new password to your email address, please check your inbox");
     }
