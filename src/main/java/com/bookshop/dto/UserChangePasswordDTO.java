@@ -8,7 +8,6 @@ import javax.validation.constraints.Pattern;
 @Data
 public class UserChangePasswordDTO {
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&_]{8,255}$", message = "is invalid")
     private String oldPassword;
 
     @NotBlank
