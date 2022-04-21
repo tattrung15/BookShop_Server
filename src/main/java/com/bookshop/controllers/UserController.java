@@ -3,7 +3,7 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.User;
 import com.bookshop.dto.UserDTO;
-import com.bookshop.dto.UserPasswordDTO;
+import com.bookshop.dto.UserChangePasswordDTO;
 import com.bookshop.dto.UserUpdateDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
@@ -81,16 +81,16 @@ public class UserController extends BaseController<User> {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody @Valid UserPasswordDTO userPasswordDTO, HttpServletRequest request) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid UserChangePasswordDTO userChangePasswordDTO, HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
 
         User user = userService.findByUsername(requestedUser.getUsername());
 
-        if (!passwordEncoder.matches(userPasswordDTO.getOldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(userChangePasswordDTO.getOldPassword(), user.getPassword())) {
             throw new AppException("oldPassword is incorrect");
         }
 
-        user.setPassword(passwordEncoder.encode(userPasswordDTO.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(userChangePasswordDTO.getNewPassword()));
 
         User updatedUser = userService.update(user);
 

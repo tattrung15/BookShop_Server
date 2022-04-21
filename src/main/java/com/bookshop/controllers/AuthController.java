@@ -1,11 +1,15 @@
 package com.bookshop.controllers;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.bookshop.base.BaseController;
 import com.bookshop.dao.User;
 import com.bookshop.dto.SignUpDTO;
+import com.bookshop.dto.UserResetPasswordDTO;
 import com.bookshop.exceptions.AppException;
+import com.bookshop.exceptions.NotFoundException;
 import com.bookshop.models.AuthenticationRequest;
 import com.bookshop.models.AuthenticationResponse;
+import com.bookshop.services.MailService;
 import com.bookshop.services.MyUserDetailsService;
 import com.bookshop.services.UserService;
 import com.bookshop.utils.JwtUtil;
@@ -16,16 +20,19 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController extends BaseController<AuthenticationResponse> {
+public class AuthController extends BaseController {
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -37,6 +44,15 @@ public class AuthController extends BaseController<AuthenticationResponse> {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private SpringTemplateEngine templateEngine;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
@@ -82,4 +98,34 @@ public class AuthController extends BaseController<AuthenticationResponse> {
             throw new AppException(e.getMessage());
         }
     }
+
+    @DeleteMapping("/password")
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid UserResetPasswordDTO userResetPasswordDTO, HttpServletRequest request) {
+        User user = userService.findByUsername(userResetPasswordDTO.getUsername());
+
+        if (user == null) {
+            throw new NotFoundException("Not found user with email");
+        }
+
+        String userAgent = request.getHeader("User-Agent");
+        String time = new Date().toString();
+        String newPassword = NanoIdUtils.randomNanoId(NanoIdUtils.DEFAULT_NUMBER_GENERATOR, NanoIdUtils.DEFAULT_ALPHABET, 15);
+
+        Context context = new Context();
+        context.setVariable("userAgent", userAgent);
+        context.setVariable("time", time);
+        context.setVariable("password", newPassword);
+        try {
+            String html = templateEngine.process("password-changed-email.html", context);
+            mailService.send("Thay đổi mật khẩu", html, "trungnokia1504@gmail.com", true);
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+
+            userService.update(user);
+        } catch (MessagingException ignored) {
+        }
+
+        return this.resSuccess("We have sent a new password to your email address, please check your inbox");
+    }
+
 }
