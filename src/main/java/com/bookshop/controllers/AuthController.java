@@ -106,7 +106,7 @@ public class AuthController extends BaseController {
         User user = userService.findByUsername(userResetPasswordDTO.getUsername());
 
         if (user == null) {
-            throw new NotFoundException("Not found user with email");
+            throw new NotFoundException("Not found user with username");
         }
 
         String userAgent = request.getHeader("User-Agent");
