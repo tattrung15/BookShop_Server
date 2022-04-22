@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+  # postgres
+  postgresql:
+    container_name: bookshop-db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - "bookshop-db:/var/lib/postgresql/data"
+  # bookshop-server
+  bookshop-server:
+    container_name: bookshop-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - USER_FIRST_NAME=${USER_FIRST_NAME}
+      - USER_LAST_NAME=${USER_LAST_NAME}
+      - USER_USERNAME=${USER_USERNAME}
+      - USER_PASSWORD=${USER_PASSWORD}
+      - USER_ADDRESS=${USER_ADDRESS}
+      - USER_AMOUNT=${USER_AMOUNT}
+      - USER_ROLE=${USER_ROLE}
+      - USER_EMAIL=${USER_EMAIL}
+      - USER_PHONE=${USER_PHONE}
+    ports:
+      - 8080:8080
+    volumes:
+      - ./.data/upload-dir:/app/upload-dir
+    depends_on:
+      - postgresql
+
+volumes:
+  bookshop-db:

@@ -1,4 +1,6 @@
 upload-dir
+.env
+.data
 
 HELP.md
 .gradle
