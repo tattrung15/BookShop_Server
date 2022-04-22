@@ -1,12 +1,18 @@
 package com.bookshop.dto;
 
 import com.bookshop.dao.Category;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.Set;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class GetCategoryDTO {
     private Long id;
     private String name;

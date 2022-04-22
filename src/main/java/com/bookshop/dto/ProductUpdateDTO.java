@@ -2,12 +2,18 @@ package com.bookshop.dto;
 
 import com.bookshop.constants.Common;
 import com.bookshop.validators.NullOrNotEmpty;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class ProductUpdateDTO {
 
     @NullOrNotEmpty(message = "is invalid")
