@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController extends BaseController {
+public class AuthController extends BaseController<Object> {
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -57,7 +57,7 @@ public class AuthController extends BaseController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authenticationRequest.getUsername(), authenticationRequest.getPassword()));
