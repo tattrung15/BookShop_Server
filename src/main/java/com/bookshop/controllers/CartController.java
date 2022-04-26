@@ -98,9 +98,6 @@ public class CartController extends BaseController<Object> {
                 newOrderItem = orderItemService.createOrUpdate(orderItem);
             }
 
-            product.setCurrentNumber(product.getCurrentNumber() - orderItemDTO.getQuantity());
-            productService.update(product);
-
             return this.resSuccess(newOrderItem);
         }
 
@@ -119,9 +116,6 @@ public class CartController extends BaseController<Object> {
         orderItem.setQuantity(orderItemDTO.getQuantity());
 
         OrderItem newOrderItem = orderItemService.createOrUpdate(orderItem);
-
-        product.setCurrentNumber(product.getCurrentNumber() - orderItemDTO.getQuantity());
-        productService.update(product);
 
         return this.resSuccess(newOrderItem);
     }

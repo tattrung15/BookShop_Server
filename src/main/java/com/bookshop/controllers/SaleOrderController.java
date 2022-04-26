@@ -157,6 +157,13 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
         List<OrderItem> orderItems = saleOrder.getOrderItems();
 
+        for (int i = 0; i < orderItems.size(); i++) {
+            Product product = orderItems.get(i).getProduct();
+            if (product.getCurrentNumber() < orderItems.get(i).getQuantity()) {
+                throw new AppException("Not enough quantity");
+            }
+        }
+
         Long totalAmount = saleOrderService.calculateTotalAmount(orderItems);
 
         if (totalAmount > requestedUser.getAmount()) {
@@ -166,6 +173,7 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         for (int i = 0; i < orderItems.size(); i++) {
             Product product = orderItems.get(i).getProduct();
             product.setQuantityPurchased(product.getQuantityPurchased() + orderItems.get(i).getQuantity());
+            product.setCurrentNumber(product.getCurrentNumber() - orderItems.get(i).getQuantity());
             productService.update(product);
         }
 
