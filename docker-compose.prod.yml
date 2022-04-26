@@ -1,0 +1,101 @@
+version: "3"
+
+services:
+  # traefik
+  traefik:
+    image: traefik:v2.5.3
+    container_name: traefik
+    ports:
+      - "80:80" # <== http
+      - "443:443" # <== https
+      # - "8080:8080" # <== :8080 is where the dashboard runs on
+    command:
+      # - --log.level=DEBUG # <== Enable log for debug
+      ## Enable dashboard
+      - --api.dashboard=true
+      ## Docker configuration
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=app-network
+      - --providers.file.filename=/dynamic.yaml
+      ## Entrypoints configuration
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      ## SSL configuration (Let's Encrypt)
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      - --certificatesresolvers.myresolver.acme.email=trungnokia1504@gmail.com
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      # - --certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory # <== Staging Environment for Dev
+    volumes:
+      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dynamic.yaml:/dynamic.yaml
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`monitor.trungbt.me`)" # <== Setting the domain for the dashboard
+      - "traefik.http.routers.api.service=api@internal"
+  # postgres
+  postgresql:
+    container_name: bookshop-db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - "bookshop-db:/var/lib/postgresql/data"
+    networks:
+      - app-network
+  # bookshop-server
+  bookshop-server:
+    container_name: bookshop-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - USER_FIRST_NAME=${USER_FIRST_NAME}
+      - USER_LAST_NAME=${USER_LAST_NAME}
+      - USER_USERNAME=${USER_USERNAME}
+      - USER_PASSWORD=${USER_PASSWORD}
+      - USER_ADDRESS=${USER_ADDRESS}
+      - USER_AMOUNT=${USER_AMOUNT}
+      - USER_ROLE=${USER_ROLE}
+      - USER_EMAIL=${USER_EMAIL}
+      - USER_PHONE=${USER_PHONE}
+    ports:
+      - 8080:8080
+    volumes:
+      - ./.data/upload-dir:/app/upload-dir
+    depends_on:
+      - postgresql
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bookshop_server.rule=Host(`api-bookshop.trungbt.me`)" # <== Setting the domain for the api server
+      - "traefik.http.routers.bookshop_server.entrypoints=web"
+      - "traefik.http.routers.bookshop_server.middlewares=redirect@file"
+      - "traefik.http.routers.bookshop_server-secured.rule=Host(`api-bookshop.trungbt.me`)" # <== Setting the domain for the api server
+      - "traefik.http.routers.bookshop_server-secured.entrypoints=websecure"
+      - "traefik.http.routers.bookshop_server-secured.tls.certresolver=myresolver"
+      - "traefik.http.services.bookshop_server.loadbalancer.server.port=8080"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  bookshop-db:
