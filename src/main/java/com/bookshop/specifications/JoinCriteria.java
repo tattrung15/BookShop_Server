@@ -1,6 +1,5 @@
 package com.bookshop.specifications;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
