@@ -12,4 +12,6 @@ public enum SearchOperation {
     NULL,
     NOT_NULL,
     IN,
+    FROM_DATE,
+    TO_DATE,
 }

@@ -9,6 +9,8 @@ public class Common {
     public static final Integer FETCH_TYPE_USER = 2;
     public static final Integer FETCH_TYPE_ALL = 3;
 
+    public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
     public static final String RESPONSE_MESSAGE_SUCCESS = "Response success";
 
     public static final String PRODUCT_IMAGE_UPLOAD_PATH = "/product-images";

@@ -76,6 +76,8 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     public ResponseEntity<?> getListSaleOrdersForAdmin(@RequestParam(name = "page", required = false) Integer page,
                                                        @RequestParam(name = "perPage", required = false) Integer perPage,
                                                        @RequestParam(name = "fetchType", required = false) Integer fetchType,
+                                                       @RequestParam(name = "fromDate", required = false) String fromDate,
+                                                       @RequestParam(name = "toDate", required = false) String toDate,
                                                        HttpServletRequest request) {
         Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
 
@@ -85,6 +87,15 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         if (fetchType != null && fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
             Delivery deliveryDelivered = deliveryService.findByDeliveredState();
             specification.add(new SearchCriteria("delivery", deliveryDelivered.getId(), SearchOperation.EQUAL));
+        }
+
+        if (fromDate != null && toDate == null) {
+            specification.add(new SearchCriteria("orderedAt", fromDate, SearchOperation.FROM_DATE));
+        } else if (fromDate == null && toDate != null) {
+            specification.add(new SearchCriteria("orderedAt", toDate, SearchOperation.TO_DATE));
+        } else if (fromDate != null) {
+            specification.add(new SearchCriteria("orderedAt", fromDate, SearchOperation.FROM_DATE));
+            specification.add(new SearchCriteria("orderedAt", toDate, SearchOperation.TO_DATE));
         }
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);

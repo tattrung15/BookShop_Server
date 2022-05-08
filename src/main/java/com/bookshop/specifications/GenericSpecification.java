@@ -1,15 +1,15 @@
 package com.bookshop.specifications;
 
+import com.bookshop.constants.Common;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class GenericSpecification<T> implements Specification<T> {
 
@@ -167,6 +167,20 @@ public class GenericSpecification<T> implements Specification<T> {
                     }
                 }
                 predicates.add(builderIn);
+            } else if (criteria.getOperation().equals(SearchOperation.FROM_DATE)) {
+                try {
+                    String dateString = criteria.getValue().toString() + " 00:00:00.000";
+                    SimpleDateFormat df = new SimpleDateFormat(Common.DEFAULT_DATETIME_FORMAT);
+                    predicates.add(builder.greaterThanOrEqualTo(root.get(criteria.getKey()), df.parse(dateString)));
+                } catch (ParseException ignored) {
+                }
+            } else if (criteria.getOperation().equals(SearchOperation.TO_DATE)) {
+                try {
+                    String dateString = criteria.getValue().toString() + " 23:59:59.999";
+                    SimpleDateFormat df = new SimpleDateFormat(Common.DEFAULT_DATETIME_FORMAT);
+                    predicates.add(builder.lessThanOrEqualTo(root.get(criteria.getKey()), df.parse(dateString)));
+                } catch (ParseException ignored) {
+                }
             }
         }
 
