@@ -43,6 +43,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
+    public Delivery findByDeliveredState() {
+        return this.findByIndex(Common.DELIVERY_DELIVERED_INDEX);
+    }
+
+    @Override
     public Delivery findByCancelState() {
         return this.findByIndex(Common.DELIVERY_CANCELED_INDEX);
     }

@@ -83,8 +83,8 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
 
         if (fetchType != null && fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
-            Delivery deliveryCanceled = deliveryService.findByCancelState();
-            specification.add(new SearchCriteria("delivery", deliveryCanceled.getId(), SearchOperation.NOT_EQUAL));
+            Delivery deliveryDelivered = deliveryService.findByDeliveredState();
+            specification.add(new SearchCriteria("delivery", deliveryDelivered.getId(), SearchOperation.EQUAL));
         }
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);

@@ -15,6 +15,8 @@ public interface DeliveryService {
 
     Delivery findByWaitingToConfirmState();
 
+    Delivery findByDeliveredState();
+
     Delivery findByCancelState();
 
     List<Delivery> findAll();
