@@ -1,6 +1,7 @@
 package com.bookshop.controllers;
 
 import com.bookshop.base.BaseController;
+import com.bookshop.constants.Common;
 import com.bookshop.dao.*;
 import com.bookshop.dto.DeliveryDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -72,11 +75,17 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> getListSaleOrdersForAdmin(@RequestParam(name = "page", required = false) Integer page,
                                                        @RequestParam(name = "perPage", required = false) Integer perPage,
+                                                       @RequestParam(name = "fetchType", required = false) Integer fetchType,
                                                        HttpServletRequest request) {
         Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
 
         GenericSpecification<SaleOrder> specification = new GenericSpecification<SaleOrder>().getBasicQuery(request);
         specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
+
+        if (fetchType != null && fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
+            Delivery deliveryCanceled = deliveryService.findByCancelState();
+            specification.add(new SearchCriteria("delivery", deliveryCanceled.getId(), SearchOperation.NOT_EQUAL));
+        }
 
         PaginateDTO<SaleOrder> paginateSaleOrders = saleOrderService.getList(page, perPage, specification);
 
@@ -183,6 +192,7 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         Delivery deliveryWaitingToConfirm = deliveryService.findByWaitingToConfirmState();
 
         saleOrder.setDelivery(deliveryWaitingToConfirm);
+        saleOrder.setOrderedAt(new Timestamp(new Date().getTime()));
         SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
 
         return this.resSuccess(newSaleOrder);

@@ -50,4 +50,6 @@ public class SaleOrder {
 
     @UpdateTimestamp
     private Timestamp updatedAt;
+
+    private Timestamp orderedAt;
 }
