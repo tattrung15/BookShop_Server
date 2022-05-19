@@ -17,7 +17,6 @@ import com.bookshop.specifications.GenericSpecification;
 import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,9 +31,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/categories")
 public class CategoryController extends BaseController<Category> {
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Autowired
     private CategoryService categoryService;
@@ -60,8 +56,15 @@ public class CategoryController extends BaseController<Category> {
                 List<Category> categories = categoryService.findAll(specification);
                 List<GetCategoryDTO> getCategoryDTOs = new ArrayList<>();
                 for (Category category : categories) {
-                    GetCategoryDTO getCategoryDTO = modelMapper.map(category, GetCategoryDTO.class);
+                    GetCategoryDTO getCategoryDTO = new GetCategoryDTO();
+                    getCategoryDTO.setId(category.getId());
+                    getCategoryDTO.setName(category.getName());
+                    getCategoryDTO.setDescription(category.getDescription());
+                    getCategoryDTO.setSlug(category.getSlug());
+                    getCategoryDTO.setIsAuthor(category.getIsAuthor());
                     getCategoryDTO.setLinkedCategories(category.getLinkedCategories());
+                    getCategoryDTO.setCreatedAt(category.getCreatedAt());
+                    getCategoryDTO.setUpdatedAt(category.getUpdatedAt());
                     getCategoryDTOs.add(getCategoryDTO);
                 }
                 return this.resListSuccess(getCategoryDTOs);

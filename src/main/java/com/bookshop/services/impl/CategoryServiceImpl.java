@@ -73,6 +73,8 @@ public class CategoryServiceImpl extends BasePagination<Category, CategoryReposi
             }
 
             currentCategory.setParentCategory(parentCategory);
+        } else {
+            currentCategory.setParentCategory(null);
         }
         return categoryRepository.save(currentCategory);
     }
