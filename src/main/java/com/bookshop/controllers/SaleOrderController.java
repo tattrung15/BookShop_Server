@@ -127,6 +127,7 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @PatchMapping("/{saleOrderId}")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> updateSaleOrderDelivery(@PathVariable("saleOrderId") Long saleOrderId,
                                                      @RequestBody @Valid DeliveryDTO deliveryDTO) {
         Delivery deliveryAddedToCart = deliveryService.findByAddedToCartState();
@@ -151,6 +152,16 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
         saleOrder.setDelivery(delivery);
         SaleOrder savedSaleOrder = saleOrderService.update(saleOrder);
+
+        if (delivery.getIndex().equals(Common.DELIVERY_CANCELED_INDEX)) {
+            List<OrderItem> orderItems = saleOrder.getOrderItems();
+
+            for (OrderItem orderItem : orderItems) {
+                Product product = orderItem.getProduct();
+                product.setCurrentNumber(product.getCurrentNumber() + orderItem.getQuantity());
+                productService.update(product);
+            }
+        }
 
         return this.resSuccess(savedSaleOrder);
     }
@@ -211,6 +222,7 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @DeleteMapping("/{saleOrderId}")
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> cancelSaleOrder(@PathVariable("saleOrderId") Long saleOrderId,
                                              HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
@@ -231,6 +243,14 @@ public class SaleOrderController extends BaseController<SaleOrder> {
         Delivery deliveryCancel = deliveryService.findByCancelState();
 
         saleOrder.setDelivery(deliveryCancel);
+
+        List<OrderItem> orderItems = saleOrder.getOrderItems();
+
+        for (OrderItem orderItem : orderItems) {
+            Product product = orderItem.getProduct();
+            product.setCurrentNumber(product.getCurrentNumber() + orderItem.getQuantity());
+            productService.update(product);
+        }
 
         SaleOrder newSaleOrder = saleOrderService.update(saleOrder);
 
