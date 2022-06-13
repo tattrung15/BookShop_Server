@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.5'
+    id 'org.springframework.boot' version '2.7.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
@@ -19,15 +19,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.5.5'
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.5.5'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.5.5'
-    implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
-    implementation 'org.springframework.boot:spring-boot-starter-mail:2.5.5'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:2.5.5'
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    runtimeOnly 'org.postgresql:postgresql:42.2.24.jre7'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-security:2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:2.7.0'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    runtimeOnly 'org.postgresql:postgresql:42.3.6'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
